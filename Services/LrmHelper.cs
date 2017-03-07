@@ -24,12 +24,7 @@ namespace ImgLocation.Services
 
         public Person GetPersonFromLrmx(string lrmxPath)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(Person));
-            if (!System.IO.File.Exists(lrmxPath))
-            {
-                throw new ArgumentNullException(lrmxPath + " is not Exists");
-            }
-            else
+            if (File.Exists(lrmxPath))
             {
                 using (StreamReader reader = new StreamReader(lrmxPath))
                 {
@@ -37,13 +32,13 @@ namespace ImgLocation.Services
                     Person p = (Person)xs.Deserialize(reader);
                     p.ChuShengNianYue = this.AddDot(p.ChuShengNianYue);
                     p.RuDangShiJian = this.AddDot(p.RuDangShiJian);
-                    p.CanJiaGongZuoShiJian= this.AddDot(p.CanJiaGongZuoShiJian);
+                    p.CanJiaGongZuoShiJian = this.AddDot(p.CanJiaGongZuoShiJian);
                     p.JiSuanNianLingShiJian = this.AddDot(p.JiSuanNianLingShiJian);
-                    foreach(Item i in p.JiaTingChengYuan)
+                    foreach (Item i in p.JiaTingChengYuan)
                     {
                         i.ChuShengRiQi = this.AddDot(i.ChuShengRiQi);
                     }
-                    if((p.ZhaoPian+"").Trim().Length>0)
+                    if ((p.ZhaoPian + "").Trim().Length > 0)
                     {
                         byte[] b = Convert.FromBase64String(p.ZhaoPian);//转化为byte[]  
                         using (MemoryStream sm = new MemoryStream())
@@ -54,10 +49,14 @@ namespace ImgLocation.Services
                     }
                     else
                     {
-                        throw new ArgumentNullException(p.XingMing+"'s ZhaoPian is not Exists");
+                        throw new ArgumentNullException(p.XingMing + "'s ZhaoPian is not Exists");
                     }
                     return p;
                 }
+            }
+            else
+            {
+                throw new ArgumentNullException(lrmxPath + " is not Exists");
             }
         }
 

@@ -9,51 +9,77 @@ namespace ImgLocation.Models
 {
     public class GB
     {
+        private int _LrmImageCount;
+        private int _ResImageCount;
+        private int _OtherImageCount;
+
         public string id { get; set; }
         public string DWID { get; set; }
-        //public string DIID { get; set; } //原DIID
         public string XM { get; set; }
-        public string Lrm_Guid { get; set; }   //原LRMUUID字段，用来识别文件推送
-        public string Res_Guid { get; set; }   //原RESUUID考察材料的推送识别id
-        public string Other_Guid { get; set; }   //新增字段 其他文件的推送识别id
+        public string Lrm_Guid { get; set; }  
+        public string Res_Guid { get; set; }  
+        public string Other_Guid { get; set; }  
 
-        public int Rank { get; set; }   //原SX
+        public int Rank { get; set; }
 
-        public string LrmImageFilename { get; set; }   //原SPB  任免表相对路径文件名 SPBSL=1时可直接获取到文件 >1时需要转换
-        public int LrmImageCount { get; set; }    //元SPBSL 任免审批表数量
-
-        public string ResImageFilename { get; set; }  //原KCCL 考察材料相对路径文件名 SPBSL=1时可直接获取到文件 >1时需要转换
-        public int ResImageCount { get; set; }   //原KCCLSL 考察材料数量
-
-        public string OtherImageFilename { get; set; } //新增字段
-        public int OtherImageCount { get; set; } //新增字段
-
-        //public double S { get; set; }  //废弃字段
-        //public double E { get; set; }  //废弃字段
-
-
-        public int DocumentImagePageNumber { get; set; }     //原DIP
-        public string DocumentImageFilename { get; set; }    //原DIIP
-
-        public double TouchStartPointY { get; set; } //原DIS
-        public double TouchEndPointY { get; set; } //原DIE
-        public double TouchStartPointX { get; set; } //原DIHS
-        public double TouchEndPointX { get; set; } //原DIHE
-
-        public double TouchStartPointY2 { get; set; } //原DIS2
-        public double TouchEndPointY2 { get; set; } //原DIE2
-        public double TouchStartPointX2 { get; set; } //原DIHS2
-        public double TouchEndPointX2 { get; set; } //原DIHE2
-
-        public string Local_SourceLrmFullpath { get; set; } //原SOURCELRM
-        public string Local_SourcePicFullpath { get; set; } //原SOURCEPIC
-        public string Local_SourceResFullpath { get; set; } //原SOURCERES
-        public string Local_SourceOtherFullpath { get; set; } //新增字段
+        public string LrmImageFilename { get; set; }
+        public int LrmImageCount
+        {
+            get
+            {
+                return this._LrmImageCount;
+            }
+            set
+            {
+                this._LrmImageCount = LrmImageCount;
+            }
+        }
 
 
+        public string ResImageFilename { get; set; }  
+        public int ResImageCount
+        {
+            get
+            {
+                return this._ResImageCount;
+            }
+            set
+            {
+                this._ResImageCount = ResImageCount;
+            }
+        }
 
-        //后面均为非存储字段
-        //20170216 后述字段应该只保留getter属性，不再存储
+        public string OtherImageFilename { get; set; } 
+        public int OtherImageCount
+        {
+            get
+            {
+                return this._OtherImageCount;
+            }
+            set
+            {
+                this._OtherImageCount = OtherImageCount;
+            }
+        }
+
+        public int DocumentImagePageNumber { get; set; }    
+        public string DocumentImageFilename { get; set; } 
+
+        public double TouchStartPointY { get; set; }
+        public double TouchEndPointY { get; set; }
+        public double TouchStartPointX { get; set; } 
+        public double TouchEndPointX { get; set; } 
+
+        public double TouchStartPointY2 { get; set; }
+        public double TouchEndPointY2 { get; set; }
+        public double TouchStartPointX2 { get; set; }
+        public double TouchEndPointX2 { get; set; }
+
+        public string Local_SourceLrmFullpath { get; set; } 
+        public string Local_SourcePicFullpath { get; set; }
+        public string Local_SourceResFullpath { get; set; } 
+        public string Local_SourceOtherFullpath { get; set; }
+
         public string Local_StorgeLrmFullpath
         {
             get
@@ -72,7 +98,7 @@ namespace ImgLocation.Models
         {
             get
             {
-                return Global.ProjectResDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + "同志的考察材料" + Path.GetExtension(Local_SourceResFullpath);
+                return Global.ProjectResDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + "的考察材料" + Path.GetExtension(Local_SourceResFullpath);
             }
         }
         public string Local_StorgeOtherFullpath
@@ -86,7 +112,7 @@ namespace ImgLocation.Models
         public string Local_StorgeDocumentWordFullpath
         {
             get { return Global.ProjectTempWordDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + ".docx"; }
-        }  //整理后干呈件存放位置
+        } 
 
         public string Local_StorgeLrmPdfFullpath
         {
@@ -99,7 +125,7 @@ namespace ImgLocation.Models
         {
             get
             {
-                return Global.ProjectTempPDFDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + "同志的考察材料.pdf";
+                return Global.ProjectTempPDFDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + "的考察材料.pdf";
             }
         }
         public string Local_StorgeOtherPdfFullpath
@@ -110,11 +136,6 @@ namespace ImgLocation.Models
             }
         }
 
-
-        //public string LRMIMG { get; set; } //废弃字段 本地lrm图像存放位置
-        //public string RESIMG { get; set; }  //废弃字段 本地任免表存放位置
-
-
         /// <summary>
         /// 非存储字段
         /// 所有的Lrm图像的存放位置
@@ -124,28 +145,10 @@ namespace ImgLocation.Models
             get
             {
                 List<string> ImageFilePaths = new List<string>();
-                //if (this.LrmImageCount <= 0)
-                //{
-                //    return null;
-                //}
-                //else if (this.LrmImageCount == 1)
-                //{
-                //    ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, this.LrmImageFilename));
-                //    return ImageFilePaths;
-                //}
-                //else
-                //{
-                //    string FilenameWithExtension = Path.GetFileNameWithoutExtension(Path.Combine(Global.ProjectOutputImgDirectory, this.LrmImageFilename));
-                //    for (int i = 0; i < LrmImageCount; i++)
-                //    {
-                //        ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, string.Format("{0}_{1}.{2}", FilenameWithExtension,i, Global.ImgFormat.ToString().ToLower())));
-                //    }
-                //    return ImageFilePaths;
-                //}
-                if (this.LrmImageCount > 0)
+                if (this._LrmImageCount > 0)
                 {
                     string FilenameWithExtension = Path.GetFileNameWithoutExtension(Path.Combine(Global.ProjectOutputImgDirectory, this.LrmImageFilename));
-                    for (int i = 0; i < LrmImageCount; i++)
+                    for (int i = 0; i < _LrmImageCount; i++)
                     {
                         ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, string.Format("{0}_{1}.{2}", FilenameWithExtension, i, Global.ImgFormat.ToString().ToLower())));
                     }
@@ -163,29 +166,10 @@ namespace ImgLocation.Models
             get
             {
                 List<string> ImageFilePaths = new List<string>();
-                //if (this.ResImageCount <= 0)
-                //{
-                //    return null;
-                //}
-                //else if (this.ResImageCount == 1)
-                //{
-                //    ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, this.ResImageFilename));
-                //    return ImageFilePaths;
-                //}
-                //else
-                //{
-                //    string FilenameWithExtension = Path.GetFileNameWithoutExtension(Path.Combine(Global.ProjectOutputImgDirectory, this.ResImageFilename));
-                //    for (int i = 0; i < ResImageCount; i++)
-                //    {
-                //        ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, string.Format("{0}_{1}.{2}", FilenameWithExtension, i,Global.ImgFormat.ToString().ToLower())));
-                //    }
-                //    return ImageFilePaths;
-                //}
-
-                if (this.ResImageCount >0)
+                if (this._ResImageCount >0)
                 {
                     string FilenameWithExtension = Path.GetFileNameWithoutExtension(Path.Combine(Global.ProjectOutputImgDirectory, this.ResImageFilename));
-                    for (int i = 0; i < ResImageCount; i++)
+                    for (int i = 0; i < _ResImageCount; i++)
                     {
                         ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, string.Format("{0}_{1}.{2}", FilenameWithExtension, i, Global.ImgFormat.ToString().ToLower())));
                     }
@@ -203,28 +187,10 @@ namespace ImgLocation.Models
             get
             {
                 List<string> ImageFilePaths = new List<string>();
-                //if (this.OtherImageCount <= 0)
-                //{
-                //    return null;
-                //}
-                //else if (this.OtherImageCount == 1)
-                //{
-                //    ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, this.OtherImageFilename));
-                //    return ImageFilePaths;
-                //}
-                //else
-                //{
-                //    string FilenameWithExtension = Path.GetFileNameWithoutExtension(Path.Combine(Global.ProjectOutputImgDirectory, this.OtherImageFilename));
-                //    for (int i = 0; i < OtherImageCount; i++)
-                //    {
-                //        ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, string.Format("{0}_{1}.{2}", FilenameWithExtension, i,Global.ImgFormat.ToString().ToLower())));
-                //    }
-                //    return ImageFilePaths;
-                //}
-                if (this.OtherImageCount > 0)
+                if (this._OtherImageCount > 0)
                 {
                     string FilenameWithExtension = Path.GetFileNameWithoutExtension(Path.Combine(Global.ProjectOutputImgDirectory, this.OtherImageFilename));
-                    for (int i = 0; i < OtherImageCount; i++)
+                    for (int i = 0; i < _OtherImageCount; i++)
                     {
                         ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, string.Format("{0}_{1}.{2}", FilenameWithExtension, i, Global.ImgFormat.ToString().ToLower())));
                     }
@@ -238,15 +204,15 @@ namespace ImgLocation.Models
             get
             {
                 List<string> ImageFilePaths = new List<string>();
-                if(this.LrmImageCount>0)
+                if(this._LrmImageCount>0)
                 {
                     ImageFilePaths = ImageFilePaths.Union(this.LrmImageFileFullPaths).ToList();
                 }
-                if(this.ResImageCount>0)
+                if(this._ResImageCount>0)
                 {
                     ImageFilePaths = ImageFilePaths.Union(this.ResImageFileFullPaths).ToList();
                 }
-                if (this.OtherImageCount > 0)
+                if (this._OtherImageCount > 0)
                 {
                     ImageFilePaths = ImageFilePaths.Union(this.OtherImageFileFullPaths).ToList();
                 }
