@@ -18,13 +18,31 @@ namespace ImgLocation.Models
 
         public int Rank { get; set; }
 
-        public string LrmImageFilename { get; set; }
+        public string LrmImageFilename
+        {
+            get
+            {
+                return string.Format("{0}_01_{1}.{2}", XM, Lrm_Guid, Global.ImgFormat.ToString().ToLower());
+            }
+        }
         public int LrmImageCount { get; set; }
 
-        public string ResImageFilename { get; set; }  
+        public string ResImageFilename
+        {
+            get
+            {
+                return string.Format("{0}_02_{1}.{2}", XM, Res_Guid, Global.ImgFormat.ToString().ToLower());
+            }
+        }
         public int ResImageCount { get; set; }
 
-        public string OtherImageFilename { get; set; } 
+        public string OtherImageFilename
+        {
+            get
+            {
+                return string.Format("{0}_03_{1}.{2}", XM, Res_Guid, Global.ImgFormat.ToString().ToLower());
+            }
+        }
         public int OtherImageCount { get; set; }
 
         public int DocumentImagePageNumber { get; set; }    

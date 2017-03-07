@@ -22,6 +22,10 @@ namespace ImgLocation.Services
         public string FileExtension;
         public string FileFullname;
     }
+
+    /// <summary>
+    /// 负责与源文件目录内的文件进行交互操作
+    /// </summary>
     public class ConvertHelper
     {
         public ConvertHelper()
@@ -36,7 +40,6 @@ namespace ImgLocation.Services
         }
 
 
-        //内部方法
         void GetAllFileInformatons()
         {
             if (Directory.Exists(SourceLrmDirectory) && Directory.Exists(SourceResDirectory))
@@ -105,6 +108,7 @@ namespace ImgLocation.Services
             SystemRepository sr = new SystemRepository();
             sr.EditProject(p);
         }
+
         public bool RelationIsAlive(string duty)
         {
             List<string> deadlist = new List<string>();
@@ -130,7 +134,6 @@ namespace ImgLocation.Services
             int nowWidth = (int)(bm.Width * times);
             int nowHeight = (int)(bm.Height * times);
             Bitmap new_Bitmap = new Bitmap(nowWidth, nowHeight);//新建一个放大后大小的图片
-
             
                 Graphics g = Graphics.FromImage(new_Bitmap);
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -138,7 +141,6 @@ namespace ImgLocation.Services
                 g.CompositingQuality = CompositingQuality.HighQuality;
                 g.DrawImage(bm, new Rectangle(0, 0, nowWidth, nowHeight), new Rectangle(0, 0, bm.Width, bm.Height), GraphicsUnit.Pixel);
                 g.Dispose();
-            
 
             new_Bitmap.Save(ofile);
             bm.Dispose();

@@ -426,184 +426,179 @@ namespace ImgLocation
                 LogRecord(string.Format("[正在读取文档]{0}", d.Local_SourceDocumnetFullpath));
                 //try
                 //{
-                //DW对象必须指定source属性
-                if ((d.Local_SourceDocumnetFullpath + "").Trim().Length > 0)
-                {
-                    LogRecord(string.Format("[正在转换文档]{0}:识别文档中的干部姓名，另存为PDF文件。", Path.GetFileName(d.Local_SourceDocumnetFullpath)));
-                    //转换成PDF，需要调整函数，明确是否需要识别文档中的干部
-                    //是否有必要使用内部方法？取消内部方法，直接使用代码
-                    //d = ConvertDocumentToSaveAsPDF(d);
-                    using (WordHelper wordHelper = new WordHelper(d.Local_SourceDocumnetFullpath, Global.IsShowWord))
+                    //DW对象必须指定source属性
+                    if ((d.Local_SourceDocumnetFullpath + "").Trim().Length > 0)
                     {
-                        Word._Document oDoc = wordHelper.oDoc;
-                        Word._Application oWord = wordHelper.oWordApplication;
-                        Word.Selection oSelection = wordHelper.oWordApplication.Selection;//定义光标移动的参数对象
-
-                        object oUnitParagraph = Word.WdUnits.wdParagraph;
-                        object oUnitLine = Word.WdUnits.wdLine;
-                        object oUnitCharacter = Word.WdUnits.wdCharacter;
-                        object oCountN = 0;
-                        object oCount1 = 1;
-                        object oCount = 1;
-                        object oExtend = Word.WdMovementType.wdExtend;//移动并选择
-                        object oExtendNone = Type.Missing;            //只移动不选择
-
-                        int iParagraphCount = wordHelper.oDoc.Paragraphs.Count;
-
-                        //提取文号
-                        int iPara = 1;
-                        while (((d.WH + "").Trim().Contains("根据文件内容自动") || (d.WH + "").Trim().Length == 0) && iParagraphCount >= iPara)
+                        LogRecord(string.Format("[正在转换文档]{0}:识别文档中的干部姓名，另存为PDF文件。", Path.GetFileName(d.Local_SourceDocumnetFullpath)));
+                        //转换成PDF，需要调整函数，明确是否需要识别文档中的干部
+                        //是否有必要使用内部方法？取消内部方法，直接使用代码
+                        //d = ConvertDocumentToSaveAsPDF(d);
+                        using (WordHelper wordHelper = new WordHelper(d.Local_SourceDocumnetFullpath, Global.IsShowWord))
                         {
-                            string strPara = wordHelper.oDoc.Paragraphs[iPara].Range.Text
-                                   .Replace("【", "〔").Replace("﹝", "〔").Replace("[", "〔")
-                                   .Replace("】", "〕").Replace("﹞", "〕").Replace("]", "〕");
-                            if (strPara.Contains("〔") && strPara.Contains("〕") && strPara.Contains("号"))
+                            Word._Document oDoc = wordHelper.oDoc;
+                            Word._Application oWord = wordHelper.oWordApplication;
+                            Word.Selection oSelection = wordHelper.oWordApplication.Selection;//定义光标移动的参数对象
+
+                            object oUnitParagraph = Word.WdUnits.wdParagraph;
+                            object oUnitLine = Word.WdUnits.wdLine;
+                            object oUnitCharacter = Word.WdUnits.wdCharacter;
+                            object oCountN = 0;
+                            object oCount1 = 1;
+                            object oCount = 1;
+                            object oExtend = Word.WdMovementType.wdExtend;//移动并选择
+                            object oExtendNone = Type.Missing;            //只移动不选择
+
+                            int iParagraphCount = wordHelper.oDoc.Paragraphs.Count;
+
+                            //提取文号
+                            int iPara = 1;
+                            while (((d.WH + "").Trim().Contains("根据文件内容自动") || (d.WH + "").Trim().Length == 0) && iParagraphCount >= iPara)
                             {
-                                d.WH = strPara.Replace(" ", "").Replace("　", "")
-                                    .Replace("\r", "").Replace("\n", "").Replace("\v", "").Replace("\f", "").Replace("\t", "");
-                            }
-                            iPara++;
-                        }
-
-                        //提取文件名称
-                        string strMC = "";
-                        for (int i = 1; i <= iParagraphCount; i++)
-                        {
-                            if (wordHelper.oDoc.Paragraphs[i].Range.Font.Name.Contains("小标宋")/*&& WordHelper.oDoc.Paragraphs[i].Range.Font.Size == 20*/)   //如果无法将字体限定到20磅此处不要使用
-                            {
-                                strMC += wordHelper.oDoc.Paragraphs[i].Range.Text
-                                    .Replace(" ", "").Replace("　", "").Replace("\r", "").Replace("\n", "")
-                                    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
-                            }
-                        }
-                        d.MC = strMC;
-
-
-                        //截取过长的文件标题名称作为存储路径
-                        if (d.MC.Length > 20)
-                        {
-                            d.DocumentImageFilename = (d.MC.Substring(0, 20) + d.id.ToString() + "." + Global.ImgFormat.ToString().ToLower());
-                        }
-                        else
-                        {
-                            d.DocumentImageFilename = (d.MC + d.id.ToString() + "." + Global.ImgFormat.ToString().ToLower());
-                        }
-
-                        d.DocumentImageFilename = d.DocumentImageFilename.Replace(" ", "").Replace("　", "")
-                                .Replace("\r", "").Replace("\n", "")
-                                .Replace("\v", "").Replace("\f", "").Replace("\t", "");
-
-                        //另存在存储路径
-                        wordHelper.SaveDocumentAs(d.Local_StorgeDocumentFullpath, false);
-
-                        //在文档末端 添加切白分割线
-                        //极其特殊情况下 切白边分给线可能会添加到新页中，注意识别
-                        //移到文章最末末端
-                        oDoc.Paragraphs[wordHelper.oDoc.Paragraphs.Count].Range.Select();
-                        //获取原页面总数
-                        int orignPageCount = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
-
-                        oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
-                        oDoc.Paragraphs.Add();
-                        oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
-                        oDoc.Paragraphs.Add();
-                        oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
-                        Word.Range r = oSelection.Range;
-                        oDoc.Tables.Add(r, 1, 1);
-                        Word.Table t = oDoc.Tables[oDoc.Tables.Count];
-
-                        //识别分割线调到新页面上，并撤销操作
-                        t.Select();
-                        if(orignPageCount!= oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber))
-                        {
-                            //撤销添加段落
-                            oDoc.Tables[oDoc.Tables.Count].Delete();
-                            oDoc.Paragraphs[oDoc.Paragraphs.Count].Range.Delete();
-                            oDoc.Paragraphs[oDoc.Paragraphs.Count].Range.Delete();
-                        }
-                        else
-                        {
-                            t.Select();
-                            t.Borders.InsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
-                            t.Borders.OutsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
-                            t.Shading.BackgroundPatternColor = Word.WdColor.wdColorGreen;
-                            t.Shading.ForegroundPatternColor = Word.WdColor.wdColorGreen;
-                        }
-
-                        //保存更改
-                        wordHelper.SaveDocument(false);
-
-                        //获取文档总页数
-                        wordHelper.oDoc.Paragraphs[wordHelper.oDoc.Paragraphs.Count].Range.Select();
-                        oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
-                        d.DocumentImageCount = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
-
-                        //根据IsLocationCadre判断是否获取干部姓名所在点位
-                        if (IsLocationCadre)
-                        {
-                            ///TODO 需要根据条件确定是否识别干部点位
-                            ///识别指定页面的干部信息
-                            ///为了识别指定页面的干部信息，获取文档干部点位时 不应当直接给d.GBS赋值，应当通过中转变量
-
-                            //添加干部信息 通过中间变量 完成后 移除所有指定页的干部信息 注意iCadreCount的起始值 cadreid应当和pagenumber相关联
-                            //d.GBS = new List<GB>();
-
-                            //移除指定页面的GB信息
-                            if (convertPageIndexes.Count > 0)
-                            {
-                                List<GB> removeGB = d.GBS.Where(gb => convertPageIndexes.Contains(gb.DocumentImagePageNumber - 1)).ToList();
-                                foreach (GB rgb in removeGB)
+                                string strPara = wordHelper.oDoc.Paragraphs[iPara].Range.Text
+                                       .Replace("【", "〔").Replace("﹝", "〔").Replace("[", "〔")
+                                       .Replace("】", "〕").Replace("﹞", "〕").Replace("]", "〕");
+                                if (strPara.Contains("〔") && strPara.Contains("〕") && strPara.Contains("号"))
                                 {
-                                    d.GBS.Remove(rgb);
+                                    d.WH = strPara.Replace(" ", "").Replace("　", "")
+                                        .Replace("\r", "").Replace("\n", "").Replace("\v", "").Replace("\f", "").Replace("\t", "");
                                 }
+                                iPara++;
                             }
 
-                            List<GB> GBsFromDocumentPage = new List<GB>();
-                            int iCadreCount = 0;//干部计数
+                            //提取文件名称
+                            string strMC = "";
                             for (int i = 1; i <= iParagraphCount; i++)
                             {
-                                wordHelper.oDoc.Paragraphs[i].Range.Select();
-                                string content = wordHelper.oDoc.Paragraphs[i].Range.Text;
-
-                                if (oSelection.Range.Font.Name == "")    //只有存在多种字体 才可能存在姓名
+                                if (wordHelper.oDoc.Paragraphs[i].Range.Font.Name.Contains("小标宋")/*&& WordHelper.oDoc.Paragraphs[i].Range.Font.Size == 20*/)   //如果无法将字体限定到20磅此处不要使用
                                 {
-                                    oSelection.MoveUp(ref oUnitParagraph, ref oCount, ref oExtendNone);//光标移至该段段首
-                                    oCount1 = 1;
-
-                                    //获取当前光标位置与页面左端的宽度 单位英寸
-                                    double oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-                                    //获取当前光标位置与页面左端的宽度 单位英寸
-                                    double oParagraphHorizontalEnd = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-
-                                    //获取当前段落的起始位置与页面顶端的高度 单位英寸
-                                    double oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-                                    //获取当前段落的结束位置与页面顶端的高度 单位英寸
-                                    double oParagraphEnd = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-
-                                    int oPageStart = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
-                                    int oPageEnd = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
+                                    strMC += wordHelper.oDoc.Paragraphs[i].Range.Text
+                                        .Replace(" ", "").Replace("　", "").Replace("\r", "").Replace("\n", "")
+                                        .Replace("\v", "").Replace("\f", "").Replace("\t", "");
+                                }
+                            }
+                            d.MC = strMC;
 
 
-                                    if (Global.SearchModel == "全文查找")
+                            //截取过长的文件标题名称作为存储路径
+                            if (d.MC.Length > 20)
+                            {
+                                d.DocumentImageFilename = (d.MC.Substring(0, 20) + d.id.ToString() + "." + Global.ImgFormat.ToString().ToLower());
+                            }
+                            else
+                            {
+                                d.DocumentImageFilename = (d.MC + d.id.ToString() + "." + Global.ImgFormat.ToString().ToLower());
+                            }
+
+                            d.DocumentImageFilename = d.DocumentImageFilename.Replace(" ", "").Replace("　", "")
+                                    .Replace("\r", "").Replace("\n", "")
+                                    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
+
+                            //另存在存储路径
+                            wordHelper.SaveDocumentAs(d.Local_StorgeDocumentFullpath, false);
+
+                            //在文档末端 添加切白分割线
+                            //极其特殊情况下 切白边分给线可能会添加到新页中，注意识别
+                            //移到文章最末末端
+                            oDoc.Paragraphs[wordHelper.oDoc.Paragraphs.Count].Range.Select();
+                            //获取原页面总数
+                            int orignPageCount = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
+
+                            oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
+                            oDoc.Paragraphs.Add();
+                            oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
+                            oDoc.Paragraphs.Add();
+                            oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
+                            Word.Range r = oSelection.Range;
+                            oDoc.Tables.Add(r, 1, 1);
+                            Word.Table t = oDoc.Tables[oDoc.Tables.Count];
+
+                            //识别分割线调到新页面上，并撤销操作
+                            t.Select();
+                            if (orignPageCount != oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber))
+                            {
+                                //撤销添加段落
+                                oDoc.Tables[oDoc.Tables.Count].Delete();
+                                oDoc.Paragraphs[oDoc.Paragraphs.Count].Range.Delete();
+                                oDoc.Paragraphs[oDoc.Paragraphs.Count].Range.Delete();
+                            }
+                            else
+                            {
+                                t.Select();
+                                t.Borders.InsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
+                                t.Borders.OutsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
+                                t.Shading.BackgroundPatternColor = Word.WdColor.wdColorGreen;
+                                t.Shading.ForegroundPatternColor = Word.WdColor.wdColorGreen;
+                            }
+
+                            //保存更改
+                            wordHelper.SaveDocument(false);
+
+                            //获取文档总页数
+                            wordHelper.oDoc.Paragraphs[wordHelper.oDoc.Paragraphs.Count].Range.Select();
+                            oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
+                            d.DocumentImageCount = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
+
+                            //根据IsLocationCadre判断是否获取干部姓名所在点位
+                            if (IsLocationCadre)
+                            {
+                                ///TODO 需要根据条件确定是否识别干部点位
+                                ///识别指定页面的干部信息
+                                ///为了识别指定页面的干部信息，获取文档干部点位时 不应当直接给d.GBS赋值，应当通过中转变量
+
+                                //添加干部信息 通过中间变量 完成后 移除所有指定页的干部信息 注意iCadreCount的起始值 cadreid应当和pagenumber相关联
+                                //d.GBS = new List<GB>();
+
+                                //移除指定页面的GB信息
+                                if (convertPageIndexes.Count > 0)
+                                {
+                                    List<GB> removeGB = d.GBS.Where(gb => convertPageIndexes.Contains(gb.DocumentImagePageNumber - 1)).ToList();
+                                    foreach (GB rgb in removeGB)
                                     {
-                                        #region 逐字判断是否为黑体 获取人名
-                                        //两种查找模式的判断条件实际上并不一致
+                                        d.GBS.Remove(rgb);
+                                    }
+                                }
+
+                                List<GB> GBsFromDocumentPage = new List<GB>();
+                                int iCadreCount = 0;//干部计数
+                                for (int i = 1; i <= iParagraphCount; i++)
+                                {
+                                    wordHelper.oDoc.Paragraphs[i].Range.Select();
+                                    string content = wordHelper.oDoc.Paragraphs[i].Range.Text;
+
+                                    if (oSelection.Range.Font.Name == "")    //只有存在多种字体 才可能存在姓名
+                                    {
+                                        oSelection.MoveUp(ref oUnitParagraph, ref oCount, ref oExtendNone);//光标移至该段段首
+                                        oCount1 = 1;
+
+                                        //获取当前光标位置与页面左端的宽度 单位英寸
+                                        double oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
+                                        //获取当前光标位置与页面左端的宽度 单位英寸
+                                        double oParagraphHorizontalEnd = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
+
+                                        //获取当前段落的起始位置与页面顶端的高度 单位英寸
+                                        double oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
+                                        //获取当前段落的结束位置与页面顶端的高度 单位英寸
+                                        double oParagraphEnd = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
+
+                                        int oPageStart = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
+                                        int oPageEnd = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
+
+                                        //查找干部姓名
                                         if (convertPageIndexes.Count == 0  //情况一：全部重新定义干部位置
                                             || (convertPageIndexes.Count > 0 && convertPageIndexes.Contains(oPageStart - 1))//情况二：识别指定页面的干部信息
                                             || (convertPageIndexes.Count > 0 && convertPageIndexes.Contains(oPageEnd - 1))//情况三：识别指定页面的干部信息
                                             )
                                         {
-
                                             #region 新思路全文查找干部姓名
                                             string rangeText = wordHelper.oDoc.Paragraphs[i].Range.Text;
 
-                                            if (AllLrmPersons.Any(lp => rangeText.Contains(lp.XingMing) 
-                                                || (lp.XingMing.Length==2 && rangeText.Contains(lp.XingMing.Substring(0,1)+"  "+lp.XingMing.Substring(1,1)))
+                                            if (AllLrmPersons.Any(lp => rangeText.Contains(lp.XingMing)
+                                                || (lp.XingMing.Length == 2 && rangeText.Contains(lp.XingMing.Substring(0, 1) + "  " + lp.XingMing.Substring(1, 1)))
                                                 || (lp.XingMing.Length == 2 && rangeText.Contains(lp.XingMing.Substring(0, 1) + "　" + lp.XingMing.Substring(1, 1)))
                                                 ))
                                             {
                                                 List<int> allindexinp = new List<int>();
-                                                foreach (PersonWithFile pwf in AllLrmPersons.Where(lp => rangeText.Contains(lp.XingMing) 
+                                                foreach (PersonWithFile pwf in AllLrmPersons.Where(lp => rangeText.Contains(lp.XingMing)
                                                     || (lp.XingMing.Length == 2 && rangeText.Contains(lp.XingMing.Substring(0, 1) + "  " + lp.XingMing.Substring(1, 1)))
                                                     || (lp.XingMing.Length == 2 && rangeText.Contains(lp.XingMing.Substring(0, 1) + "　" + lp.XingMing.Substring(1, 1)))
                                                     ).AsEnumerable())
@@ -627,8 +622,8 @@ namespace ImgLocation
                                                     oCount = index_end;
                                                     oSelection.MoveRight(ref oUnitCharacter, ref oCount, ref oExtendNone);//光标移至该干部名字后方
                                                     oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtend);//选中一个字
-                                                    if(oSelection.Range.Font.Name!="黑体" 
-                                                        || (oSelection.Range.Font.Name == "黑体"&&(oSelection.Range.Text.Contains("、")|| oSelection.Range.Text.Contains("（")|| oSelection.Range.Text.Contains("\r") || oSelection.Range.Text.Contains("\n"))))
+                                                    if (oSelection.Range.Font.Name != "黑体"
+                                                        || (oSelection.Range.Font.Name == "黑体" && (oSelection.Range.Text.Contains("、") || oSelection.Range.Text.Contains("（") || oSelection.Range.Text.Contains("\r") || oSelection.Range.Text.Contains("\n"))))
                                                     {
                                                         oSelection.MoveLeft(ref oUnitCharacter, ref oCount1, ref oExtendNone);//向左移动一个字符 不选中，到干部姓名后
                                                         oCount = XM.Length;
@@ -641,72 +636,66 @@ namespace ImgLocation
                                                         //在部分获取的模式下 只有当当前干部在页面范围内 才继续识别
                                                         //所以要进行进一步判断，当前干部名称是否所在页为替换页面 
                                                         if (convertPageIndexes.Count == 0  //情况一：全部重新定义干部位置
-                                                            ||( (convertPageIndexes.Count > 0 && convertPageIndexes.Contains(oPageStart - 1))//情况二：识别指定页面的干部信息
+                                                            || ((convertPageIndexes.Count > 0 && convertPageIndexes.Contains(oPageStart - 1))//情况二：识别指定页面的干部信息
                                                             && (convertPageIndexes.Count > 0 && convertPageIndexes.Contains(oPageEnd - 1)))//情况三：识别指定页面的干部信息
                                                             )
                                                         {
-                                                            if(!allindexinp.Contains(index_start))
+                                                            if (!allindexinp.Contains(index_start))
                                                             {
 
-                                                            allindexinp.Add(index_start);
-                                                            iCadreCount++;
-                                                            oSelection.Range.Font.ColorIndex = Word.WdColorIndex.wdDarkBlue;
-                                                            oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtendNone);
-                                                            
-                                                            GB g = new GB();
-                                                            g.id = string.Format("{0}_{1:000000}", d.id, oPageStart * 1000 + iCadreCount);
-                                                            g.DWID = d.id;
-                                                            g.XM = pwf.XingMing;
-                                                            g.DocumentImagePageNumber = oPageStart;//干部姓名所在干呈件的页码
-                                                            g.DocumentImageFilename = d.DocumentImageFileFullPaths[g.DocumentImagePageNumber - 1];
-                                                            g.Rank = d.Rank * 1000000 + oPageStart * 1000 + iCadreCount;
+                                                                allindexinp.Add(index_start);
+                                                                iCadreCount++;
+                                                                oSelection.Range.Font.ColorIndex = Word.WdColorIndex.wdDarkBlue;
+                                                                oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtendNone);
 
-                                                            //g.DIID = string.Format("{0}_{1:0000}", d.id, oPageStart);//干部姓名所在 干呈件图像的id
-                                                            //g.S = (oPageStart - 1 + oParagraphStart) / iPageCount;
-                                                            //g.E = (oPageEnd - 1 + oParagraphEnd) / iPageCount;
-                                                            //20170221 此属性应当通过DIID获取
-                                                            //g.DocumentImageFilename = Path.GetFileNameWithoutExtension(d.IMG) + "_" + oPageStart.ToString() + Path.GetExtension(d.IMG);
-                                                            //d.DIS.First(di => di.id == g.DIID).DDI;
+                                                                GB g = new GB();
+                                                                g.id = string.Format("{0}_{1:000000}", d.id, oPageStart * 1000 + iCadreCount);
+                                                                g.DWID = d.id;
+                                                                g.XM = pwf.XingMing;
+                                                                g.DocumentImagePageNumber = oPageStart;//干部姓名所在干呈件的页码
+                                                                g.DocumentImageFilename = d.DocumentImageFileFullPaths[g.DocumentImagePageNumber - 1];
+                                                                g.Rank = d.Rank * 1000000 + oPageStart * 1000 + iCadreCount;
 
-                                                            g.TouchStartPointY = oParagraphStart;
-                                                            g.TouchEndPointY = oParagraphStart + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2)) > 1 ? 1 : oParagraphStart + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2));
+                                                                g.TouchStartPointY = oParagraphStart;
+                                                                g.TouchEndPointY = oParagraphStart + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2)) > 1 ? 1 : oParagraphStart + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2));
 
-                                                            g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
-                                                            g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
-                                                            g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
+                                                                /////这段代码有意义么？ 无意义，后面后重新赋值。
+                                                                //g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
+                                                                //g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
+                                                                //g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
 
-                                                            //获取当前光标位置与页面左端的宽度 单位英寸
-                                                            oParagraphHorizontalEnd = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-                                                            //获取当前段落的结束位置与页面顶端的高度 单位英寸
-                                                            oParagraphEnd = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-                                                            g.TouchStartPointX = oParagraphHorizontalStart;
-                                                            g.TouchEndPointX = oParagraphHorizontalEnd;
+                                                                //获取当前光标位置与页面左端的宽度 单位英寸
+                                                                oParagraphHorizontalEnd = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
+                                                                //获取当前段落的结束位置与页面顶端的高度 单位英寸
+                                                                oParagraphEnd = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
+                                                                g.TouchStartPointX = oParagraphHorizontalStart;
+                                                                g.TouchEndPointX = oParagraphHorizontalEnd;
 
-                                                            if (g.TouchEndPointX < g.TouchStartPointX)
-                                                            {
-                                                                g.TouchEndPointX = 0.9524;
+                                                                if (g.TouchEndPointX < g.TouchStartPointX)
+                                                                {
+                                                                    g.TouchEndPointX = 0.9524;
 
-                                                                ///TODO 需要DDIP2 和 DDID2 解决名字跨页断行的问题
-                                                                g.TouchStartPointY2 = g.TouchEndPointY;
-                                                                g.TouchEndPointY2 = g.TouchEndPointY + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2));
-                                                                //g.DIHS2 = 0.047535945;
-                                                                g.TouchStartPointX2 = 0.035;
-                                                                g.TouchEndPointX2 = oParagraphHorizontalEnd;
-                                                            }
-                                                            else
-                                                            {
-                                                                g.TouchStartPointY2 = 0;
-                                                                g.TouchEndPointY2 = 0;
-                                                                g.TouchStartPointX2 = 0;
-                                                                g.TouchEndPointX2 = 0;
-                                                            }
+                                                                    ///TODO 需要DDIP2 和 DDID2 解决名字跨页断行的问题
+                                                                    g.TouchStartPointY2 = g.TouchEndPointY;
+                                                                    g.TouchEndPointY2 = g.TouchEndPointY + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2));
+                                                                    //g.DIHS2 = 0.047535945;
+                                                                    g.TouchStartPointX2 = 0.035;
+                                                                    g.TouchEndPointX2 = oParagraphHorizontalEnd;
+                                                                }
+                                                                else
+                                                                {
+                                                                    g.TouchStartPointY2 = 0;
+                                                                    g.TouchEndPointY2 = 0;
+                                                                    g.TouchStartPointX2 = 0;
+                                                                    g.TouchEndPointX2 = 0;
+                                                                }
 
-                                                            GBsFromDocumentPage.Add(g);
+                                                                GBsFromDocumentPage.Add(g);
 
-                                                            //重新获取当前光标位置与页面左端的宽度 单位英寸
-                                                            oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-                                                            //重新获取当前段落的起始位置与页面顶端的高度 单位英寸
-                                                            oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
+                                                                //重新获取当前光标位置与页面左端的宽度 单位英寸
+                                                                oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
+                                                                //重新获取当前段落的起始位置与页面顶端的高度 单位英寸
+                                                                oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
                                                             }
                                                         }
 
@@ -714,284 +703,110 @@ namespace ImgLocation
                                                     oCount = 1;
                                                 }
                                             }
-
-                                            #endregion
-
-
-
-                                            #region 原逐字判断模式
-                                            //for (int m = 0; m < content.Length; m++)
-                                            //{
-                                            //    //每段文字逐字判断
-                                            //    oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtend);//光标向右移动一个字符，并选中
-                                            //    if (oSelection.Range.Font.Name == "黑体" && !oSelection.Range.Text.Contains("、")
-                                            //        && !oSelection.Range.Text.Contains("（") && !oSelection.Range.Text.Contains("(")
-                                            //        && !oSelection.Range.Text.Contains("\r") && !oSelection.Range.Text.Contains("\n"))
-                                            //    {
-                                            //        //oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtend);//光标向右移动一个字符，并选中
-                                            //    }
-                                            //    else if ((oSelection.Range.Font.Name == "" /*&& (oSelection.Range.Text.Contains("（") || oSelection.Range.Text.Contains("("))*/)
-                                            //        || (oSelection.Range.Font.Name == "黑体" && oSelection.Range.Text.Contains("、") && oSelection.Range.Text.Length > 1))
-                                            //    {
-                                            //        oSelection.MoveLeft(ref oUnitCharacter, ref oCount1, ref oExtend);//光标向左移动一个字符，并选中
-                                            //        string XM = oSelection.Range.Text.Replace(" ", "").Replace("　", "").Replace("、", "").Replace("，", "").Replace("。", "").Replace("；", "").Replace("！", "");
-                                            //        if (convertHelper.JudgeStringHasLrm(XM))
-                                            //        {
-                                            //            //为了矫正跨页段落的页码不正确，重新获取段落的起始和终止页面
-                                            //            oPageStart = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
-                                            //            oPageEnd = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
-
-                                            //            //在部分获取的模式下 只有当当前干部在页面范围内 才继续识别
-                                            //            //所以要进行进一步判断，当前干部名称是否所在页为替换页面 
-                                            //            if (convertPageIndexes.Count == 0  //情况一：全部重新定义干部位置
-                                            //                || (convertPageIndexes.Count > 0 && convertPageIndexes.Contains(oPageStart - 1))//情况二：识别指定页面的干部信息
-                                            //                && (convertPageIndexes.Count > 0 && convertPageIndexes.Contains(oPageEnd - 1))//情况三：识别指定页面的干部信息
-                                            //                )
-                                            //            {
-                                            //                iCadreCount++;
-                                            //                oSelection.Range.Font.ColorIndex = Word.WdColorIndex.wdDarkBlue;
-                                            //                oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtendNone);
-
-                                            //                GB g = new GB();
-                                            //                g.id = string.Format("{0}_{1:000000}", d.id, oPageStart * 1000 + iCadreCount);
-                                            //                g.DWID = d.id;
-                                            //                g.XM = XM;
-                                            //                g.DocumentImagePageNumber = oPageStart;//干部姓名所在干呈件的页码
-                                            //                g.DocumentImageFilename = d.DocumentImageFileFullPaths[g.DocumentImagePageNumber - 1];
-                                            //                g.Rank = d.Rank * 1000000 + oPageStart * 1000 + iCadreCount;
-
-                                            //                //g.DIID = string.Format("{0}_{1:0000}", d.id, oPageStart);//干部姓名所在 干呈件图像的id
-                                            //                //g.S = (oPageStart - 1 + oParagraphStart) / iPageCount;
-                                            //                //g.E = (oPageEnd - 1 + oParagraphEnd) / iPageCount;
-                                            //                //20170221 此属性应当通过DIID获取
-                                            //                //g.DocumentImageFilename = Path.GetFileNameWithoutExtension(d.IMG) + "_" + oPageStart.ToString() + Path.GetExtension(d.IMG);
-                                            //                //d.DIS.First(di => di.id == g.DIID).DDI;
-
-                                            //                g.TouchStartPointY = oParagraphStart;
-                                            //                g.TouchEndPointY = oParagraphStart + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2)) > 1 ? 1 : oParagraphStart + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2));
-
-                                            //                g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
-                                            //                g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
-                                            //                g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
-
-                                            //                //获取当前光标位置与页面左端的宽度 单位英寸
-                                            //                oParagraphHorizontalEnd = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-                                            //                //获取当前段落的结束位置与页面顶端的高度 单位英寸
-                                            //                oParagraphEnd = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-                                            //                g.TouchStartPointX = oParagraphHorizontalStart;
-                                            //                g.TouchEndPointX = oParagraphHorizontalEnd;
-
-                                            //                if (g.TouchEndPointX < g.TouchStartPointX)
-                                            //                {
-                                            //                    g.TouchEndPointX = 0.9524;
-
-                                            //                    ///TODO 需要DDIP2 和 DDID2 解决名字跨页断行的问题
-                                            //                    g.TouchStartPointY2 = g.TouchEndPointY;
-                                            //                    g.TouchEndPointY2 = g.TouchEndPointY + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2));
-                                            //                    //g.DIHS2 = 0.047535945;
-                                            //                    g.TouchStartPointX2 = 0.035;
-                                            //                    g.TouchEndPointX2 = oParagraphHorizontalEnd;
-                                            //                }
-                                            //                else
-                                            //                {
-                                            //                    g.TouchStartPointY2 = 0;
-                                            //                    g.TouchEndPointY2 = 0;
-                                            //                    g.TouchStartPointX2 = 0;
-                                            //                    g.TouchEndPointX2 = 0;
-                                            //                }
-
-                                            //                GBsFromDocumentPage.Add(g);
-
-                                            //                //重新获取当前光标位置与页面左端的宽度 单位英寸
-                                            //                oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-                                            //                //重新获取当前段落的起始位置与页面顶端的高度 单位英寸
-                                            //                oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-                                            //            }
-                                            //        }
-                                            //        else
-                                            //        {
-                                            //            oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtendNone);
-                                            //            //重新获取当前光标位置与页面左端的宽度 单位英寸
-                                            //            oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-                                            //            //重新获取当前段落的起始位置与页面顶端的高度 单位英寸
-                                            //            oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-                                            //        }
-                                            //    }
-                                            //    else
-                                            //    {
-                                            //        oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtendNone);
-                                            //        //重新获取当前光标位置与页面左端的宽度 单位英寸
-                                            //        oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-                                            //        //重新获取当前段落的起始位置与页面顶端的高度 单位英寸
-                                            //        oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-                                            //    }
-                                            //}
-
                                             #endregion
                                         }
-                                        #endregion
-                                    }
-                                    else
-                                    {
-                                        #region 根据黑体判断，只提取前面的人名
-                                        if (convertPageIndexes.Count == 0  //情况一：全部重新定义干部位置
-                                            || (convertPageIndexes.Count > 0 && convertPageIndexes.Contains(oPageStart - 1)))//情况二：识别指定页面的干部信息
-                                        {
-                                            int l = (content + "").Length < 10 ? content.Length : 10;
-                                            for (int j = 0; j < l; j++)
-                                            {
-                                                if (j == 0 || oSelection.Range.Font.Name == "黑体")
-                                                {
-                                                    oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtend);//再光标向右移动一个字符，并选中
-                                                }
-                                                else if ((oSelection.Range.Text + "").Length > 0 && (oSelection.Range.Font.Name + "" == ""))//此时已经判断可能是个人名，但是可能包含多个人名
-                                                {
-                                                    break;
-                                                }
-                                            }
-
-                                            oSelection.MoveLeft(ref oUnitCharacter, ref oCount1, ref oExtend);
-                                            string isname = (oSelection.Text + "").Replace(" ", "").Replace("　", "").Replace("、", "").Replace("，", "").Replace(",", "");
-                                            if (convertHelper.JudgeStringHasLrm(isname))
-                                            {
-                                                string XM = isname;
-                                                oSelection.Range.Font.ColorIndex = Word.WdColorIndex.wdDarkBlue;
-                                                //获取当前段落的起始位置与页面顶端的高度 单位英寸
-                                                oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-                                                oPageStart = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
-                                                //获取当前段落的结束位置与页面顶端的高度 单位英寸
-                                                oSelection.MoveDown(ref oUnitLine, ref oCount, ref oExtendNone);
-                                                oParagraphEnd = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-                                                oPageEnd = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
-                                                iCadreCount++;
-                                                GB g = new GB();
-                                                g.id = string.Format("{0}_{1:000000}", d.id, oPageStart * 1000 + iCadreCount);
-                                                g.DWID = d.id;
-                                                g.XM = XM;
-                                                g.DocumentImagePageNumber = oPageStart;//干部姓名所在干呈件的页码
-                                                g.DocumentImageFilename = d.DocumentImageFileFullPaths[g.DocumentImagePageNumber - 1];
-                                                g.Rank = d.Rank * 1000000 + oPageStart * 1000 + iCadreCount;
-
-                                                //g.S = (oPageStart - 1 + oParagraphStart) / iPageCount;
-                                                //g.E = (oPageEnd - 1 + oParagraphEnd) / iPageCount;
-                                                //d. Path.GetFileNameWithoutExtension(d.IMG) + "_" + oPageStart.ToString() + Path.GetExtension(d.IMG);
-                                                //g.DIID = string.Format("{0}_{1:0000}", d.id, oPageStart);
-
-                                                g.TouchStartPointY = oParagraphStart;
-                                                g.TouchEndPointY = oParagraphStart + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2)) > 1 ? 1 : oParagraphStart + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2));
-                                                g.TouchStartPointX = 0.118091498;
-                                                g.TouchEndPointX = 0.224339876;
-                                                g.TouchStartPointY2 = 0;
-                                                g.TouchEndPointY2 = 0;
-                                                g.TouchStartPointX2 = 0;
-                                                g.TouchEndPointX2 = 0;
-
-                                                g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
-                                                g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
-                                                g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
-
-                                                GBsFromDocumentPage.Add(g);
-                                            }
-                                        }
-                                        #endregion
                                     }
                                 }
+                                //根据转换类型 更新或者重新为d.GBS赋值
+                                if (convertPageIndexes.Count == 0)
+                                {
+                                    d.GBS = GBsFromDocumentPage;
+                                }
+                                else
+                                {
+                                    d.GBS.AddRange(GBsFromDocumentPage);
+                                }
                             }
-                            //根据转换类型 更新或者重新为d.GBS赋值
+                            wordHelper.SaveDocumentAsPDF(d.Local_StorgeDocumentPdfFullpath);
+
+                            // ۩ 这是一个墓碑，纪念曾经困扰我们多年的RPC错误；
+                            //去死吧RPC错误
+                            //File.Copy(d.SOURCE, , true);
+                        }
+                        LogRecord(string.Format("[正在转换文档]{0}：识别文档中的干部姓名，另存为PDF文件（已完成）。", Path.GetFileName(d.Local_SourceDocumnetFullpath)));
+                        ConvertProcess.Value = ConvertProcess.Value + 25;
+
+                        //判断文号重复
+                        ///TODO 文号重复的识别机制需要更新
+                        DWInfo dwi = new DWInfo();
+                        dwi.i = DWInfoes.Count();
+                        dwi.Filename = Path.GetFileName(d.Local_SourceDocumnetFullpath);
+                        dwi.WH = d.WH;
+                        if (DWInfoes.Any(s => s.WH == dwi.WH))
+                        {
+                            foreach (DWInfo sdwi in DWInfoes.Where(s => s.WH == dwi.WH).AsEnumerable())
+                            {
+                                ShowMessage(string.Format("[发现文号重复的文档]“{0}”和“{1}”的文号都为：{2}", dwi.Filename, sdwi.Filename, dwi.WH), MessageType.Warnning);
+                            }
+                        }
+                        DWInfoes.Add(dwi);
+
+                        LogRecord(string.Format("[正在转换文档]{0}：将文档转换成图片并进行裁剪。", Path.GetFileName(d.Local_SourceDocumnetFullpath)));
+                        List<Bitmap> DocumentPageImages = ConvertXPSToBitmapList(d.Local_StorgeDocumentPdfFullpath, convertPageIndexes);
+                        for (int i = DocumentPageImages.Count > 1 ? DocumentPageImages.Count - 2 : 0; i < DocumentPageImages.Count; i++)
+                        {
+                            //切除文档底部白边 只判断最后两页
+                            DocumentPageImages[i] = CutBottomBlankPart(DocumentPageImages[i]);
+                            //using (Bitmap ImageAfterCutBottomBlank = DocumentPageImages[i])
+                            //{
+                            //    DocumentPageImages[i] = CutImage(ImageAfterCutBottomBlank, 22);
+                            //    ImageAfterCutBottomBlank.Save(d.DocumentImageFileFullPaths[i]);
+                            //    ImageAfterCutBottomBlank.Dispose();
+                            //    GC.Collect();
+                            //}
+                        }
+
+                        for (int i = 0; i < DocumentPageImages.Count; i++)
+                        {
                             if (convertPageIndexes.Count == 0)
                             {
-                                d.GBS = GBsFromDocumentPage;
+                                DocumentPageImages[i].Save(d.DocumentImageFileFullPaths[i]);
                             }
                             else
                             {
-                                d.GBS.AddRange(GBsFromDocumentPage);
+                                DocumentPageImages[i].Save(d.DocumentImageFileFullPaths[convertPageIndexes[i]]);
                             }
                         }
-                        wordHelper.SaveDocumentAsPDF(d.Local_StorgeDocumentPdfFullpath);
 
-                        // ۩ 这是一个墓碑，纪念曾经困扰我们多年的RPC错误；
-                        //去死吧RPC错误
-                        //File.Copy(d.SOURCE, , true);
-                    }
-                    LogRecord(string.Format("[正在转换文档]{0}：识别文档中的干部姓名，另存为PDF文件（已完成）。", Path.GetFileName(d.Local_SourceDocumnetFullpath)));
-                    ConvertProcess.Value = ConvertProcess.Value + 25;
+                        DocumentPageImages.Clear();
+                        GC.Collect();
 
-                    //判断文号重复
-                    ///TODO 文号重复的识别机制需要更新
-                    DWInfo dwi = new DWInfo();
-                    dwi.i = DWInfoes.Count();
-                    dwi.Filename = Path.GetFileName(d.Local_SourceDocumnetFullpath);
-                    dwi.WH = d.WH;
-                    if (DWInfoes.Any(s => s.WH == dwi.WH))
-                    {
-                        foreach (DWInfo sdwi in DWInfoes.Where(s => s.WH == dwi.WH).AsEnumerable())
+                        LogRecord(string.Format("[正在转换文档]{0}：将文档转换成图片并进行裁剪（已完成）。", Path.GetFileName(d.Local_SourceDocumnetFullpath)));
+                        ConvertProcess.Value = ConvertProcess.Value + 20;
+
+                        LogRecord(string.Format("[正在转换文档]{0}：文档中共识别{1}个干部姓名。", Path.GetFileName(d.Local_SourceDocumnetFullpath), d.GBS.Count));
+
+
+                        ///TODO 转换需要转换的干部列表
+                        if (IsLocationCadre)
                         {
-                            ShowMessage(string.Format("[发现文号重复的文档]“{0}”和“{1}”的文号都为：{2}", dwi.Filename, sdwi.Filename, dwi.WH), MessageType.Warnning);
-                        }
-                    }
-                    DWInfoes.Add(dwi);
-
-                    LogRecord(string.Format("[正在转换文档]{0}：将文档转换成图片并进行裁剪。", Path.GetFileName(d.Local_SourceDocumnetFullpath)));
-                    List<Bitmap> DocumentPageImages = ConvertXPSToBitmapList(d.Local_StorgeDocumentPdfFullpath, convertPageIndexes);
-                    for (int i = DocumentPageImages.Count > 1 ? DocumentPageImages.Count - 2 : 0; i < DocumentPageImages.Count; i++)
-                    {
-                        //切除文档底部白边 只判断最后两页
-                        DocumentPageImages[i] = CutBottomBlankPart(DocumentPageImages[i]);
-                        //using (Bitmap ImageAfterCutBottomBlank = DocumentPageImages[i])
-                        //{
-                        //    DocumentPageImages[i] = CutImage(ImageAfterCutBottomBlank, 22);
-                        //    ImageAfterCutBottomBlank.Save(d.DocumentImageFileFullPaths[i]);
-                        //    ImageAfterCutBottomBlank.Dispose();
-                        //    GC.Collect();
-                        //}
-                    }
-
-                    for (int i = 0; i < DocumentPageImages.Count; i++)
-                    {
-                        if (convertPageIndexes.Count == 0)
-                        {
-                            DocumentPageImages[i].Save(d.DocumentImageFileFullPaths[i]);
-                        }
-                        else
-                        {
-                            DocumentPageImages[i].Save(d.DocumentImageFileFullPaths[convertPageIndexes[i]]);
-                        }
-                    }
-
-                    DocumentPageImages.Clear();
-                    GC.Collect();
-
-                    LogRecord(string.Format("[正在转换文档]{0}：将文档转换成图片并进行裁剪（已完成）。", Path.GetFileName(d.Local_SourceDocumnetFullpath)));
-                    ConvertProcess.Value = ConvertProcess.Value + 20;
-
-                    LogRecord(string.Format("[正在转换文档]{0}：文档中共识别{1}个干部姓名。", Path.GetFileName(d.Local_SourceDocumnetFullpath), d.GBS.Count));
-
-
-                    ///TODO 转换需要转换的干部列表
-                    if (IsLocationCadre)
-                    {
-                        List<GB> ListGBToConvert = convertPageIndexes.Count == 0 ? d.GBS : d.GBS.Where(gb => convertPageIndexes.Contains(gb.DocumentImagePageNumber-1)).ToList();
-                        for (int j = 0; j < ListGBToConvert.Count; j++)
-                        {
-                            GB g = ListGBToConvert[j];
-                            LogRecord(string.Format("[正在转换文档]{0}：共需要转换{1}个干部信息，开始转换第{2}个干部{3}的信息。", Path.GetFileName(d.Local_SourceDocumnetFullpath), ListGBToConvert.Count, j + 1, g.XM));
-
-                            //判断重名 20170224更新识别机制
-                            IQueryable<PersonWithFile> lrms = this.AllLrmPersons.Where(l => l.XingMing == g.XM).AsQueryable();
-                            IQueryable<DocumentWithFile> docs = this.AllDocContents.Where(r => r.DocxFilename.Contains(g.XM) && r.DocxFilename.Contains("考察材料")).AsQueryable();
-                            if (lrms.Count() > 1 || docs.Count() > 1)
+                            List<GB> ListGBToConvert = convertPageIndexes.Count == 0 ? d.GBS : d.GBS.Where(gb => convertPageIndexes.Contains(gb.DocumentImagePageNumber - 1)).ToList();
+                            for (int j = 0; j < ListGBToConvert.Count; j++)
                             {
-                                if (Global.IsShowError)
+                                GB g = ListGBToConvert[j];
+                                LogRecord(string.Format("[正在转换文档]{0}：共需要转换{1}个干部信息，开始转换第{2}个干部{3}的信息。", Path.GetFileName(d.Local_SourceDocumnetFullpath), ListGBToConvert.Count, j + 1, g.XM));
+
+                                //判断重名 20170224更新识别机制
+                                IQueryable<PersonWithFile> lrms = this.AllLrmPersons.Where(l => l.XingMing == g.XM).AsQueryable();
+                                IQueryable<DocumentWithFile> docs = this.AllDocContents.Where(r => r.DocxFilename.Contains(g.XM) && r.DocxFilename.Contains("考察材料")).AsQueryable();
+                                if (lrms.Count() > 1 || docs.Count() > 1)
                                 {
-                                    SameCadreForm scf = new SameCadreForm();
-                                    scf.Converting_GB = g;
-                                    scf.GB_LrmPersons = lrms.ToList();
-                                    scf.GB_DocContents = docs.ToList();
-                                    if (DialogResult.OK == scf.ShowDialog())
+                                    if (Global.IsShowError)
                                     {
-                                        g = scf.Converting_GB;
-                                        LogRecord(string.Format("[文档{0}中的{1}的任免表重复已经选择]：{2}。", Path.GetFileName(d.Local_SourceDocumnetFullpath), g.XM, g.Local_SourceLrmFullpath), MessageType.Warnning);
-                                        ConvertCadre(g);
+                                        SameCadreForm scf = new SameCadreForm();
+                                        scf.Converting_GB = g;
+                                        scf.GB_LrmPersons = lrms.ToList();
+                                        scf.GB_DocContents = docs.ToList();
+                                        if (DialogResult.OK == scf.ShowDialog())
+                                        {
+                                            g = scf.Converting_GB;
+                                            LogRecord(string.Format("[文档{0}中的{1}的任免表重复已经选择]：{2}。", Path.GetFileName(d.Local_SourceDocumnetFullpath), g.XM, g.Local_SourceLrmFullpath), MessageType.Warnning);
+                                            ConvertCadre(g);
+                                        }
+                                        else
+                                        {
+                                            ShowMessage(string.Format("[文档{0}中的{1}的任免表重复没有选择]：需要重新选择，并转换干部信息。", Path.GetFileName(d.Local_SourceDocumnetFullpath), g.XM), MessageType.Error);
+                                        }
                                     }
                                     else
                                     {
@@ -1000,50 +815,46 @@ namespace ImgLocation
                                 }
                                 else
                                 {
-                                    ShowMessage(string.Format("[文档{0}中的{1}的任免表重复没有选择]：需要重新选择，并转换干部信息。", Path.GetFileName(d.Local_SourceDocumnetFullpath), g.XM), MessageType.Error);
+                                    ConvertCadre(g);
                                 }
+
+
+                                //修正因为切除多余空白部分导致的点位比例不正确 只需要修正最后一张图像，前面的图像不涉及裁剪的问题
+                                Image DocumentImageCadreIn = Image.FromFile(d.DocumentImageFileFullPaths[g.DocumentImagePageNumber - 1]);
+                                int standardHeight = (int)(Global.ImgWidth / (210 - Global.HorizontalCutSize * 2) * (297 - Global.VerticalCutSize * 2));
+                                g.TouchStartPointY = g.TouchStartPointY * (standardHeight) / DocumentImageCadreIn.Height;
+                                g.TouchEndPointY = g.TouchEndPointY * (standardHeight) / DocumentImageCadreIn.Height > 1 ? 1 : g.TouchEndPointY * (standardHeight) / DocumentImageCadreIn.Height;
+                                DocumentImageCadreIn.Dispose();
+                                dr.EditGB(g);
+
+                                LogRecord(string.Format("[正在转换文档]{0}：共{1}个干部信息，第{2}个干部{3}的信息转换已完成。", Path.GetFileName(d.Local_SourceDocumnetFullpath), d.GBS.Count, j + 1, g.XM));
+                                ConvertProcess.Value = ConvertProcess.Value + 50 / d.GBS.Count;
                             }
-                            else
-                            {
-                                ConvertCadre(g);
-                            }
-
-
-                            //修正因为切除多余空白部分导致的点位比例不正确
-                            Image DocumentImageCadreIn = Image.FromFile(d.DocumentImageFileFullPaths[g.DocumentImagePageNumber - 1]);
-                            int standardHeight = (int)(Global.ImgWidth / (210 - Global.HorizontalCutSize * 2) * (297 - Global.VerticalCutSize * 2));
-                            g.TouchStartPointY = g.TouchStartPointY * (standardHeight) / DocumentImageCadreIn.Height;
-                            g.TouchEndPointY = g.TouchEndPointY * (standardHeight) / DocumentImageCadreIn.Height > 1 ? 1 : g.TouchEndPointY * (standardHeight) / DocumentImageCadreIn.Height;
-                            DocumentImageCadreIn.Dispose();
-                            dr.EditGB(g);
-
-                            LogRecord(string.Format("[正在转换文档]{0}：共{1}个干部信息，第{2}个干部{3}的信息转换已完成。", Path.GetFileName(d.Local_SourceDocumnetFullpath), d.GBS.Count, j + 1, g.XM));
-                            ConvertProcess.Value = ConvertProcess.Value + 50 / d.GBS.Count;
                         }
+
+                        //现有模式下一般不会在产生空白页，因此这段代码废弃
+                        //移除空白页
+                        //Bitmap QuestionImage = (Bitmap)Image.FromFile(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]);
+                        //Color p = QuestionImage.GetPixel(QuestionImage.Width / 2, 0);
+                        //Color p1 = QuestionImage.GetPixel(QuestionImage.Width / 2, 1);
+                        //Color p2 = QuestionImage.GetPixel(QuestionImage.Width / 2, 2);
+                        //Color p3 = QuestionImage.GetPixel(QuestionImage.Width / 2, 3);
+                        //if ((p.R == 0 && p.G == 128 && p.B == 0)
+                        //    || (p1.R == 0 && p1.G == 128 && p1.B == 0)
+                        //    || (p2.R == 0 && p2.G == 128 && p2.B == 0)
+                        //    || (p3.R == 0 && p3.G == 128 && p3.B == 0))
+                        //{
+                        //    d.DocumentImageCount -= 1;
+                        //}
+                        //QuestionImage.Dispose();
+
+                        GC.Collect();
+                        ConvertProcess.Value = ConvertProcess.Value + 5;
                     }
-                    //移除空白页
-                    Bitmap QuestionImage = (Bitmap)Image.FromFile(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]);
-                    Color p = QuestionImage.GetPixel(QuestionImage.Width / 2, 0);
-                    Color p1 = QuestionImage.GetPixel(QuestionImage.Width / 2, 1);
-                    Color p2 = QuestionImage.GetPixel(QuestionImage.Width / 2, 2);
-                    Color p3 = QuestionImage.GetPixel(QuestionImage.Width / 2, 3);
-                    if ((p.R == 0 && p.G == 128 && p.B == 0)
-                        || (p1.R == 0 && p1.G == 128 && p1.B == 0)
-                        || (p2.R == 0 && p2.G == 128 && p2.B == 0)
-                        || (p3.R == 0 && p3.G == 128 && p3.B == 0))
+                    else
                     {
-                        d.DocumentImageCount -= 1;
+                        d.DocumentImageCount = 0;
                     }
-                    QuestionImage.Dispose();
-
-                    GC.Collect();
-
-                    ConvertProcess.Value = ConvertProcess.Value + 5;
-                }
-                else
-                {
-                    d.DocumentImageCount = 0;
-                }
                 //}
                 //catch (Exception ex)
                 //{
@@ -1073,16 +884,18 @@ namespace ImgLocation
 
             //转换任免表
             string uuid = Guid.NewGuid().ToString();
-            if ((Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrm") && (g.Local_SourceLrmFullpath.Trim().Length > 0 && g.Local_SourcePicFullpath.Trim().Length > 0))
+            if ((g.Local_SourceLrmFullpath != null && Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrm") && (g.Local_SourceLrmFullpath.Trim().Length > 0 && g.Local_SourcePicFullpath.Trim().Length > 0))
             {
                 try
                 {
                     g.Lrm_Guid = Guid.NewGuid().ToString();
                     g.LrmImageCount = 1;
-                    g.LrmImageFilename = string.Format("{0}_01_{1}.{2}", g.XM, g.Lrm_Guid, Global.ImgFormat.ToString().ToLower())
-                        .Replace(" ", "").Replace("　", "")
-                        .Replace("\r", "").Replace("\n", "")
-                        .Replace("\v", "").Replace("\f", "").Replace("\t", "");
+
+                    /////TODO 为什么要赋值 不设置为只读属性？
+                    //g.LrmImageFilename = string.Format("{0}_01_{1}.{2}", g.XM, g.Lrm_Guid, Global.ImgFormat.ToString().ToLower())
+                    //    .Replace(" ", "").Replace("　", "")
+                    //    .Replace("\r", "").Replace("\n", "")
+                    //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
 
                     /////TODO 本地存储路径不再赋值，直接在对象属性内生成
                     //g.Local_StorgeLrmFullpath = Global.ProjectLrmPicDirectory + g.XM + ".lrm";
@@ -1115,16 +928,16 @@ namespace ImgLocation
                     ShowMessage(string.Format("[转换干部任免审批表失败:{0}]，{1}", g.Local_SourceLrmFullpath, ex.Message), MessageType.Error);
                 }
             }
-            else if ((Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrmx") && (g.Local_SourceLrmFullpath.Trim().Length > 0))
+            else if (g.Local_SourceLrmFullpath != null && (Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrmx") && (g.Local_SourceLrmFullpath.Trim().Length > 0))
             {
-                //try
-                //{
+                try
+                {
                     g.Lrm_Guid = Guid.NewGuid().ToString();
                     g.LrmImageCount = 1;
-                    g.LrmImageFilename = string.Format("{0}_01_{1}.{2}", g.XM, g.Lrm_Guid, Global.ImgFormat.ToString().ToLower())
-                        .Replace(" ", "").Replace("　", "")
-                        .Replace("\r", "").Replace("\n", "")
-                        .Replace("\v", "").Replace("\f", "").Replace("\t", "");
+                    //g.LrmImageFilename = string.Format("{0}_01_{1}.{2}", g.XM, g.Lrm_Guid, Global.ImgFormat.ToString().ToLower())
+                    //    .Replace(" ", "").Replace("　", "")
+                    //    .Replace("\r", "").Replace("\n", "")
+                    //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
 
                     /////TODO 本地存储路径不再赋值，直接在对象属性内生成
                     //g.Local_StorgeLrmFullpath = Global.ProjectLrmPicDirectory + g.XM + ".lrmx";
@@ -1149,11 +962,11 @@ namespace ImgLocation
                     //bmp.Dispose();
                     bmps[0].Dispose();
                     bmps.Clear();
-                //}
-                //catch (Exception ex)
-                //{
-                //    ShowMessage(string.Format("[转换干部任免审批表失败:{0}]，{1}", g.Local_SourceLrmFullpath, ex.Message), MessageType.Error);
-                //}
+                }
+                catch (Exception ex)
+                {
+                    ShowMessage(string.Format("[转换干部任免审批表失败:{0}]，{1}", g.Local_SourceLrmFullpath, ex.Message), MessageType.Error);
+                }
             }
             else
             {
@@ -1161,15 +974,15 @@ namespace ImgLocation
             }
 
             //转换考察材料
-            if (g.Local_SourceResFullpath.Trim().Length > 0)
+            if (g.Local_SourceResFullpath!=null&&g.Local_SourceResFullpath.Trim().Length > 0)
             {
                 try
                 {
                     g.Res_Guid = Guid.NewGuid().ToString();
-                    g.ResImageFilename = string.Format("{0}_02_{1}.{2}", g.XM, g.Res_Guid, Global.ImgFormat.ToString().ToLower())
-                        .Replace(" ", "").Replace("　", "")
-                        .Replace("\r", "").Replace("\n", "")
-                        .Replace("\v", "").Replace("\f", "").Replace("\t", "");
+                    //g.ResImageFilename = string.Format("{0}_02_{1}.{2}", g.XM, g.Res_Guid, Global.ImgFormat.ToString().ToLower())
+                    //    .Replace(" ", "").Replace("　", "")
+                    //    .Replace("\r", "").Replace("\n", "")
+                    //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
 
                     /////TODO 本地存储路径不再赋值，直接在对象属性内生成
                     //string ex = Path.GetExtension(g.Local_SourceResFullpath);
@@ -1181,7 +994,7 @@ namespace ImgLocation
 
                     File.Copy(g.Local_SourceResFullpath, g.Local_StorgeResFullpath, true);
                     FormatResDocumentSaveAsPDF(g);
-                    List<Bitmap> bmps = ConvertXPSToBitmapList(g.Local_StorgeResPdfFullPath,new List<int>());
+                    List<Bitmap> bmps = ConvertXPSToBitmapList(g.Local_StorgeResPdfFullPath, new List<int>());
 
                     //20170216 合并图像不再存储、分图像的本地存储路径通过ResImageFileFullPaths属性获取
                     //g.ResImageCount = bmps.Count;
@@ -1212,18 +1025,17 @@ namespace ImgLocation
             }
 
             //转换其他文档
-            if ((g.Local_SourceOtherFullpath + string.Empty).Trim().Length > 0 && File.Exists(g.Local_SourceOtherFullpath))
+            if (g.Local_SourceOtherFullpath != null && (g.Local_SourceOtherFullpath + string.Empty).Trim().Length > 0 && File.Exists(g.Local_SourceOtherFullpath))
             {
                 try
                 {
-
                     g.Other_Guid = Guid.NewGuid().ToString();
-                    g.OtherImageFilename = string.Format("{0}_03_{1}.{2}", g.XM, g.Res_Guid, Global.ImgFormat.ToString().ToLower())
-                        .Replace(" ", "").Replace("　", "")
-                        .Replace("\r", "").Replace("\n", "")
-                        .Replace("\v", "").Replace("\f", "").Replace("\t", "");
+                    //g.OtherImageFilename = string.Format("{0}_03_{1}.{2}", g.XM, g.Res_Guid, Global.ImgFormat.ToString().ToLower())
+                    //    .Replace(" ", "").Replace("　", "")
+                    //    .Replace("\r", "").Replace("\n", "")
+                    //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
                     File.Copy(g.Local_SourceOtherFullpath, g.Local_StorgeOtherFullpath, true);
-                    List<Bitmap> bmps = ConvertXPSToBitmapList(g.Local_StorgeOtherFullpath,new List<int>());
+                    List<Bitmap> bmps = ConvertXPSToBitmapList(g.Local_StorgeOtherFullpath, new List<int>());
 
                     g.OtherImageCount = bmps.Count;
                     for (int i = 0; i < g.OtherImageCount; i++)
@@ -1400,7 +1212,7 @@ namespace ImgLocation
                 else if (cadre_person.XingMing.Length <= 15)
                 {
                     WordTable_1.Cell(1, 2).Range.Text = cadre_person.XingMing;
-                    WordTable_1.Cell(1, 2).Range.Font.Size = 5 ;
+                    WordTable_1.Cell(1, 2).Range.Font.Size = 5;
                     WordTable_1.Cell(1, 2).Range.ParagraphFormat.LineSpacing = 5.5F;
                 }
                 else
@@ -1424,7 +1236,7 @@ namespace ImgLocation
 
                 object anchor = WordTable_1.Cell(1, 7).Range;
                 string otpic = Path.Combine(Path.GetDirectoryName(g.Local_StorgeDocumentWordFullpath), cadre_person.XingMing + ".bmp");
-                convertHelper.ZoomImageToFile(cadre_person.ZhaoPian_Image, otpic,1);
+                convertHelper.ZoomImageToFile(cadre_person.ZhaoPian_Image, otpic, 1);
                 //((Bitmap)(cadre_person.ZhaoPian_Image)).Save(otpic);
                 wordHelper.InsertImage(otpic, 0f, 0f, 56f, 69f, anchor);
 
@@ -1493,7 +1305,7 @@ namespace ImgLocation
                     else if (length <= 33)
                     {
                         WordTable_1.Cell(5, 3).Range.Font.Size = 5;
-                        WordTable_1.Cell(5, 3).Range.Paragraphs.Format.LineSpacing =5.5F;//磅值
+                        WordTable_1.Cell(5, 3).Range.Paragraphs.Format.LineSpacing = 5.5F;//磅值
                     }
                     else
                     {
@@ -1571,7 +1383,7 @@ namespace ImgLocation
                     else if (length <= 45)
                     {
                         WordTable_1.Cell(5, 5).Range.Font.Size = 5;
-                        WordTable_1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing =5.5F;//磅值
+                        WordTable_1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 5.5F;//磅值
                     }
                     else
                     {
@@ -1644,7 +1456,7 @@ namespace ImgLocation
                     }
                     else if (length1 <= 9 && length2 <= 9)
                     {
-                        WordTable_1.Cell(6, 3).Range.Font.Size =6;
+                        WordTable_1.Cell(6, 3).Range.Font.Size = 6;
                         WordTable_1.Cell(6, 3).Range.Paragraphs.Format.LineSpacing = 6.5F;//磅值
                     }
                     else if ((length1 <= 22 && length2 <= 11) || (length1 <= 11 && length2 <= 22))
@@ -1728,7 +1540,7 @@ namespace ImgLocation
                     else if ((length1 <= 30 && length2 <= 15) || (length1 <= 15 && length2 <= 30))
                     {
                         WordTable_1.Cell(6, 5).Range.Font.Size = 5;
-                        WordTable_1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing =5.5F;//磅值
+                        WordTable_1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 5.5F;//磅值
                     }
                     else
                     {
@@ -1814,7 +1626,7 @@ namespace ImgLocation
                 wordHelper.SaveDocumentAsPDF(g.Local_StorgeLrmPdfFullpath);
                 //g.XSD = 1;
                 //我这是疯了么，这么多Person对象，就这样仍在内存里！！！！
-                if(cadre_person!=null)
+                if (cadre_person != null)
                 {
                     cadre_person.Dispose();
                 }
@@ -2057,57 +1869,57 @@ namespace ImgLocation
                 }
 
 
-                    int iBeginPageNumber = 1;
-                    int iEndPageNumber = pdfDoc.GetNumPages();
+                int iBeginPageNumber = 1;
+                int iEndPageNumber = pdfDoc.GetNumPages();
 
-                    //转换
-                    for (int i = iBeginPageNumber; i <= iEndPageNumber; i++)
+                //转换
+                for (int i = iBeginPageNumber; i <= iEndPageNumber; i++)
+                {
+                    //2)
+                    //取出当前页
+                    pdfPage = (Acrobat.CAcroPDPage)pdfDoc.AcquirePage(i - 1);
+
+                    //3)
+                    //得到当前页的大小
+                    pdfPoint = (Acrobat.CAcroPoint)pdfPage.GetSize();
+                    //生成一个页的裁剪区矩形对象
+                    pdfRect = (Acrobat.CAcroRect)Microsoft.VisualBasic.Interaction.CreateObject("AcroExch.Rect", "");
+
+                    //计算当前页经缩放后的实际宽度和高度,zoom==1时，保持原比例大小
+                    //将裁剪大小换算为像素大小
+                    double dobleZoom = (double)Global.ImgWidth * 150 / (150 - Global.HorizontalCutSize * 2) / 425;
+                    int imgWidth = (int)((double)pdfPoint.x * dobleZoom);
+                    int imgHeight = (int)((double)pdfPoint.y * dobleZoom);
+
+                    //设置裁剪矩形的大小为当前页的大小
+                    pdfRect.Left = 0;
+                    pdfRect.right = (short)imgWidth;
+                    pdfRect.Top = 0;
+                    pdfRect.bottom = (short)imgHeight;
+
+                    //4)
+                    //将当前页的裁剪区的内容编成图片后复制到剪贴板中
+                    pdfPage.CopyToClipboard(pdfRect, 0, 0, (short)(100 * dobleZoom));
+
+                    //5)
+                    IDataObject clipboardData = Clipboard.GetDataObject();
+
+                    //检查剪贴板中的对象是否是图片，如果是图片则将其保存为指定格式的图片文件
+                    if (clipboardData.GetDataPresent(DataFormats.Bitmap))
                     {
-                        //2)
-                        //取出当前页
-                        pdfPage = (Acrobat.CAcroPDPage)pdfDoc.AcquirePage(i - 1);
+                        Bitmap pdfBitmap = (Bitmap)clipboardData.GetData(DataFormats.Bitmap);
 
-                        //3)
-                        //得到当前页的大小
-                        pdfPoint = (Acrobat.CAcroPoint)pdfPage.GetSize();
-                        //生成一个页的裁剪区矩形对象
-                        pdfRect = (Acrobat.CAcroRect)Microsoft.VisualBasic.Interaction.CreateObject("AcroExch.Rect", "");
-
-                        //计算当前页经缩放后的实际宽度和高度,zoom==1时，保持原比例大小
-                        //将裁剪大小换算为像素大小
-                        double dobleZoom = (double)Global.ImgWidth * 150 / (150 - Global.HorizontalCutSize * 2) / 425;
-                        int imgWidth = (int)((double)pdfPoint.x * dobleZoom);
-                        int imgHeight = (int)((double)pdfPoint.y * dobleZoom);
-
-                        //设置裁剪矩形的大小为当前页的大小
-                        pdfRect.Left = 0;
-                        pdfRect.right = (short)imgWidth;
-                        pdfRect.Top = 0;
-                        pdfRect.bottom = (short)imgHeight;
-
-                        //4)
-                        //将当前页的裁剪区的内容编成图片后复制到剪贴板中
-                        pdfPage.CopyToClipboard(pdfRect, 0, 0, (short)(100 * dobleZoom));
-
-                        //5)
-                        IDataObject clipboardData = Clipboard.GetDataObject();
-
-                        //检查剪贴板中的对象是否是图片，如果是图片则将其保存为指定格式的图片文件
-                        if (clipboardData.GetDataPresent(DataFormats.Bitmap))
-                        {
-                            Bitmap pdfBitmap = (Bitmap)clipboardData.GetData(DataFormats.Bitmap);
-
-                            //按比例切除四周白边
-                            int VerticalCutPixel = Convert.ToInt32(pdfBitmap.Height * Global.VerticalCutSize/ 500);
-                            int HorizontalCutPixel = Convert.ToInt32(pdfBitmap.Width * Global.HorizontalCutSize / 150);
-                            Bitmap pdfCutBitmap = CutRoundBitmap(pdfBitmap, VerticalCutPixel, HorizontalCutPixel);
-                            DocumentPdfPageImages.Add(pdfCutBitmap);
-                            pdfBitmap.Dispose();
-                            Clipboard.Clear();
-                            //pdfCutBitmap.Dispose();
-                        }
+                        //按比例切除四周白边
+                        int VerticalCutPixel = Convert.ToInt32(pdfBitmap.Height * Global.VerticalCutSize / 500);
+                        int HorizontalCutPixel = Convert.ToInt32(pdfBitmap.Width * Global.HorizontalCutSize / 150);
+                        Bitmap pdfCutBitmap = CutRoundBitmap(pdfBitmap, VerticalCutPixel, HorizontalCutPixel);
+                        DocumentPdfPageImages.Add(pdfCutBitmap);
+                        pdfBitmap.Dispose();
+                        Clipboard.Clear();
+                        //pdfCutBitmap.Dispose();
                     }
-                
+                }
+
             }
             catch (Exception e)
             {
@@ -2132,7 +1944,7 @@ namespace ImgLocation
             return DocumentPdfPageImages;
         }
 
-        private List<Bitmap> ConvertXPSToBitmapList(string xpsPath,List<int> ConvertPageIndexes)
+        private List<Bitmap> ConvertXPSToBitmapList(string xpsPath, List<int> ConvertPageIndexes)
         {
             //页面初始图像集
             List<Bitmap> bmps = new List<Bitmap>();
@@ -2143,7 +1955,7 @@ namespace ImgLocation
                 var fs = xpsDoc.GetFixedDocumentSequence();
 
 
-                if (ConvertPageIndexes.Count==0)
+                if (ConvertPageIndexes.Count == 0)
                 {
                     //xps文件转换为图片
                     int pageall = fs.DocumentPaginator.PageCount;
@@ -2177,7 +1989,7 @@ namespace ImgLocation
                 }
                 else
                 {
-                    foreach(int index in ConvertPageIndexes)
+                    foreach (int index in ConvertPageIndexes)
                     {
                         MemoryStream memoryStream = new MemoryStream();
                         System.Windows.Media.Imaging.BitmapEncoder bitmapEncoder
@@ -2222,36 +2034,36 @@ namespace ImgLocation
             {
                 var fs = xpsDoc.GetFixedDocumentSequence();
 
-                    //xps文件转换为图片
-                    int pageall = fs.DocumentPaginator.PageCount;
-                    for (int i = 0; i < pageall; i++)
-                    {
-                        MemoryStream memoryStream = new MemoryStream();
-                        System.Windows.Media.Imaging.BitmapEncoder bitmapEncoder
-                            = new System.Windows.Media.Imaging.PngBitmapEncoder();
-                        DocumentPage documentPage = fs.DocumentPaginator.GetPage(i);
-                        double dobleZoom = (double)Global.ImgWidth * 140 / (140 - (Global.HorizontalCutSize) * 2) / documentPage.Size.Width;
-                        int imgWidth = (int)((double)documentPage.Size.Width * dobleZoom);
-                        int imgHeight = (int)((double)documentPage.Size.Height * dobleZoom);
-                        double imgDPI = (double)96.0 * dobleZoom;
-                        System.Windows.Media.Imaging.RenderTargetBitmap targetBitmap
-                            = new System.Windows.Media.Imaging.RenderTargetBitmap(imgWidth, imgHeight, imgDPI, imgDPI, System.Windows.Media.PixelFormats.Default);
+                //xps文件转换为图片
+                int pageall = fs.DocumentPaginator.PageCount;
+                for (int i = 0; i < pageall; i++)
+                {
+                    MemoryStream memoryStream = new MemoryStream();
+                    System.Windows.Media.Imaging.BitmapEncoder bitmapEncoder
+                        = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                    DocumentPage documentPage = fs.DocumentPaginator.GetPage(i);
+                    double dobleZoom = (double)Global.ImgWidth * 140 / (140 - (Global.HorizontalCutSize) * 2) / documentPage.Size.Width;
+                    int imgWidth = (int)((double)documentPage.Size.Width * dobleZoom);
+                    int imgHeight = (int)((double)documentPage.Size.Height * dobleZoom);
+                    double imgDPI = (double)96.0 * dobleZoom;
+                    System.Windows.Media.Imaging.RenderTargetBitmap targetBitmap
+                        = new System.Windows.Media.Imaging.RenderTargetBitmap(imgWidth, imgHeight, imgDPI, imgDPI, System.Windows.Media.PixelFormats.Default);
 
-                        targetBitmap.Render(documentPage.Visual);
-                        bitmapEncoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(targetBitmap));
-                        bitmapEncoder.Save(memoryStream);
-                        Bitmap xpsPageBitmap = new Bitmap(memoryStream);
+                    targetBitmap.Render(documentPage.Visual);
+                    bitmapEncoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(targetBitmap));
+                    bitmapEncoder.Save(memoryStream);
+                    Bitmap xpsPageBitmap = new Bitmap(memoryStream);
 
-                        //裁切固定白边
-                        int VerticalCutPixel = Convert.ToInt32(xpsPageBitmap.Height * Global.VerticalCutSize / 500);
-                        int HorizontalCutPixel = Convert.ToInt32(xpsPageBitmap.Width * (Global.HorizontalCutSize) / 140);
-                        Bitmap pdfCutBitmap = CutRoundBitmap(xpsPageBitmap, VerticalCutPixel, HorizontalCutPixel);
+                    //裁切固定白边
+                    int VerticalCutPixel = Convert.ToInt32(xpsPageBitmap.Height * Global.VerticalCutSize / 500);
+                    int HorizontalCutPixel = Convert.ToInt32(xpsPageBitmap.Width * (Global.HorizontalCutSize) / 140);
+                    Bitmap pdfCutBitmap = CutRoundBitmap(xpsPageBitmap, VerticalCutPixel, HorizontalCutPixel);
 
-                        bmps.Add(pdfCutBitmap);
-                        memoryStream.Dispose();
-                        xpsPageBitmap.Dispose();
-                    }
-               
+                    bmps.Add(pdfCutBitmap);
+                    memoryStream.Dispose();
+                    xpsPageBitmap.Dispose();
+                }
+
             }
             return bmps;
         }
@@ -2261,16 +2073,16 @@ namespace ImgLocation
             int w = sbmp.Width;
             int h = sbmp.Height;
             Bitmap bmpDest = sbmp;
-            while (h>4)
+            while (h > 4)
             {
-                for(int x=0;x<4;x++)
+                for (int x = 0; x < 4; x++)
                 {
-                        p[x] = sbmp.GetPixel(w/2, h-x-1);
+                    p[x] = sbmp.GetPixel(w / 2, h - x - 1);
                 }
-                if(p[0].R<50 && p[0].G > 120 && p[0].B < 50 && p[3].R>200 &&p[3].G>200&&p[3].B>200)
+                if (p[0].R < 50 && p[0].G > 120 && p[0].B < 50 && p[3].R > 200 && p[3].G > 200 && p[3].B > 200)
                 {
-                    bmpDest = new Bitmap(w,h-2, PixelFormat.Format32bppRgb);
-                    Rectangle rectDest = new Rectangle(0, 0, w, h-2);
+                    bmpDest = new Bitmap(w, h - 2, PixelFormat.Format32bppRgb);
+                    Rectangle rectDest = new Rectangle(0, 0, w, h - 2);
                     Graphics graphic = Graphics.FromImage(bmpDest);
                     graphic.DrawImage(sbmp, rectDest, rectDest, GraphicsUnit.Pixel);
                     graphic.Dispose();

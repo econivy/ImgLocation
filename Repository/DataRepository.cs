@@ -315,11 +315,11 @@ namespace ImgLocation.Repository
                         g.Res_Guid = dg["Res_Guid"] + string.Empty;
                         g.Other_Guid = dg["Other_Guid"] + string.Empty;
                         g.Rank = Convert.ToInt32(dg["Rank"] + string.Empty);
-                        g.LrmImageFilename = dg["LrmImageFilename"] + string.Empty;
+                        //g.LrmImageFilename = dg["LrmImageFilename"] + string.Empty;
                         g.LrmImageCount = Convert.ToInt32(dg["LrmImageCount"] + string.Empty);
-                        g.ResImageFilename = dg["ResImageFilename"] + string.Empty;
+                        //g.ResImageFilename = dg["ResImageFilename"] + string.Empty;
                         g.ResImageCount = Convert.ToInt32(dg["ResImageCount"] + string.Empty);
-                        g.OtherImageFilename = dg["OtherImageFilename"] + string.Empty;
+                        //g.OtherImageFilename = dg["OtherImageFilename"] + string.Empty;
                         g.OtherImageCount = Convert.ToInt32(dg["OtherImageCount"] + string.Empty);
                         g.DocumentImagePageNumber = Convert.ToInt32(dg["DocumentImagePageNumber"] + string.Empty);
                         g.DocumentImageFilename = dg["DocumentImageFilename"] + string.Empty;

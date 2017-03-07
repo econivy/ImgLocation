@@ -24,20 +24,9 @@ namespace ImgLocation
         public static double VerticalCutSize;//裁边毫米数
         public static double HorizontalCutSize;//裁边毫米数
         public static ImageFormat ImgFormat;
-        public static string SearchModel;
+        //public static string SearchModel;
         public static bool IsShowWord;
         public static bool IsShowError;
-
-        //此版本不再兼容中组部向文档后方添加任免表及考察材料的功能，下列属性废除
-        //public static string ModelType;
-        //public static bool IsAddRedTitle;
-        //public static bool IsAttachLrmRes; 
-        //public static int Model1Left;
-        //public static int Model1Top;
-        //public static int Model2Left;
-        //public static int Model2Top;
-        //public static int Model3Left;
-        //public static int Model3Top;
 
         public static void RefreshParams()
         {
@@ -46,65 +35,9 @@ namespace ImgLocation
             ImgFormat = ImageFormat.Png;
             VerticalCutSize = 26;
             HorizontalCutSize = 20;
-            SearchModel = sr.ReadSystemConfig(601).Trim().Length > 0 ? sr.ReadSystemConfig(601).Trim() : "段首查找";
-            //ModelType = sr.ReadSystemConfig(602).Trim().Length > 0 ? sr.ReadSystemConfig(602).Trim() : "省委组织部模板";
             VerticalCutSize = 26;
-            //IsAddRedTitle = sr.ReadSystemConfig(603).Trim().Length > 0 ? sr.ReadSystemConfig(603) == "是" : false;
-            //IsAttachLrmRes = sr.ReadSystemConfig(604).Trim().Length > 0 ? sr.ReadSystemConfig(604) == "是" : false;
             IsShowWord = sr.ReadSystemConfig(701).Trim().Length > 0 ? sr.ReadSystemConfig(701) == "是" : true;
             IsShowError = sr.ReadSystemConfig(702).Trim().Length > 0 ? sr.ReadSystemConfig(702) == "是" : true;
-            //try
-            //{
-            //    Model1Left = Convert.ToInt32(sr.ReadSystemConfig(811).Trim());
-            //}
-            //catch
-            //{
-            //    Model1Left = 0;
-            //}
-
-            //try
-            //{
-            //    Model1Top= Convert.ToInt32(sr.ReadSystemConfig(812).Trim());
-            //}
-            //catch
-            //{
-            //    Model1Top = 0;
-            //}
-            //try
-            //{
-            //    Model2Left = Convert.ToInt32(sr.ReadSystemConfig(821).Trim());
-            //}
-            //catch
-            //{
-            //    Model2Left = 0;
-            //}
-
-            //try
-            //{
-            //    Model2Top = Convert.ToInt32(sr.ReadSystemConfig(822).Trim());
-            //}
-            //catch
-            //{
-            //    Model2Top = 0;
-            //}
-
-            //try
-            //{
-            //    Model3Left = Convert.ToInt32(sr.ReadSystemConfig(831).Trim());
-            //}
-            //catch
-            //{
-            //    Model3Left = 0;
-            //}
-
-            //try
-            //{
-            //    Model3Top = Convert.ToInt32(sr.ReadSystemConfig(832).Trim());
-            //}
-            //catch
-            //{
-            //    Model3Top = 0;
-            //}
         }
 
         public static Project LoadDefaultProject()
@@ -152,8 +85,6 @@ namespace ImgLocation
         public static string ProjectTempPDFDirectory;//生成过程中的pdf文件目录
         public static string ProjectTempWordDirectory;//生成过程中的，lrm转制成的word文档目录
 
-        //public static string ProjectLogPath;
-
         public static string OutputDirectory;//总的输出目录，存储在SystemConfig的101属性中
         public static string ProjectOutputDirectory;//每个项目生成图片和数据存储的具体目录
         public static string ProjectOutputDbDirectory;
@@ -166,10 +97,6 @@ namespace ImgLocation
         public static string LrmToWordModelPath;//lrm转成图片的word模板路径
         public static string LrmToPDFModelPath;//lrm转成图片的word模板路径
         public static string BlankPDFModelPath;
-
-        //public static string RedModel1Path;
-        //public static string RedModel2Path;
-        //public static string RedModel3Path;
 
         public static string ADBProgramPath;
         public static string ADBFile1Path;
@@ -185,7 +112,6 @@ namespace ImgLocation
             string approot = Directory.GetCurrentDirectory();
             approot = approot.Substring(approot.Length - 1, 1) == @"\" ? approot : approot + @"\";
 
-            //TODO：更改运行目录后 此目录应当变化，因为现在sys.db中存在平板信息，因此应当添加清空项目功能
             if (sr.ReadSystemConfig(101).Trim().Length == 0)
             {
                 sr.WriteSystemConfig(101, "OutputPath", approot + @"Output\");
@@ -207,18 +133,12 @@ namespace ImgLocation
             ProjectOutputDbPath = ProjectOutputDbDirectory + @"imgLocation.db";
             ProjectOutputImgDirectory = ProjectOutputDirectory + @"gbchd\" + meeting.Trim() + @"\pic\";
 
-
-
             ProjectPDFTempDirectory = ProjectTemp + @"wordtopdf\";
             ProjectPDFOutputDirectory = OutputDirectory + @"Project_" + p.id + @"_PDF\";
 
             LrmToWordModelPath = approot + @"model.docx";
             LrmToPDFModelPath = approot + @"model2.docx";
             BlankPDFModelPath = approot + @"blank.pdf";
-
-            //RedModel1Path = approot + @"redmodel1.png";
-            //RedModel2Path = approot + @"redmodel2.png";
-            //RedModel3Path = approot + @"redmodel3.png";
 
             ADBProgramPath = approot + @"adb.exe";
             ADBlibgccPath = approot + @"libgcc_s_dw2-1.dll";
@@ -280,21 +200,11 @@ namespace ImgLocation
             byte[] bsBlank = Properties.Resources.blank;
             File.WriteAllBytes(BlankPDFModelPath, bsBlank);
 
-            //byte[] bsRedModel1 = Properties.Resources.redmodel1;
-            //File.WriteAllBytes(RedModel1Path, bsRedModel1);
-
-            //byte[] bsRedModel2 = Properties.Resources.redmodel2;
-            //File.WriteAllBytes(RedModel2Path, bsRedModel2);
-
-            //byte[] bsRedModel3 = Properties.Resources.redmodel3;
-            //File.WriteAllBytes(RedModel3Path, bsRedModel3);
-
             byte[] bsModel = Properties.Resources.model;
             File.WriteAllBytes(LrmToWordModelPath, bsModel);
 
             byte[] bsModel2 = Properties.Resources.model2;
             File.WriteAllBytes(LrmToPDFModelPath, bsModel2);
-
 
             if (!File.Exists(ADBProgramPath))
             {

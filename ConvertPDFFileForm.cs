@@ -163,9 +163,9 @@ namespace ImgLocation
                         {
                             LogRecord(string.Format("[共{0}个文档，已转换{1}个文档，正在转换第{2}个文档信息：文档内共发现{3}名干部信息，正在转换第{4}名干部信息。]", iSumDocument, iCountDocument, iCountDocument + 1, d.GBS.Count, GBCount));
 
-                            g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
-                            g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
-                            g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
+                            //g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
+                            //g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
+                            //g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
                             if ((Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrm") && (g.Local_SourceLrmFullpath.Trim().Length > 0 && g.Local_SourcePicFullpath.Trim().Length > 0))
                             {
                                 try
@@ -769,83 +769,85 @@ namespace ImgLocation
                     string content = wordHelper.oDoc.Paragraphs[i].Range.Text;
                     oSelection.MoveUp(ref oUnitParagraph, ref oCount, ref oExtendNone);//光标移至该段段首
 
-                    if (Global.SearchModel == "全文查找")
-                    {
-                        #region 逐字判断是否为黑体 获取人名
-                        for (int m = 0; m < content.Length; m++)
-                        {
-                            oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtend);//光标向右移动一个字符，并选中
-                            string fontName = oSelection.Range.Font.Name;
+                    ///TODO 整个转换成pdf功能应当重做，应当根据project直接转换。
+                    
+                    //if (Global.SearchModel == "全文查找")
+                    //{
+                    //    #region 逐字判断是否为黑体 获取人名
+                    //    for (int m = 0; m < content.Length; m++)
+                    //    {
+                    //        oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtend);//光标向右移动一个字符，并选中
+                    //        string fontName = oSelection.Range.Font.Name;
 
-                            if (fontName == "黑体" & fontName != "、")
-                            {
+                    //        if (fontName == "黑体" & fontName != "、")
+                    //        {
 
-                                string XM = oSelection.Range.Text.Replace("、", "").Replace("，", "").Replace("。", "").Replace("；", "").Replace("！", "");
-                                if (convertHelper.JudgeStringHasLrm(XM))
-                                {
-                                    iCadreCount++;
-                                    oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtendNone);
-                                    GB g = new GB();
-                                    g.id = iCadreCount < 10 ? string.Format("{0}000{1}", d.id, iCadreCount) : string.Format("{0}00{1}", d.id, iCadreCount);
-                                    g.DWID = d.id;
-                                    g.XM = XM;
-                                    g.Rank = d.Rank * 10000 + iCadreCount;
+                    //            string XM = oSelection.Range.Text.Replace("、", "").Replace("，", "").Replace("。", "").Replace("；", "").Replace("！", "");
+                    //            if (convertHelper.JudgeStringHasLrm(XM))
+                    //            {
+                    //                iCadreCount++;
+                    //                oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtendNone);
+                    //                GB g = new GB();
+                    //                g.id = iCadreCount < 10 ? string.Format("{0}000{1}", d.id, iCadreCount) : string.Format("{0}00{1}", d.id, iCadreCount);
+                    //                g.DWID = d.id;
+                    //                g.XM = XM;
+                    //                g.Rank = d.Rank * 10000 + iCadreCount;
 
-                                    g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
-                                    g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
-                                    g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
+                    //                g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
+                    //                g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
+                    //                g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
 
-                                    d.GBS.Add(g);
-                                }
-                            }
-                            else
-                            {
-                                oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtendNone);
-                            }
-                        }
-                        #endregion
-                    }
-                    else
-                    {
-                        #region 根据黑体判断，只提取前面的人名
-                        int l = (content + "").Length < 10 ? content.Length : 10;
-                        for (int j = 0; j < l; j++)
-                        {
-                            if (j == 0 || oSelection.Range.Font.Name == "黑体")
-                            {
-                                oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtend);//再光标向右移动一个字符，并选中
-                            }
-                            else if ((oSelection.Range.Text + "").Length > 0 && (oSelection.Range.Font.Name + "" == ""))//此时已经判断可能是个人名，但是可能包含多个人名
-                            {
-                                break;
-                            }
-                        }
+                    //                d.GBS.Add(g);
+                    //            }
+                    //        }
+                    //        else
+                    //        {
+                    //            oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtendNone);
+                    //        }
+                    //    }
+                    //    #endregion
+                    //}
+                    //else
+                    //{
+                    //    #region 根据黑体判断，只提取前面的人名
+                    //    int l = (content + "").Length < 10 ? content.Length : 10;
+                    //    for (int j = 0; j < l; j++)
+                    //    {
+                    //        if (j == 0 || oSelection.Range.Font.Name == "黑体")
+                    //        {
+                    //            oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtend);//再光标向右移动一个字符，并选中
+                    //        }
+                    //        else if ((oSelection.Range.Text + "").Length > 0 && (oSelection.Range.Font.Name + "" == ""))//此时已经判断可能是个人名，但是可能包含多个人名
+                    //        {
+                    //            break;
+                    //        }
+                    //    }
 
-                        oSelection.MoveLeft(ref oUnitCharacter, ref oCount1, ref oExtend);
-                        string isname = (oSelection.Text + "").Replace(" ", "").Replace("　", "").Replace("、", "").Replace("，", "").Replace(",", "");
-                        if (convertHelper.JudgeStringHasLrm(isname))
-                        {
-                            string strName = isname;
-                            oSelection.MoveDown(ref oUnitLine, ref oCount, ref oExtendNone);
-                            iCadreCount++;
-                            GB g = new GB();
+                    //    oSelection.MoveLeft(ref oUnitCharacter, ref oCount1, ref oExtend);
+                    //    string isname = (oSelection.Text + "").Replace(" ", "").Replace("　", "").Replace("、", "").Replace("，", "").Replace(",", "");
+                    //    if (convertHelper.JudgeStringHasLrm(isname))
+                    //    {
+                    //        string strName = isname;
+                    //        oSelection.MoveDown(ref oUnitLine, ref oCount, ref oExtendNone);
+                    //        iCadreCount++;
+                    //        GB g = new GB();
 
-                            string rmxx = "";
+                    //        string rmxx = "";
 
-                            g.id = iCadreCount < 10 ? string.Format("{0}000{1}", d.id, iCadreCount) : string.Format("{0}00{1}", d.id, iCadreCount);
-                            g.DWID = d.id;
-                            g.XM = strName;
-                            g.Lrm_Guid = rmxx;
-                            g.Rank = d.Rank * 10000 + iCadreCount;
+                    //        g.id = iCadreCount < 10 ? string.Format("{0}000{1}", d.id, iCadreCount) : string.Format("{0}00{1}", d.id, iCadreCount);
+                    //        g.DWID = d.id;
+                    //        g.XM = strName;
+                    //        g.Lrm_Guid = rmxx;
+                    //        g.Rank = d.Rank * 10000 + iCadreCount;
 
-                            g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
-                            g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
-                            g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
+                    //        g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
+                    //        g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
+                    //        g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
 
-                            d.GBS.Add(g);
-                        }
-                        #endregion
-                    }
+                    //        d.GBS.Add(g);
+                    //    }
+                    //    #endregion
+                    //}
 
                 }
                 wordHelper.SaveDocumentAsPDF(d.Local_SaveDocumentPdfForCombineFullpath);

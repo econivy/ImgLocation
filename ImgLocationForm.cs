@@ -870,17 +870,6 @@ namespace ImgLocation
         {
             Process.Start(Global.ProjectPDFOutputDirectory);
         }
-        private void button1_Click(object sender, EventArgs e)
-        {
-            SystemRepository sr = new SystemRepository();
-            ParamsForm pf = new ParamsForm();
-            if (pf.ShowDialog() == DialogResult.OK)
-            {
-                ShowMessage("参数设置成功！");
-                iConvertPDF.Visible = sr.ReadSystemConfig(602).Trim() == "省委组织部模板";
-                btnOpenPDFDiatory.Visible = sr.ReadSystemConfig(602).Trim() == "省委组织部模板";
-            }
-        }
         private void checkTouch_CheckedChanged(object sender, EventArgs e)
         {
             if (TreeDW.SelectedNode != null)
