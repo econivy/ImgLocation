@@ -122,8 +122,8 @@ namespace ImgLocation
         }
         public void ConvertDocumentList()
         {
-            DateTime starttime = DateTime.Now;
-            ShowMessage("起始时间：" + starttime.ToString("yyyy-MM-dd HH:mm:ss"), MessageType.Warnning);
+            //DateTime starttime = DateTime.Now;
+            //ShowMessage("起始时间：" + starttime.ToString("yyyy-MM-dd HH:mm:ss"), MessageType.Warnning);
 
             ConvertProcess.Maximum = 3000 + 30;//按照共有30个单子，每个单子计算100点进度，30用作前序操作计算进度
             this.picLoading.Image = Properties.Resources.loading;
@@ -246,9 +246,9 @@ namespace ImgLocation
 
             GC.Collect();
             ConvertProcess.Value = ConvertProcess.Maximum;
-            DateTime endtime = DateTime.Now;
-            TimeSpan time = endtime - starttime;
-            ShowMessage("结束时间：" + starttime.ToString("yyyy-MM-dd HH:mm:ss")+"，共花费时间："+time.TotalMinutes+"分钟", MessageType.Warnning);
+            //DateTime endtime = DateTime.Now;
+            //TimeSpan time = endtime - starttime;
+            //ShowMessage("结束时间：" + starttime.ToString("yyyy-MM-dd HH:mm:ss")+"，共花费时间："+time.TotalMinutes+"分钟", MessageType.Warnning);
             //this.picLoading.Image = Properties.Resources.right;
             if (DialogResult.Yes == MessageBox.Show(string.Format("批量转换文档[{0}]完成{1}。\r\n\r\n是否关闭当前转换窗口？", WordDirectory, HasError ? "。\r\n（提示）转换过程中存在错误，详细情况查看错误日志" : ""), "转换完成", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
             {
@@ -497,8 +497,12 @@ namespace ImgLocation
                         wordHelper.SaveDocumentAs(d.Local_StorgeDocumentFullpath, false);
 
                         //在文档末端 添加切白分割线
-                        //极其特殊情况下 切白边分给线可能会被按比例切除周边页面时同时切除，或者添加到第二页中，注意识别
-                        oDoc.Paragraphs[wordHelper.oDoc.Paragraphs.Count].Range.Select();   //移到文章最末末端
+                        //极其特殊情况下 切白边分给线可能会添加到新页中，注意识别
+                        //移到文章最末末端
+                        oDoc.Paragraphs[wordHelper.oDoc.Paragraphs.Count].Range.Select();
+                        //获取原页面总数
+                        int orignPageCount = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
+
                         oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
                         oDoc.Paragraphs.Add();
                         oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
@@ -507,16 +511,30 @@ namespace ImgLocation
                         Word.Range r = oSelection.Range;
                         oDoc.Tables.Add(r, 1, 1);
                         Word.Table t = oDoc.Tables[oDoc.Tables.Count];
-                        t.Borders.InsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
-                        t.Borders.OutsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
-                        t.Shading.BackgroundPatternColor = Word.WdColor.wdColorGreen;
-                        t.Shading.ForegroundPatternColor = Word.WdColor.wdColorGreen;
+
+                        //识别分割线调到新页面上，并撤销操作
+                        t.Select();
+                        if(orignPageCount!= oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber))
+                        {
+                            //撤销添加段落
+                            oDoc.Tables[oDoc.Tables.Count].Delete();
+                            oDoc.Paragraphs[oDoc.Paragraphs.Count].Range.Delete();
+                            oDoc.Paragraphs[oDoc.Paragraphs.Count].Range.Delete();
+                        }
+                        else
+                        {
+                            t.Select();
+                            t.Borders.InsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
+                            t.Borders.OutsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
+                            t.Shading.BackgroundPatternColor = Word.WdColor.wdColorGreen;
+                            t.Shading.ForegroundPatternColor = Word.WdColor.wdColorGreen;
+                        }
 
                         //保存更改
                         wordHelper.SaveDocument(false);
 
                         //获取文档总页数
-                        wordHelper.oDoc.Paragraphs[iParagraphCount].Range.Select();
+                        wordHelper.oDoc.Paragraphs[wordHelper.oDoc.Paragraphs.Count].Range.Select();
                         oSelection.MoveDown(ref oUnitParagraph, ref oCount, ref oExtendNone);
                         d.DocumentImageCount = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
 
@@ -2239,32 +2257,17 @@ namespace ImgLocation
         }
         private Bitmap CutBottomBlankPart(Bitmap sbmp)
         {
-            Color[,] p = new Color[3, 4];
+            Color[] p = new Color[4];
             int w = sbmp.Width;
             int h = sbmp.Height;
             Bitmap bmpDest = sbmp;
             while (h>4)
             {
-                for(int x=0;x<3;x++)
+                for(int x=0;x<4;x++)
                 {
-                    for(int y=0;y<4;y++)
-                    {
-                        p[x, y] = sbmp.GetPixel(w * (x + 1) / 4, h - y-1);
-                    }
+                        p[x] = sbmp.GetPixel(w/2, h-x-1);
                 }
-
-                if (p[0, 0].R == p[1, 0].R && p[0, 0].R == p[2, 0].R //&& p[0, 1].R == p[1, 1].R && p[0, 1].R == p[2, 1].R
-                    &&p[0, 0].G == p[1, 0].G && p[0, 0].G == p[2, 0].G //&& p[0, 1].G == p[1, 1].G && p[0, 1].G == p[2, 1].G
-                    && p[0, 0].B == p[1, 0].B && p[0, 0].B == p[2, 0].B //&& p[0, 1].B == p[1, 1].B && p[0, 1].B == p[2, 1].B
-
-                    && p[0, 0].R < 50 && p[0, 1].R < 50 && p[0, 0].G >120 && p[0, 1].G >120 && p[0, 0].B < 50 && p[0, 1].B < 50
-
-                    && p[0, 2].R == p[1, 2].R && p[0, 2].R == p[2, 2].R //&& p[0, 3].R == p[1, 3].R && p[0, 3].R == p[2, 3].R
-                    && p[0, 2].G == p[1, 2].G && p[0, 2].G == p[2, 2].G //&& p[0, 3].G == p[1, 3].G && p[0, 3].G == p[2, 3].G
-                    && p[0, 2].B == p[1, 2].B && p[0, 2].B == p[2, 2].B //&& p[0, 3].B == p[1, 3].B && p[0, 3].B == p[2, 3].B
-
-                    &&p[0,2].R>200&&p[0,3].R > 200 && p[0, 2].G > 200 && p[0, 3].G > 200 && p[0, 2].B > 200 && p[0, 3].B > 200
-                    )
+                if(p[0].R<50 && p[0].G > 120 && p[0].B < 50 && p[3].R>200 &&p[3].G>200&&p[3].B>200)
                 {
                     bmpDest = new Bitmap(w,h-2, PixelFormat.Format32bppRgb);
                     Rectangle rectDest = new Rectangle(0, 0, w, h-2);

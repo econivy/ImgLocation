@@ -37,14 +37,6 @@ namespace ImgLocation.Forms
         private void btnConvert_Click(object sender, EventArgs e)
         {
             SystemRepository sr = new SystemRepository();
-            if (radioInitial.Checked)
-            {
-                sr.WriteSystemConfig(601, "SearchModel", "段首查找");
-            }
-            else
-            {
-                sr.WriteSystemConfig(601, "SearchModel", "全文查找");
-            }
             Global.RefreshParams();
 
             if (tbLrm.Text.Trim().Length * tbRes.Text.Trim().Length * tbWord.Text.Trim().Length > 0)
@@ -98,15 +90,6 @@ namespace ImgLocation.Forms
         private void FolderForm_Load(object sender, EventArgs e)
         {
             SystemRepository sr = new SystemRepository();
-            if (sr.ReadSystemConfig(601).Trim().Length > 0)
-            {
-                radioInitial.Checked = sr.ReadSystemConfig(601).Trim() == "段首查找";
-                radioFull.Checked = sr.ReadSystemConfig(601).Trim() == "全文查找";
-            }
-            else
-            {
-                radioInitial.Checked = true;
-            }
         }
     }
 }

@@ -15,17 +15,7 @@ namespace ImgLocation.Models
         public string XH { get; set; }  //原XH字段
         public int Rank { get; set; }     //原SX字段
         public string DocumentImageFilename { get; set; }  //废弃字段
-        public int DocumentImageCount
-        {
-            get
-            {
-                return this._DocumnetImageCount;
-            }
-            set
-            {
-                this._DocumnetImageCount = DocumentImageCount;
-            }
-        } 
+        public int DocumentImageCount { get; set; }
         public string Local_SourceDocumnetFullpath { get; set; } //原SOURCE字段
         public int PageNumberStopLookCadre { get; set; }//废弃字段 因为DW合成图像不再生成 中组部转换时仍然使用该字段作为请示的识别页面位置
         //public string Document_Guid { get; set; }
@@ -85,10 +75,10 @@ namespace ImgLocation.Models
             get
             {
                 List<string> ImageFilePaths = new List<string>();
-                if (this._DocumnetImageCount > 0)
+                if (DocumentImageCount> 0)
                 {
                     string FilenameWithExtension = Path.GetFileNameWithoutExtension(Path.Combine(Global.ProjectOutputImgDirectory, this.DocumentImageFilename));
-                    for (int i = 0; i < this._DocumnetImageCount; i++)
+                    for (int i = 0; i < DocumentImageCount; i++)
                     {
                         ImageFilePaths.Add(string.Format("{0}_{1}.{2}", FilenameWithExtension, i, Global.ImgFormat.ToString().ToLower()));
                     }
@@ -99,10 +89,5 @@ namespace ImgLocation.Models
 
         public List<GB> GBS { get; set; }
 
-        //public List<DI> DIS { get; set; }
-        //public string IMG { get; set; }    //废弃字段 因为DW合成图像不再生成
-        //public int W { get; set; }//废弃字段 因为DW合成图像不再生成
-
-        private int _DocumnetImageCount;
     }
 }

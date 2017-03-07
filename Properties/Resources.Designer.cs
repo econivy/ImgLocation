@@ -183,6 +183,16 @@ namespace ImgLocation.Properties {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap document_key_red {
+            get {
+                object obj = ResourceManager.GetObject("document_key_red", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap document_remove {
             get {
                 object obj = ResourceManager.GetObject("document_remove", resourceCulture);
@@ -196,6 +206,16 @@ namespace ImgLocation.Properties {
         internal static System.Drawing.Bitmap Down {
             get {
                 object obj = ResourceManager.GetObject("Down", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap draw_tangle {
+            get {
+                object obj = ResourceManager.GetObject("draw_tangle", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

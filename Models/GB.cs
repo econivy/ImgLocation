@@ -9,10 +9,6 @@ namespace ImgLocation.Models
 {
     public class GB
     {
-        private int _LrmImageCount;
-        private int _ResImageCount;
-        private int _OtherImageCount;
-
         public string id { get; set; }
         public string DWID { get; set; }
         public string XM { get; set; }
@@ -23,44 +19,13 @@ namespace ImgLocation.Models
         public int Rank { get; set; }
 
         public string LrmImageFilename { get; set; }
-        public int LrmImageCount
-        {
-            get
-            {
-                return this._LrmImageCount;
-            }
-            set
-            {
-                this._LrmImageCount = LrmImageCount;
-            }
-        }
-
+        public int LrmImageCount { get; set; }
 
         public string ResImageFilename { get; set; }  
-        public int ResImageCount
-        {
-            get
-            {
-                return this._ResImageCount;
-            }
-            set
-            {
-                this._ResImageCount = ResImageCount;
-            }
-        }
+        public int ResImageCount { get; set; }
 
         public string OtherImageFilename { get; set; } 
-        public int OtherImageCount
-        {
-            get
-            {
-                return this._OtherImageCount;
-            }
-            set
-            {
-                this._OtherImageCount = OtherImageCount;
-            }
-        }
+        public int OtherImageCount { get; set; }
 
         public int DocumentImagePageNumber { get; set; }    
         public string DocumentImageFilename { get; set; } 
@@ -145,10 +110,10 @@ namespace ImgLocation.Models
             get
             {
                 List<string> ImageFilePaths = new List<string>();
-                if (this._LrmImageCount > 0)
+                if (this.LrmImageCount > 0)
                 {
                     string FilenameWithExtension = Path.GetFileNameWithoutExtension(Path.Combine(Global.ProjectOutputImgDirectory, this.LrmImageFilename));
-                    for (int i = 0; i < _LrmImageCount; i++)
+                    for (int i = 0; i < LrmImageCount; i++)
                     {
                         ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, string.Format("{0}_{1}.{2}", FilenameWithExtension, i, Global.ImgFormat.ToString().ToLower())));
                     }
@@ -166,10 +131,10 @@ namespace ImgLocation.Models
             get
             {
                 List<string> ImageFilePaths = new List<string>();
-                if (this._ResImageCount >0)
+                if (this.ResImageCount >0)
                 {
                     string FilenameWithExtension = Path.GetFileNameWithoutExtension(Path.Combine(Global.ProjectOutputImgDirectory, this.ResImageFilename));
-                    for (int i = 0; i < _ResImageCount; i++)
+                    for (int i = 0; i < ResImageCount; i++)
                     {
                         ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, string.Format("{0}_{1}.{2}", FilenameWithExtension, i, Global.ImgFormat.ToString().ToLower())));
                     }
@@ -187,10 +152,10 @@ namespace ImgLocation.Models
             get
             {
                 List<string> ImageFilePaths = new List<string>();
-                if (this._OtherImageCount > 0)
+                if (this.OtherImageCount > 0)
                 {
                     string FilenameWithExtension = Path.GetFileNameWithoutExtension(Path.Combine(Global.ProjectOutputImgDirectory, this.OtherImageFilename));
-                    for (int i = 0; i < _OtherImageCount; i++)
+                    for (int i = 0; i < OtherImageCount; i++)
                     {
                         ImageFilePaths.Add(Path.Combine(Global.ProjectOutputImgDirectory, string.Format("{0}_{1}.{2}", FilenameWithExtension, i, Global.ImgFormat.ToString().ToLower())));
                     }
@@ -204,15 +169,15 @@ namespace ImgLocation.Models
             get
             {
                 List<string> ImageFilePaths = new List<string>();
-                if(this._LrmImageCount>0)
+                if(this.LrmImageCount>0)
                 {
                     ImageFilePaths = ImageFilePaths.Union(this.LrmImageFileFullPaths).ToList();
                 }
-                if(this._ResImageCount>0)
+                if(this.ResImageCount>0)
                 {
                     ImageFilePaths = ImageFilePaths.Union(this.ResImageFileFullPaths).ToList();
                 }
-                if (this._OtherImageCount > 0)
+                if (this.OtherImageCount > 0)
                 {
                     ImageFilePaths = ImageFilePaths.Union(this.OtherImageFileFullPaths).ToList();
                 }

@@ -43,11 +43,7 @@
             this.btnLrm = new System.Windows.Forms.Button();
             this.btnRes = new System.Windows.Forms.Button();
             this.btnWord = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.radioFull = new System.Windows.Forms.RadioButton();
-            this.radioInitial = new System.Windows.Forms.RadioButton();
             this.GroupAdd.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -189,39 +185,6 @@
             this.btnWord.UseVisualStyleBackColor = true;
             this.btnWord.Click += new System.EventHandler(this.btnWord_Click);
             // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.radioFull);
-            this.groupBox1.Controls.Add(this.radioInitial);
-            this.groupBox1.Location = new System.Drawing.Point(339, 96);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(233, 51);
-            this.groupBox1.TabIndex = 12;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "干部检索方式";
-            // 
-            // radioFull
-            // 
-            this.radioFull.Checked = true;
-            this.radioFull.Location = new System.Drawing.Point(63, 17);
-            this.radioFull.Name = "radioFull";
-            this.radioFull.Size = new System.Drawing.Size(55, 24);
-            this.radioFull.TabIndex = 1;
-            this.radioFull.TabStop = true;
-            this.radioFull.Text = "全文";
-            this.radioFull.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.radioFull.UseVisualStyleBackColor = true;
-            // 
-            // radioInitial
-            // 
-            this.radioInitial.Location = new System.Drawing.Point(6, 17);
-            this.radioInitial.Name = "radioInitial";
-            this.radioInitial.Size = new System.Drawing.Size(51, 24);
-            this.radioInitial.TabIndex = 0;
-            this.radioInitial.Text = "段首";
-            this.radioInitial.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.radioInitial.UseVisualStyleBackColor = true;
-            // 
             // FolderForm
             // 
             this.AcceptButton = this.btnConvert;
@@ -229,7 +192,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(584, 188);
-            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.GroupAdd);
             this.Controls.Add(this.btnConvert);
             this.Controls.Add(this.btnCancel);
@@ -251,7 +213,6 @@
             this.Text = "目录导入";
             this.Load += new System.EventHandler(this.FolderForm_Load);
             this.GroupAdd.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -273,8 +234,5 @@
         private System.Windows.Forms.GroupBox GroupAdd;
         private System.Windows.Forms.RadioButton RadioAdd;
         private System.Windows.Forms.RadioButton RadioOver;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.RadioButton radioFull;
-        private System.Windows.Forms.RadioButton radioInitial;
     }
 }

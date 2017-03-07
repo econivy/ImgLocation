@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImgLocationForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.label2 = new System.Windows.Forms.Label();
             this.checkDrawPoint = new System.Windows.Forms.CheckBox();
             this.linkAbout = new System.Windows.Forms.LinkLabel();
             this.btnPushDifferent = new System.Windows.Forms.Button();
@@ -38,7 +39,6 @@
             this.btnOpenPDFDiatory = new System.Windows.Forms.Button();
             this.iCountDate = new System.Windows.Forms.DateTimePicker();
             this.lblProgectMeetingTitle = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
             this.lblProject = new System.Windows.Forms.Label();
             this.iProjectSetting = new System.Windows.Forms.Button();
             this.comboMeeting = new System.Windows.Forms.ComboBox();
@@ -62,7 +62,6 @@
             this.FilePicture = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TableLayoutMonitor = new System.Windows.Forms.TableLayoutPanel();
-            this.label2 = new System.Windows.Forms.Label();
             this.padMonitor0 = new ImgLocation.PadMonitor();
             this.padMonitor1 = new ImgLocation.PadMonitor();
             this.padMonitor2 = new ImgLocation.PadMonitor();
@@ -93,6 +92,8 @@
             this.padMonitor27 = new ImgLocation.PadMonitor();
             this.padMonitor28 = new ImgLocation.PadMonitor();
             this.padMonitor29 = new ImgLocation.PadMonitor();
+            this.checkShowWord = new System.Windows.Forms.CheckBox();
+            this.checkShowError = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -121,6 +122,8 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.checkShowError);
+            this.splitContainer1.Panel1.Controls.Add(this.checkShowWord);
             this.splitContainer1.Panel1.Controls.Add(this.label2);
             this.splitContainer1.Panel1.Controls.Add(this.checkDrawPoint);
             this.splitContainer1.Panel1.Controls.Add(this.linkAbout);
@@ -130,7 +133,6 @@
             this.splitContainer1.Panel1.Controls.Add(this.btnOpenPDFDiatory);
             this.splitContainer1.Panel1.Controls.Add(this.iCountDate);
             this.splitContainer1.Panel1.Controls.Add(this.lblProgectMeetingTitle);
-            this.splitContainer1.Panel1.Controls.Add(this.button1);
             this.splitContainer1.Panel1.Controls.Add(this.lblProject);
             this.splitContainer1.Panel1.Controls.Add(this.iProjectSetting);
             this.splitContainer1.Panel1.Controls.Add(this.comboMeeting);
@@ -155,12 +157,21 @@
             this.splitContainer1.SplitterDistance = 85;
             this.splitContainer1.TabIndex = 0;
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(905, 61);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(53, 12);
+            this.label2.TabIndex = 45;
+            this.label2.Text = "光标位置";
+            this.label2.Visible = false;
+            // 
             // checkDrawPoint
             // 
-            this.checkDrawPoint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.checkDrawPoint.Appearance = System.Windows.Forms.Appearance.Button;
-            //this.checkDrawPoint.Image = global::ImgLocation.Properties.Resources.ppen;
-            this.checkDrawPoint.Location = new System.Drawing.Point(990, 36);
+            this.checkDrawPoint.Image = global::ImgLocation.Properties.Resources.draw_tangle;
+            this.checkDrawPoint.Location = new System.Drawing.Point(859, 36);
             this.checkDrawPoint.Name = "checkDrawPoint";
             this.checkDrawPoint.Size = new System.Drawing.Size(40, 40);
             this.checkDrawPoint.TabIndex = 44;
@@ -197,7 +208,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(152, 15);
+            this.label1.Location = new System.Drawing.Point(82, 15);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(65, 12);
             this.label1.TabIndex = 41;
@@ -205,10 +216,9 @@
             // 
             // checkTouch
             // 
-            this.checkTouch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.checkTouch.Appearance = System.Windows.Forms.Appearance.Button;
-            //this.checkTouch.Image = global::ImgLocation.Properties.Resources.magic_stick;
-            this.checkTouch.Location = new System.Drawing.Point(920, 12);
+            this.checkTouch.Image = global::ImgLocation.Properties.Resources.document_key_red;
+            this.checkTouch.Location = new System.Drawing.Point(789, 12);
             this.checkTouch.Name = "checkTouch";
             this.checkTouch.Size = new System.Drawing.Size(64, 64);
             this.checkTouch.TabIndex = 40;
@@ -220,8 +230,9 @@
             // 
             // btnOpenPDFDiatory
             // 
+            this.btnOpenPDFDiatory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnOpenPDFDiatory.Image = global::ImgLocation.Properties.Resources.pdf2;
-            this.btnOpenPDFDiatory.Location = new System.Drawing.Point(832, 34);
+            this.btnOpenPDFDiatory.Location = new System.Drawing.Point(982, 36);
             this.btnOpenPDFDiatory.Name = "btnOpenPDFDiatory";
             this.btnOpenPDFDiatory.Size = new System.Drawing.Size(40, 40);
             this.btnOpenPDFDiatory.TabIndex = 38;
@@ -232,7 +243,7 @@
             // iCountDate
             // 
             this.iCountDate.CalendarMonthBackground = System.Drawing.SystemColors.Control;
-            this.iCountDate.Location = new System.Drawing.Point(223, 12);
+            this.iCountDate.Location = new System.Drawing.Point(153, 12);
             this.iCountDate.Name = "iCountDate";
             this.iCountDate.Size = new System.Drawing.Size(150, 21);
             this.iCountDate.TabIndex = 36;
@@ -240,30 +251,18 @@
             // lblProgectMeetingTitle
             // 
             this.lblProgectMeetingTitle.AutoSize = true;
-            this.lblProgectMeetingTitle.Location = new System.Drawing.Point(152, 57);
+            this.lblProgectMeetingTitle.Location = new System.Drawing.Point(82, 57);
             this.lblProgectMeetingTitle.Name = "lblProgectMeetingTitle";
             this.lblProgectMeetingTitle.Size = new System.Drawing.Size(65, 12);
             this.lblProgectMeetingTitle.TabIndex = 31;
             this.lblProgectMeetingTitle.Text = "当前会议：";
-            // 
-            // button1
-            // 
-            this.button1.Image = global::ImgLocation.Properties.Resources.params_edit;
-            this.button1.Location = new System.Drawing.Point(10, 10);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(64, 64);
-            this.button1.TabIndex = 39;
-            this.button1.Text = "参数管理";
-            this.button1.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // lblProject
             // 
             this.lblProject.AutoSize = true;
             this.lblProject.BackColor = System.Drawing.SystemColors.Window;
             this.lblProject.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblProject.Location = new System.Drawing.Point(223, 34);
+            this.lblProject.Location = new System.Drawing.Point(153, 34);
             this.lblProject.MinimumSize = new System.Drawing.Size(150, 20);
             this.lblProject.Name = "lblProject";
             this.lblProject.Size = new System.Drawing.Size(150, 20);
@@ -273,7 +272,7 @@
             // iProjectSetting
             // 
             this.iProjectSetting.Image = global::ImgLocation.Properties.Resources.folder_big;
-            this.iProjectSetting.Location = new System.Drawing.Point(82, 10);
+            this.iProjectSetting.Location = new System.Drawing.Point(12, 10);
             this.iProjectSetting.Name = "iProjectSetting";
             this.iProjectSetting.Size = new System.Drawing.Size(64, 64);
             this.iProjectSetting.TabIndex = 35;
@@ -295,7 +294,7 @@
             "会议议题6",
             "会议议题7",
             "会议议题8"});
-            this.comboMeeting.Location = new System.Drawing.Point(223, 55);
+            this.comboMeeting.Location = new System.Drawing.Point(153, 55);
             this.comboMeeting.Name = "comboMeeting";
             this.comboMeeting.Size = new System.Drawing.Size(150, 20);
             this.comboMeeting.TabIndex = 34;
@@ -317,7 +316,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(152, 36);
+            this.label3.Location = new System.Drawing.Point(82, 36);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(65, 12);
             this.label3.TabIndex = 33;
@@ -326,7 +325,7 @@
             // iCadreEditInfo
             // 
             this.iCadreEditInfo.Image = global::ImgLocation.Properties.Resources.cadre_detial;
-            this.iCadreEditInfo.Location = new System.Drawing.Point(704, 34);
+            this.iCadreEditInfo.Location = new System.Drawing.Point(736, 34);
             this.iCadreEditInfo.Name = "iCadreEditInfo";
             this.iCadreEditInfo.Size = new System.Drawing.Size(40, 40);
             this.iCadreEditInfo.TabIndex = 17;
@@ -337,7 +336,7 @@
             // iDocEditInfo
             // 
             this.iDocEditInfo.Image = global::ImgLocation.Properties.Resources.sheet;
-            this.iDocEditInfo.Location = new System.Drawing.Point(665, 34);
+            this.iDocEditInfo.Location = new System.Drawing.Point(697, 34);
             this.iDocEditInfo.Name = "iDocEditInfo";
             this.iDocEditInfo.Size = new System.Drawing.Size(40, 40);
             this.iDocEditInfo.TabIndex = 15;
@@ -347,7 +346,7 @@
             // iDocAdd
             // 
             this.iDocAdd.Image = global::ImgLocation.Properties.Resources.document_add1;
-            this.iDocAdd.Location = new System.Drawing.Point(626, 34);
+            this.iDocAdd.Location = new System.Drawing.Point(658, 34);
             this.iDocAdd.Name = "iDocAdd";
             this.iDocAdd.Size = new System.Drawing.Size(40, 40);
             this.iDocAdd.TabIndex = 14;
@@ -358,7 +357,7 @@
             // 
             this.iRemoveNode.FlatAppearance.BorderSize = 0;
             this.iRemoveNode.Image = global::ImgLocation.Properties.Resources.document_remove;
-            this.iRemoveNode.Location = new System.Drawing.Point(576, 34);
+            this.iRemoveNode.Location = new System.Drawing.Point(608, 34);
             this.iRemoveNode.Name = "iRemoveNode";
             this.iRemoveNode.Size = new System.Drawing.Size(40, 40);
             this.iRemoveNode.TabIndex = 13;
@@ -369,7 +368,7 @@
             // 
             this.iNodeDown.FlatAppearance.BorderSize = 0;
             this.iNodeDown.Image = global::ImgLocation.Properties.Resources.green_arrow_down;
-            this.iNodeDown.Location = new System.Drawing.Point(537, 34);
+            this.iNodeDown.Location = new System.Drawing.Point(569, 34);
             this.iNodeDown.Name = "iNodeDown";
             this.iNodeDown.Size = new System.Drawing.Size(40, 40);
             this.iNodeDown.TabIndex = 12;
@@ -380,7 +379,7 @@
             // 
             this.iNodeUp.FlatAppearance.BorderSize = 0;
             this.iNodeUp.Image = global::ImgLocation.Properties.Resources.green_arrow_up;
-            this.iNodeUp.Location = new System.Drawing.Point(498, 34);
+            this.iNodeUp.Location = new System.Drawing.Point(530, 34);
             this.iNodeUp.Name = "iNodeUp";
             this.iNodeUp.Size = new System.Drawing.Size(40, 40);
             this.iNodeUp.TabIndex = 11;
@@ -391,7 +390,7 @@
             // 
             this.iReOrder.FlatAppearance.BorderSize = 0;
             this.iReOrder.Image = global::ImgLocation.Properties.Resources.green_refresh;
-            this.iReOrder.Location = new System.Drawing.Point(459, 34);
+            this.iReOrder.Location = new System.Drawing.Point(491, 34);
             this.iReOrder.Name = "iReOrder";
             this.iReOrder.Size = new System.Drawing.Size(40, 40);
             this.iReOrder.TabIndex = 10;
@@ -401,8 +400,9 @@
             // 
             // iConvertPDF
             // 
+            this.iConvertPDF.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.iConvertPDF.Image = global::ImgLocation.Properties.Resources.pdf2;
-            this.iConvertPDF.Location = new System.Drawing.Point(762, 10);
+            this.iConvertPDF.Location = new System.Drawing.Point(912, 12);
             this.iConvertPDF.Name = "iConvertPDF";
             this.iConvertPDF.Size = new System.Drawing.Size(64, 64);
             this.iConvertPDF.TabIndex = 2;
@@ -414,7 +414,7 @@
             // iConvertPadData
             // 
             this.iConvertPadData.Image = global::ImgLocation.Properties.Resources.document_doc;
-            this.iConvertPadData.Location = new System.Drawing.Point(389, 10);
+            this.iConvertPadData.Location = new System.Drawing.Point(421, 10);
             this.iConvertPadData.Name = "iConvertPadData";
             this.iConvertPadData.Size = new System.Drawing.Size(64, 64);
             this.iConvertPadData.TabIndex = 1;
@@ -587,15 +587,6 @@
             this.TableLayoutMonitor.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TableLayoutMonitor.Size = new System.Drawing.Size(408, 645);
             this.TableLayoutMonitor.TabIndex = 1;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(1037, 61);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(41, 12);
-            this.label2.TabIndex = 45;
-            this.label2.Text = "label2";
             // 
             // padMonitor0
             // 
@@ -1077,6 +1068,28 @@
             this.padMonitor29.Size = new System.Drawing.Size(198, 34);
             this.padMonitor29.TabIndex = 29;
             // 
+            // checkShowWord
+            // 
+            this.checkShowWord.AutoSize = true;
+            this.checkShowWord.Location = new System.Drawing.Point(319, 15);
+            this.checkShowWord.Name = "checkShowWord";
+            this.checkShowWord.Size = new System.Drawing.Size(96, 16);
+            this.checkShowWord.TabIndex = 46;
+            this.checkShowWord.Text = "显示Word文档";
+            this.checkShowWord.UseVisualStyleBackColor = true;
+            this.checkShowWord.CheckedChanged += new System.EventHandler(this.checkShowWord_CheckedChanged);
+            // 
+            // checkShowError
+            // 
+            this.checkShowError.AutoSize = true;
+            this.checkShowError.Location = new System.Drawing.Point(319, 36);
+            this.checkShowError.Name = "checkShowError";
+            this.checkShowError.Size = new System.Drawing.Size(96, 16);
+            this.checkShowError.TabIndex = 47;
+            this.checkShowError.Text = "提示错误消息";
+            this.checkShowError.UseVisualStyleBackColor = true;
+            this.checkShowError.CheckedChanged += new System.EventHandler(this.checkShowError_CheckedChanged);
+            // 
             // ImgLocationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -1141,7 +1154,6 @@
         private System.Windows.Forms.Button btnPushAll;
         private System.Windows.Forms.Button btnFreshPad;
         private System.Windows.Forms.Button btnOpenPDFDiatory;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.CheckBox checkTouch;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel panel1;
@@ -1180,5 +1192,7 @@
         private System.Windows.Forms.LinkLabel linkAbout;
         private System.Windows.Forms.CheckBox checkDrawPoint;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox checkShowError;
+        private System.Windows.Forms.CheckBox checkShowWord;
     }
 }

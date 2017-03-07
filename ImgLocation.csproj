@@ -844,6 +844,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DevelopmentLog.txt" />
+    <None Include="Resources\draw_tangle.png" />
+    <None Include="Resources\document_key_red.png" />
     <None Include="documents\images\edit_add.png" />
     <None Include="documents\image\32\201503070243231000_easyicon_net_32.png" />
     <None Include="documents\image\32\201503040843571000_easyicon_net_32.png" />

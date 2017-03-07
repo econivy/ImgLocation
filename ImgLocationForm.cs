@@ -443,6 +443,10 @@ namespace ImgLocation
             FreshPad();
 
             checkDrawPoint.Enabled = checkTouch.Checked;
+
+            checkShowWord.Checked = sr.ReadSystemConfig(701).Trim().Length > 0 ? sr.ReadSystemConfig(701) == "是" : true;
+            checkShowError.Checked = sr.ReadSystemConfig(702).Trim().Length > 0 ? sr.ReadSystemConfig(702) == "是" : true;
+
         }
         private void iConvertPadData_Click(object sender, EventArgs e)
         {
@@ -1102,12 +1106,45 @@ namespace ImgLocation
             if (checkDrawPoint.Checked)
             {
                 TreeNode t = TreeDW.SelectedNode;
-                if (t.Level != 0)
+                if (t!=null&&t.Level != 0)
                 {
                     MessageBox.Show("只有选择文档页面时，才能手动绘制触发点");
                     checkDrawPoint.Checked = false;
                 }
             }
+            label2.Visible = checkDrawPoint.Checked;
+        }
+
+        private void checkShowWord_CheckedChanged(object sender, EventArgs e)
+        {
+            SystemRepository sr = new SystemRepository();
+            if (checkShowWord.Checked)
+            {
+                sr.WriteSystemConfig(701, "ShowWord", "是");
+            }
+            else
+            {
+                sr.WriteSystemConfig(701, "ShowWord", "否");
+            }
+           
+            Global.RefreshParams();
+            Global.ValidateDirectory();
+        }
+
+        private void checkShowError_CheckedChanged(object sender, EventArgs e)
+        {
+            SystemRepository sr = new SystemRepository();
+            if (checkShowError.Checked)
+            {
+                sr.WriteSystemConfig(702, "ShowError", "是");
+            }
+            else
+            {
+                sr.WriteSystemConfig(702, "ShowError", "否");
+            }
+
+            Global.RefreshParams();
+            Global.ValidateDirectory();
         }
     }
 }
