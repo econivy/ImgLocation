@@ -26,7 +26,7 @@ namespace ImgLocation
         public static ImageFormat ImgFormat;
         public static string SearchModel;
         public static bool IsShowWord;
-        public static bool IsShowMessage;
+        public static bool IsShowError;
 
         //此版本不再兼容中组部向文档后方添加任免表及考察材料的功能，下列属性废除
         //public static string ModelType;
@@ -52,7 +52,7 @@ namespace ImgLocation
             //IsAddRedTitle = sr.ReadSystemConfig(603).Trim().Length > 0 ? sr.ReadSystemConfig(603) == "是" : false;
             //IsAttachLrmRes = sr.ReadSystemConfig(604).Trim().Length > 0 ? sr.ReadSystemConfig(604) == "是" : false;
             IsShowWord = sr.ReadSystemConfig(701).Trim().Length > 0 ? sr.ReadSystemConfig(701) == "是" : true;
-            IsShowMessage = sr.ReadSystemConfig(702).Trim().Length > 0 ? sr.ReadSystemConfig(702) == "是" : true;
+            IsShowError = sr.ReadSystemConfig(702).Trim().Length > 0 ? sr.ReadSystemConfig(702) == "是" : true;
             //try
             //{
             //    Model1Left = Convert.ToInt32(sr.ReadSystemConfig(811).Trim());

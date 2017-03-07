@@ -97,7 +97,7 @@ namespace ImgLocation
         public DialogResult ShowMessage(string message, MessageType type)
         {
             DialogResult dr = DialogResult.OK;
-            if (Global.IsShowMessage)  //提醒或者终止转换
+            if (Global.IsShowError)  //提醒或者终止转换
             {
                 switch (type)
                 {
@@ -981,7 +981,7 @@ namespace ImgLocation
                             IQueryable<DocumentWithFile> docs = this.AllDocContents.Where(r => r.DocxFilename.Contains(g.XM) && r.DocxFilename.Contains("考察材料")).AsQueryable();
                             if (lrms.Count() > 1 || docs.Count() > 1)
                             {
-                                if (Global.IsShowMessage)
+                                if (Global.IsShowError)
                                 {
                                     SameCadreForm scf = new SameCadreForm();
                                     scf.Converting_GB = g;
