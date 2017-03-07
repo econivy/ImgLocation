@@ -717,7 +717,7 @@ namespace ImgLocation
                                     d.GBS.AddRange(GBsFromDocumentPage);
                                 }
                             }
-                            wordHelper.SaveDocumentAsPDF(d.Local_StorgeDocumentPdfFullpath);
+                            wordHelper.SaveDocumentAsXPS(d.Local_StorgeDocumentPdfFullpath);
 
                             // ۩ 这是一个墓碑，纪念曾经困扰我们多年的RPC错误；
                             //去死吧RPC错误
@@ -884,86 +884,25 @@ namespace ImgLocation
 
             //转换任免表
             string uuid = Guid.NewGuid().ToString();
-            if ((g.Local_SourceLrmFullpath != null && Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrm") && (g.Local_SourceLrmFullpath.Trim().Length > 0 && g.Local_SourcePicFullpath.Trim().Length > 0))
+            if(g.Local_SourceLrmFullpath!=null&& File.Exists(g.Local_SourceLrmFullpath))
             {
                 try
                 {
                     g.Lrm_Guid = Guid.NewGuid().ToString();
                     g.LrmImageCount = 1;
-
-                    /////TODO 为什么要赋值 不设置为只读属性？
-                    //g.LrmImageFilename = string.Format("{0}_01_{1}.{2}", g.XM, g.Lrm_Guid, Global.ImgFormat.ToString().ToLower())
-                    //    .Replace(" ", "").Replace("　", "")
-                    //    .Replace("\r", "").Replace("\n", "")
-                    //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
-
-                    /////TODO 本地存储路径不再赋值，直接在对象属性内生成
-                    //g.Local_StorgeLrmFullpath = Global.ProjectLrmPicDirectory + g.XM + ".lrm";
-                    //g.Local_StorgePicFullpath = Global.ProjectLrmPicDirectory + g.XM + ".pic";
-                    //g.Local_StorgeDocumentWordFullpath = Global.ProjectTempWordDirectory + g.XM + ".docx";
-                    //g.Local_StorgeLrmPdfFullpath = Global.ProjectTempPDFDirectory + g.XM + ".pdf";
-                    //g.LRMIMG = Global.ProjectOutputImgDirectory + g.LrmImageFilename;
-
                     File.Copy(g.Local_SourceLrmFullpath, g.Local_StorgeLrmFullpath, true);
-                    File.Copy(g.Local_SourcePicFullpath, g.Local_StorgePicFullpath, true);
-                    g = ConvertLrmToWordSaveAsPDF(Global.LrmToWordModelPath, g, Convert.ToDouble((CountDate).Date.ToString("yyyy.MM")));
+                    if(Path.GetExtension(g.Local_SourceLrmFullpath).ToLower()==".lrm")
+                    {
+                        File.Copy(g.Local_SourcePicFullpath, g.Local_StorgePicFullpath, true);
+                    }
+                    g = ConvertLrmToWordSaveAsXPS(Global.LrmToWordModelPath, g, Convert.ToDouble((CountDate).Date.ToString("yyyy.MM")));
                     List<Bitmap> bmps = ConvertLrmXPSToBitmapList(g.Local_StorgeLrmPdfFullpath);
                     bmps[0] = CutBottomBlankPart(bmps[0]);
                     bmps[0].Save(g.LrmImageFileFullPaths[0]);
-
-                    //bmps[0] = CutImage(bmps[0], 10);
-                    //bmps[1] = CutImage(bmps[1], 11);
-                    //bmps[2] = CutImage(bmps[2], 12);
-                    //bmps[2] = CutImage(bmps[2], 22);
-
-                    //Bitmap bmp = JoinBitmap(bmps);
-                    //bmp.Save(g.LrmImageFileFullPaths[0]);  //g.LrmImageCount = 1 第一个图像为存储图像
-                    //bmp.Dispose();
-                    bmps[0].Dispose();
-                    bmps.Clear();
-
-                }
-                catch (Exception ex)
-                {
-                    ShowMessage(string.Format("[转换干部任免审批表失败:{0}]，{1}", g.Local_SourceLrmFullpath, ex.Message), MessageType.Error);
-                }
-            }
-            else if (g.Local_SourceLrmFullpath != null && (Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrmx") && (g.Local_SourceLrmFullpath.Trim().Length > 0))
-            {
-                try
-                {
-                    g.Lrm_Guid = Guid.NewGuid().ToString();
-                    g.LrmImageCount = 1;
-                    //g.LrmImageFilename = string.Format("{0}_01_{1}.{2}", g.XM, g.Lrm_Guid, Global.ImgFormat.ToString().ToLower())
-                    //    .Replace(" ", "").Replace("　", "")
-                    //    .Replace("\r", "").Replace("\n", "")
-                    //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
-
-                    /////TODO 本地存储路径不再赋值，直接在对象属性内生成
-                    //g.Local_StorgeLrmFullpath = Global.ProjectLrmPicDirectory + g.XM + ".lrmx";
-                    //g.Local_StorgePicFullpath = "";
-                    //g.Local_StorgeDocumentWordFullpath = Global.ProjectTempWordDirectory + g.XM + ".docx";
-                    //g.Local_StorgeLrmPdfFullpath = Global.ProjectTempPDFDirectory + g.XM + ".pdf";
-                    //g.LRMIMG = Global.ProjectOutputImgDirectory + g.LrmImageFilename;// 这个属性可以删除 不再予以保留了
-
-                    File.Copy(g.Local_SourceLrmFullpath, g.Local_StorgeLrmFullpath, true);
-                    g = ConvertLrmToWordSaveAsPDF(Global.LrmToWordModelPath, g, Convert.ToDouble((CountDate).Date.ToString("yyyy.MM")));
-                    List<Bitmap> bmps = ConvertLrmXPSToBitmapList(g.Local_StorgeLrmPdfFullpath);
-                    bmps[0] = CutBottomBlankPart(bmps[0]);
-                    bmps[0].Save(g.LrmImageFileFullPaths[0]);
-
-                    //bmps[0] = CutImage(bmps[0], 10);
-                    //bmps[1] = CutImage(bmps[1], 11);
-                    //bmps[2] = CutImage(bmps[2], 12);
-                    //bmps[2] = CutImage(bmps[2], 22);
-
-                    //Bitmap bmp = JoinBitmap(bmps);
-                    //bmp.Save(g.LrmImageFileFullPaths[0]);  //g.LrmImageCount = 1 第一个图像为存储图像
-                    //bmp.Dispose();
                     bmps[0].Dispose();
                     bmps.Clear();
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     ShowMessage(string.Format("[转换干部任免审批表失败:{0}]，{1}", g.Local_SourceLrmFullpath, ex.Message), MessageType.Error);
                 }
@@ -972,6 +911,97 @@ namespace ImgLocation
             {
                 g.LrmImageCount = 0;
             }
+
+            #region 原转换任免表方法 已经被简化，此段代码废弃。
+            //if ((g.Local_SourceLrmFullpath != null && Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrm") && (g.Local_SourceLrmFullpath.Trim().Length > 0 && g.Local_SourcePicFullpath.Trim().Length > 0))
+            //{
+            //    try
+            //    {
+            //        g.Lrm_Guid = Guid.NewGuid().ToString();
+            //        g.LrmImageCount = 1;
+
+            //        /////TODO 为什么要赋值 不设置为只读属性？
+            //        //g.LrmImageFilename = string.Format("{0}_01_{1}.{2}", g.XM, g.Lrm_Guid, Global.ImgFormat.ToString().ToLower())
+            //        //    .Replace(" ", "").Replace("　", "")
+            //        //    .Replace("\r", "").Replace("\n", "")
+            //        //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
+
+            //        /////TODO 本地存储路径不再赋值，直接在对象属性内生成
+            //        //g.Local_StorgeLrmFullpath = Global.ProjectLrmPicDirectory + g.XM + ".lrm";
+            //        //g.Local_StorgePicFullpath = Global.ProjectLrmPicDirectory + g.XM + ".pic";
+            //        //g.Local_StorgeDocumentWordFullpath = Global.ProjectTempWordDirectory + g.XM + ".docx";
+            //        //g.Local_StorgeLrmPdfFullpath = Global.ProjectTempPDFDirectory + g.XM + ".pdf";
+            //        //g.LRMIMG = Global.ProjectOutputImgDirectory + g.LrmImageFilename;
+
+            //        File.Copy(g.Local_SourceLrmFullpath, g.Local_StorgeLrmFullpath, true);
+            //        File.Copy(g.Local_SourcePicFullpath, g.Local_StorgePicFullpath, true);
+            //        g = ConvertLrmToWordSaveAsXPS(Global.LrmToWordModelPath, g, Convert.ToDouble((CountDate).Date.ToString("yyyy.MM")));
+            //        List<Bitmap> bmps = ConvertLrmXPSToBitmapList(g.Local_StorgeLrmPdfFullpath);
+            //        bmps[0] = CutBottomBlankPart(bmps[0]);
+            //        bmps[0].Save(g.LrmImageFileFullPaths[0]);
+
+            //        //bmps[0] = CutImage(bmps[0], 10);
+            //        //bmps[1] = CutImage(bmps[1], 11);
+            //        //bmps[2] = CutImage(bmps[2], 12);
+            //        //bmps[2] = CutImage(bmps[2], 22);
+
+            //        //Bitmap bmp = JoinBitmap(bmps);
+            //        //bmp.Save(g.LrmImageFileFullPaths[0]);  //g.LrmImageCount = 1 第一个图像为存储图像
+            //        //bmp.Dispose();
+            //        bmps[0].Dispose();
+            //        bmps.Clear();
+
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        ShowMessage(string.Format("[转换干部任免审批表失败:{0}]，{1}", g.Local_SourceLrmFullpath, ex.Message), MessageType.Error);
+            //    }
+            //}
+            //else if (g.Local_SourceLrmFullpath != null && (Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrmx") && (g.Local_SourceLrmFullpath.Trim().Length > 0))
+            //{
+            //    try
+            //    {
+            //        g.Lrm_Guid = Guid.NewGuid().ToString();
+            //        g.LrmImageCount = 1;
+            //        //g.LrmImageFilename = string.Format("{0}_01_{1}.{2}", g.XM, g.Lrm_Guid, Global.ImgFormat.ToString().ToLower())
+            //        //    .Replace(" ", "").Replace("　", "")
+            //        //    .Replace("\r", "").Replace("\n", "")
+            //        //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
+
+            //        /////TODO 本地存储路径不再赋值，直接在对象属性内生成
+            //        //g.Local_StorgeLrmFullpath = Global.ProjectLrmPicDirectory + g.XM + ".lrmx";
+            //        //g.Local_StorgePicFullpath = "";
+            //        //g.Local_StorgeDocumentWordFullpath = Global.ProjectTempWordDirectory + g.XM + ".docx";
+            //        //g.Local_StorgeLrmPdfFullpath = Global.ProjectTempPDFDirectory + g.XM + ".pdf";
+            //        //g.LRMIMG = Global.ProjectOutputImgDirectory + g.LrmImageFilename;// 这个属性可以删除 不再予以保留了
+
+            //        File.Copy(g.Local_SourceLrmFullpath, g.Local_StorgeLrmFullpath, true);
+            //        g = ConvertLrmToWordSaveAsXPS(Global.LrmToWordModelPath, g, Convert.ToDouble((CountDate).Date.ToString("yyyy.MM")));
+            //        List<Bitmap> bmps = ConvertLrmXPSToBitmapList(g.Local_StorgeLrmPdfFullpath);
+            //        bmps[0] = CutBottomBlankPart(bmps[0]);
+            //        bmps[0].Save(g.LrmImageFileFullPaths[0]);
+
+            //        //bmps[0] = CutImage(bmps[0], 10);
+            //        //bmps[1] = CutImage(bmps[1], 11);
+            //        //bmps[2] = CutImage(bmps[2], 12);
+            //        //bmps[2] = CutImage(bmps[2], 22);
+
+            //        //Bitmap bmp = JoinBitmap(bmps);
+            //        //bmp.Save(g.LrmImageFileFullPaths[0]);  //g.LrmImageCount = 1 第一个图像为存储图像
+            //        //bmp.Dispose();
+            //        bmps[0].Dispose();
+            //        bmps.Clear();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        ShowMessage(string.Format("[转换干部任免审批表失败:{0}]，{1}", g.Local_SourceLrmFullpath, ex.Message), MessageType.Error);
+            //    }
+            //}
+            //else
+            //{
+            //    g.LrmImageCount = 0;
+            //}
+            #endregion
 
             //转换考察材料
             if (g.Local_SourceResFullpath!=null&&g.Local_SourceResFullpath.Trim().Length > 0)
@@ -1179,7 +1209,7 @@ namespace ImgLocation
         }
 
         //内部方法
-        private GB ConvertLrmToWordSaveAsPDF(string ModelPath, GB g, double countdate)
+        private GB ConvertLrmToWordSaveAsXPS(string ModelPath, GB g, double countdate)
         {
             Person cadre_person;
             using (WordHelper wordHelper = new WordHelper(ModelPath, Global.IsShowWord))
@@ -1623,7 +1653,7 @@ namespace ImgLocation
 
 
                 wordHelper.SaveDocumentAs(g.Local_StorgeDocumentWordFullpath);
-                wordHelper.SaveDocumentAsPDF(g.Local_StorgeLrmPdfFullpath);
+                wordHelper.SaveDocumentAsXPS(g.Local_StorgeLrmPdfFullpath);
                 //g.XSD = 1;
                 //我这是疯了么，这么多Person对象，就这样仍在内存里！！！！
                 if (cadre_person != null)
@@ -1677,7 +1707,7 @@ namespace ImgLocation
                 }
 
                 wordHelper.SaveDocumentAs(g.Local_StorgeResFullpath);
-                wordHelper.SaveDocumentAsPDF(g.Local_StorgeResPdfFullPath);
+                wordHelper.SaveDocumentAsXPS(g.Local_StorgeResPdfFullPath);
             }
 
         }

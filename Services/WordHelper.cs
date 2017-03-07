@@ -174,7 +174,7 @@ namespace ImgLocation.Services
             }
         }
 
-        public bool SaveDocumentAsPDF0(string savePath)
+        public bool SaveDocumentAsPDF(string savePath)
         {
             try
             {
@@ -193,7 +193,7 @@ namespace ImgLocation.Services
                 return false;
             }
         }
-        public bool SaveDocumentAsPDF(string savePath)
+        public bool SaveDocumentAsXPS(string savePath)
         {
             try
             {

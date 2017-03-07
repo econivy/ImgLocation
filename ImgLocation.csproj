@@ -239,6 +239,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Repository\SQLiteHelper.cs" />
+    <Compile Include="Services\LrmToImage.cs" />
     <Compile Include="Services\ProcessHelper.cs" />
     <Compile Include="Models\DW.cs" />
     <Compile Include="Models\GB.cs" />
