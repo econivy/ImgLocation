@@ -446,7 +446,7 @@ namespace ImgLocation
 
             checkShowWord.Checked = sr.ReadSystemConfig(701).Trim().Length > 0 ? sr.ReadSystemConfig(701) == "是" : true;
             checkShowError.Checked = sr.ReadSystemConfig(702).Trim().Length > 0 ? sr.ReadSystemConfig(702) == "是" : true;
-
+            checkUseLrmImageModel.Checked= sr.ReadSystemConfig(801).Trim().Length > 0 ? sr.ReadSystemConfig(801) == "是" : true;
         }
         private void iConvertPadData_Click(object sender, EventArgs e)
         {
@@ -1130,6 +1130,22 @@ namespace ImgLocation
             else
             {
                 sr.WriteSystemConfig(702, "ShowError", "否");
+            }
+
+            Global.RefreshParams();
+            Global.ValidateDirectory();
+        }
+
+        private void checkUseLrmImageModel_CheckedChanged(object sender, EventArgs e)
+        {
+            SystemRepository sr = new SystemRepository();
+            if (checkUseLrmImageModel.Checked)
+            {
+                sr.WriteSystemConfig(801, "UseLrmImageModel", "是");
+            }
+            else
+            {
+                sr.WriteSystemConfig(801, "UseLrmImageModel", "否");
             }
 
             Global.RefreshParams();

@@ -30,6 +30,8 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImgLocationForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.checkShowError = new System.Windows.Forms.CheckBox();
+            this.checkShowWord = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.checkDrawPoint = new System.Windows.Forms.CheckBox();
             this.linkAbout = new System.Windows.Forms.LinkLabel();
@@ -92,8 +94,7 @@
             this.padMonitor27 = new ImgLocation.PadMonitor();
             this.padMonitor28 = new ImgLocation.PadMonitor();
             this.padMonitor29 = new ImgLocation.PadMonitor();
-            this.checkShowWord = new System.Windows.Forms.CheckBox();
-            this.checkShowError = new System.Windows.Forms.CheckBox();
+            this.checkUseLrmImageModel = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -122,6 +123,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.checkUseLrmImageModel);
             this.splitContainer1.Panel1.Controls.Add(this.checkShowError);
             this.splitContainer1.Panel1.Controls.Add(this.checkShowWord);
             this.splitContainer1.Panel1.Controls.Add(this.label2);
@@ -156,6 +158,28 @@
             this.splitContainer1.Size = new System.Drawing.Size(1444, 736);
             this.splitContainer1.SplitterDistance = 85;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // checkShowError
+            // 
+            this.checkShowError.AutoSize = true;
+            this.checkShowError.Location = new System.Drawing.Point(319, 36);
+            this.checkShowError.Name = "checkShowError";
+            this.checkShowError.Size = new System.Drawing.Size(96, 16);
+            this.checkShowError.TabIndex = 47;
+            this.checkShowError.Text = "提示错误消息";
+            this.checkShowError.UseVisualStyleBackColor = true;
+            this.checkShowError.CheckedChanged += new System.EventHandler(this.checkShowError_CheckedChanged);
+            // 
+            // checkShowWord
+            // 
+            this.checkShowWord.AutoSize = true;
+            this.checkShowWord.Location = new System.Drawing.Point(319, 15);
+            this.checkShowWord.Name = "checkShowWord";
+            this.checkShowWord.Size = new System.Drawing.Size(96, 16);
+            this.checkShowWord.TabIndex = 46;
+            this.checkShowWord.Text = "显示Word文档";
+            this.checkShowWord.UseVisualStyleBackColor = true;
+            this.checkShowWord.CheckedChanged += new System.EventHandler(this.checkShowWord_CheckedChanged);
             // 
             // label2
             // 
@@ -1068,27 +1092,16 @@
             this.padMonitor29.Size = new System.Drawing.Size(198, 34);
             this.padMonitor29.TabIndex = 29;
             // 
-            // checkShowWord
+            // checkUseLrmImageModel
             // 
-            this.checkShowWord.AutoSize = true;
-            this.checkShowWord.Location = new System.Drawing.Point(319, 15);
-            this.checkShowWord.Name = "checkShowWord";
-            this.checkShowWord.Size = new System.Drawing.Size(96, 16);
-            this.checkShowWord.TabIndex = 46;
-            this.checkShowWord.Text = "显示Word文档";
-            this.checkShowWord.UseVisualStyleBackColor = true;
-            this.checkShowWord.CheckedChanged += new System.EventHandler(this.checkShowWord_CheckedChanged);
-            // 
-            // checkShowError
-            // 
-            this.checkShowError.AutoSize = true;
-            this.checkShowError.Location = new System.Drawing.Point(319, 36);
-            this.checkShowError.Name = "checkShowError";
-            this.checkShowError.Size = new System.Drawing.Size(96, 16);
-            this.checkShowError.TabIndex = 47;
-            this.checkShowError.Text = "提示错误消息";
-            this.checkShowError.UseVisualStyleBackColor = true;
-            this.checkShowError.CheckedChanged += new System.EventHandler(this.checkShowError_CheckedChanged);
+            this.checkUseLrmImageModel.AutoSize = true;
+            this.checkUseLrmImageModel.Location = new System.Drawing.Point(319, 57);
+            this.checkUseLrmImageModel.Name = "checkUseLrmImageModel";
+            this.checkUseLrmImageModel.Size = new System.Drawing.Size(96, 16);
+            this.checkUseLrmImageModel.TabIndex = 48;
+            this.checkUseLrmImageModel.Text = "使用快捷模板";
+            this.checkUseLrmImageModel.UseVisualStyleBackColor = true;
+            this.checkUseLrmImageModel.CheckedChanged += new System.EventHandler(this.checkUseLrmImageModel_CheckedChanged);
             // 
             // ImgLocationForm
             // 
@@ -1194,5 +1207,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox checkShowError;
         private System.Windows.Forms.CheckBox checkShowWord;
+        private System.Windows.Forms.CheckBox checkUseLrmImageModel;
     }
 }

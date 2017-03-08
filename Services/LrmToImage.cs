@@ -82,16 +82,12 @@ namespace ImgLocation.Services
         /// </summary>
         public Bitmap CreateImage()
         {
-            Bitmap b = new Bitmap(imageWidth, 3200, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+            Bitmap b = new Bitmap(imageWidth, 3200, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             Graphics g = Graphics.FromImage(b);
 
             try
             {
-                // 插值算法的质量
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality; //高质量
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality; //高像素偏移质量
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;//增强字体
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
                 //画笔
                 SolidBrush brush = new SolidBrush(Color.FromArgb(0, 0, 0));
                 //字体
@@ -174,8 +170,13 @@ namespace ImgLocation.Services
                 //重新创建画布和画笔
                 b = new Bitmap(rect.Width, rect.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
                 g = Graphics.FromImage(b);
-                g.FillRectangle(Brushes.White, rect);
 
+                // 插值算法的质量
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality; //高质量
+                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality; //高像素偏移质量
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;//增强字体
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.FillRectangle(Brushes.White, rect);
 
                 //列
                 //第1列
@@ -333,7 +334,7 @@ namespace ImgLocation.Services
 
                 //家庭成员
                 int yFamily = y14;
-                List<Model.Item> Items = person.JiaTingChengYuan;
+                List<Item> Items = person.JiaTingChengYuan;
 
                 //标题
                 g.DrawLine(pen, x11, yFamily, x11, yFamily + this.minHeight);
@@ -363,7 +364,7 @@ namespace ImgLocation.Services
                     int familyHeight = this.minHeight;
                     if (n < Items.Count)
                     {
-                        Model.Item item = Items[n];
+                        Item item = Items[n];
                         familyHeight = GetHeight(g, item.GongZuoDanWeiJiZhiWu, font, brush, x17 - x16);
 
                         //绘制内容
@@ -408,7 +409,7 @@ namespace ImgLocation.Services
             return b;
         }
 
-        private int GetFamilyHeight(Graphics g, List<Model.Item> Items, Font font, SolidBrush b, int width)
+        private int GetFamilyHeight(Graphics g, List<Item> Items, Font font, SolidBrush b, int width)
         {
             int back = this.minHeight;
 
@@ -433,7 +434,7 @@ namespace ImgLocation.Services
                 int myHeight = this.minHeight;
                 if (n < Items.Count)
                 {
-                    Model.Item item = Items[n];
+                    Item item = Items[n];
 
                     myHeight = GetHeight(g, item.GongZuoDanWeiJiZhiWu, font, b, width);
                 }

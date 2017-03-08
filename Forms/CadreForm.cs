@@ -160,7 +160,7 @@ namespace ImgLocation.Forms
         private void btnOther_Click(object sender, EventArgs e)
         {
             OpenFileDialog fbd = new OpenFileDialog();
-            fbd.Filter = "PDF 文档(*.pdf)|*.pdf";
+            fbd.Filter = "XPS 文档(*.xps)|*.xps";
             if (fbd.ShowDialog() == DialogResult.OK)
             {
                 lblOther.Text = fbd.FileName;

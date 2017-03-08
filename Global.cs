@@ -27,6 +27,7 @@ namespace ImgLocation
         //public static string SearchModel;
         public static bool IsShowWord;
         public static bool IsShowError;
+        public static bool IsUsingLrmToImageModel;
 
         public static void RefreshParams()
         {
@@ -38,6 +39,7 @@ namespace ImgLocation
             VerticalCutSize = 26;
             IsShowWord = sr.ReadSystemConfig(701).Trim().Length > 0 ? sr.ReadSystemConfig(701) == "是" : true;
             IsShowError = sr.ReadSystemConfig(702).Trim().Length > 0 ? sr.ReadSystemConfig(702) == "是" : true;
+            IsUsingLrmToImageModel = sr.ReadSystemConfig(801).Trim().Length > 0 ? sr.ReadSystemConfig(801) == "是" : true;
         }
 
         public static Project LoadDefaultProject()
