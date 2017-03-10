@@ -34,7 +34,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>2</ApplicationRevision>
-    <ApplicationVersion>1.2.5.%2a</ApplicationVersion>
+    <ApplicationVersion>3.1.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -158,17 +158,11 @@
     <Compile Include="About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
-    <Compile Include="ConvertPDFFileForm.cs">
+    <Compile Include="ConvertProcessForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ConvertPDFFileForm.Designer.cs">
-      <DependentUpon>ConvertPDFFileForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ConvertPadDataForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ConvertPadDataForm.Designer.cs">
-      <DependentUpon>ConvertPadDataForm.cs</DependentUpon>
+    <Compile Include="ConvertProcessForm.Designer.cs">
+      <DependentUpon>ConvertProcessForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\CadreForm.cs">
       <SubType>Form</SubType>
@@ -212,12 +206,6 @@
     <Compile Include="Forms\SameCadreForm.Designer.cs">
       <DependentUpon>SameCadreForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\TestForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\TestForm.Designer.cs">
-      <DependentUpon>TestForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Global.cs" />
     <Compile Include="ImgLocationForm.cs">
       <SubType>Form</SubType>
@@ -254,11 +242,8 @@
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ConvertPDFFileForm.resx">
-      <DependentUpon>ConvertPDFFileForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ConvertPadDataForm.resx">
-      <DependentUpon>ConvertPadDataForm.cs</DependentUpon>
+    <EmbeddedResource Include="ConvertProcessForm.resx">
+      <DependentUpon>ConvertProcessForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\CadreForm.resx">
       <DependentUpon>CadreForm.cs</DependentUpon>
@@ -280,9 +265,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SameCadreForm.resx">
       <DependentUpon>SameCadreForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\TestForm.resx">
-      <DependentUpon>TestForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ImgLocationForm.resx">
       <DependentUpon>ImgLocationForm.cs</DependentUpon>

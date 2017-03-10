@@ -586,7 +586,6 @@ namespace ImgLocation.Services
 
             RectangleF gc = gp.GetBounds();
 
-            // TODO: need fix: get incorrect size if CJK fonts
             //sizeF.Height += 2;
 
             float x0 = x + width / 2 - sizeF.Width / 2 + 1;
@@ -844,7 +843,6 @@ namespace ImgLocation.Services
                 sizeF = g.MeasureString(text, newFont, width, sf);
             }
 
-            // TODO: need fix: get incorrect size if CJK fonts
             sizeF.Height += 2;
 
             float x0 = x1 + width / 2 - sizeF.Width / 2 + 1;
@@ -901,7 +899,6 @@ namespace ImgLocation.Services
 
             Font newFont = font;//依次减少字体
 
-            // TODO: need fix: get incorrect size if CJK fonts
             sizeF.Height += 2;
 
             float x0 = x1 + width / 2 - sizeF.Width / 2 + 1;
@@ -948,7 +945,6 @@ namespace ImgLocation.Services
                 sizeF = g.MeasureString(text, newFont, width, sf);
             }
 
-            // TODO: need fix: get incorrect size if CJK fonts
             sizeF.Height += 2;
 
             float x0 = x1 + width / 2 - sizeF.Width / 2 + 1;
@@ -984,7 +980,6 @@ namespace ImgLocation.Services
                 sizeF = g.MeasureString(text, newFont, width, sf);
             }
 
-            // TODO: need fix: get incorrect size if CJK fonts
             sizeF.Height += 2;
 
             float x0 = x1;

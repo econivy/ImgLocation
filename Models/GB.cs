@@ -119,6 +119,8 @@ namespace ImgLocation.Models
             }
         }
 
+
+
         /// <summary>
         /// 非存储字段
         /// 所有的Lrm图像的存放位置
@@ -203,6 +205,28 @@ namespace ImgLocation.Models
             }
         }
 
+
+        public string Local_SaveLrmPdfForCombineFullpath
+        {
+            get
+            {
+                return Global.ProjectPDFTempDirectory + DWID + @"\001.pdf";
+            }
+        }
+        public string Local_SaveResPdfForCombineFullpath
+        {
+            get
+            {
+                return Global.ProjectPDFTempDirectory + DWID + @"\002.pdf";
+            }
+        }
+        public string Local_SaveOtherPdfForCombineFullpath
+        {
+            get
+            {
+                return Global.ProjectPDFTempDirectory + DWID + @"\003.pdf";
+            }
+        }
     }
 
 }

@@ -14,15 +14,40 @@ namespace ImgLocation.Services
 {
     public class LrmHelper
     {
+        public LrmHelper() { }
+
         private string ContentText { get; set; }
-        public LrmHelper()
+
+        public Person GetPersonFromLrmFile(string LrmPath)
         {
-            //默认构造函数
+            if (!File.Exists(LrmPath))
+            {
+                throw new FileNotFoundException(string.Format("指定路径的任免审批表文件{0}不存在。",LrmPath));
+            }
+            else if (Path.GetExtension(LrmPath) == ".lrm")
+            {
+                string PicPath = Path.Combine(Path.GetDirectoryName(LrmPath), Path.GetFileNameWithoutExtension(LrmPath)+".pic");
+                if(!File.Exists(PicPath))
+                {
+                    throw new FileNotFoundException(string.Format("指定路径的任免审批表2.0文件{0}的头像文件{1}不存在。",LrmPath,PicPath));
+                }
+                else
+                {
+                    return this.GetPersonFromLrm(LrmPath,PicPath);
+                }
+            }
+            else if (Path.GetExtension(LrmPath) == ".lrmx")
+            {
+                return GetPersonFromLrmx(LrmPath);
+            }
+            else
+            {
+                throw new FileFormatException(string.Format("指定路径的文件{0}不是合法的任免审批表2.0或者3.0格式文件。", LrmPath));
+            }
         }
 
-        #region 方法集合
 
-        public Person GetPersonFromLrmx(string lrmxPath)
+        Person GetPersonFromLrmx(string lrmxPath)
         {
             if (File.Exists(lrmxPath))
             {
@@ -64,7 +89,7 @@ namespace ImgLocation.Services
         /// 从中组部文件读出文本流为依据创建干部信息
         /// </summary>
         /// <returns></returns>
-        public Person GetPersonFromLrm(string lrmPath, string picPath)
+        Person GetPersonFromLrm(string lrmPath, string picPath)
         {
             this.ContentText = this.ReadFile(lrmPath);
 
@@ -146,7 +171,6 @@ namespace ImgLocation.Services
             return cadre_person;
         }
 
-        #endregion
 
         #region 内部方法集合
         private string AddDot(string strDate)

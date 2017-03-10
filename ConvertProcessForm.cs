@@ -20,13 +20,15 @@ using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Xps.Packaging;
 using Word = Microsoft.Office.Interop.Word;
+using iText = iTextSharp.text;
+using iTextPdf = iTextSharp.text.pdf;
 
 namespace ImgLocation
 {
 
-    public partial class ConvertPadDataForm : Form
+    public partial class ConvertProcessForm : Form
     {
-        public ConvertPadDataForm()
+        public ConvertProcessForm()
         {
             InitializeComponent();
         }
@@ -47,7 +49,6 @@ namespace ImgLocation
             public string XM;
             public string Filename;
         }
-
         public struct DWInfo
         {
             public int i;
@@ -235,7 +236,7 @@ namespace ImgLocation
                 }
                 d.XH = ixh == 0 ? "" : ixh.ToString();
 
-                ConvertDocument(d);
+                ConvertDocument(d, string.Empty, true);
 
                 ConvertProcess.Value = 30 + (i + 1) * 100;
                 LogRecord(string.Format("[共{0}个文档，已转换{1}个文档]，文档{2}已转换完成。", WordDocumentPaths.Count, i + 1, Path.GetFileName(documentPath)));
@@ -255,10 +256,6 @@ namespace ImgLocation
                 this.Close();
                 this.FatherForm.Show();
             }
-        }
-        public DW ConvertSingleDocument(DW document)
-        {
-            return ConvertSingleDocument(document, string.Empty, true);
         }
         public DW ConvertSingleDocument(DW document, string ConvertPageRange, bool IsRelocationCadre)
         {
@@ -369,10 +366,6 @@ namespace ImgLocation
             dr.EditGB(g);
             return g;
         }
-        public DW ConvertDocument(DW d)
-        {
-            return ConvertDocument(d, string.Empty, true);
-        }
         public DW ConvertDocument(DW d, string ConvertPageRange, bool IsLocationCadre)
         {
             //转换前，先根据ConvertPageRange生成需要替换的图像索引列表
@@ -399,7 +392,6 @@ namespace ImgLocation
 
             //当convertPageIndexes为0时转换全部页面时，删除全部原有文档图像
             //否则，根据convertPageIndexes删除指定索引的页面
-            ///TODO
             if (d.DocumentImageCount > 0 && convertPageIndexes.Count == 0)
             {
                 foreach (string documentimage in d.DocumentImageFileFullPaths)
@@ -541,7 +533,6 @@ namespace ImgLocation
                         //根据IsLocationCadre判断是否获取干部姓名所在点位
                         if (IsLocationCadre)
                         {
-                            ///TODO 需要根据条件确定是否识别干部点位
                             ///识别指定页面的干部信息
                             ///为了识别指定页面的干部信息，获取文档干部点位时 不应当直接给d.GBS赋值，应当通过中转变量
 
@@ -569,16 +560,6 @@ namespace ImgLocation
                                 {
                                     oSelection.MoveUp(ref oUnitParagraph, ref oCount, ref oExtendNone);//光标移至该段段首
                                     oCount1 = 1;
-
-                                    //获取当前光标位置与页面左端的宽度 单位英寸
-                                    double oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-                                    //获取当前光标位置与页面左端的宽度 单位英寸
-                                    double oParagraphHorizontalEnd = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-
-                                    //获取当前段落的起始位置与页面顶端的高度 单位英寸
-                                    double oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-                                    //获取当前段落的结束位置与页面顶端的高度 单位英寸
-                                    double oParagraphEnd = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
 
                                     int oPageStart = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
                                     int oPageEnd = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
@@ -623,11 +604,25 @@ namespace ImgLocation
                                                 oSelection.MoveRight(ref oUnitCharacter, ref oCount, ref oExtendNone);//光标移至该干部名字后方
                                                 oSelection.MoveRight(ref oUnitCharacter, ref oCount1, ref oExtend);//选中一个字
                                                 if (oSelection.Range.Font.Name != "黑体"
-                                                    || (oSelection.Range.Font.Name == "黑体" && (oSelection.Range.Text.Contains("、") || oSelection.Range.Text.Contains("（") || oSelection.Range.Text.Contains("\r") || oSelection.Range.Text.Contains("\n"))))
+                                                    || (oSelection.Range.Font.Name == "黑体" && (oSelection.Range.Text.Contains("。") || oSelection.Range.Text.Contains("、") || oSelection.Range.Text.Contains("（") || oSelection.Range.Text.Contains("\r") || oSelection.Range.Text.Contains("\n"))))
                                                 {
                                                     oSelection.MoveLeft(ref oUnitCharacter, ref oCount1, ref oExtendNone);//向左移动一个字符 不选中，到干部姓名后
+                                                    
+                                                    //获取当前光标位置与页面左端的宽度 单位英寸
+                                                    double oParagraphHorizontalEnd = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
+                                                    
+                                                    //移动光标到干部姓名前 并选中
                                                     oCount = XM.Length;
                                                     oSelection.MoveLeft(ref oUnitCharacter, ref oCount, ref oExtend);//向左移动选中干部姓名
+
+                                                    //获取当前段落的起始位置与页面顶端的高度 单位英寸
+                                                    double oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
+                                                    //获取当前段落的结束位置与页面顶端的高度 单位英寸
+                                                    double oParagraphEnd = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
+                                                    //干部姓名不断行时 oParagraphStart和oParagraphEnd应当相等
+
+                                                    //获取当前光标位置与页面左端的宽度 单位英寸
+                                                    double oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
 
                                                     //为了矫正跨页段落的页码不正确，重新获取段落的起始和终止页面
                                                     oPageStart = oSelection.get_Information(Word.WdInformation.wdActiveEndAdjustedPageNumber);
@@ -635,10 +630,11 @@ namespace ImgLocation
 
                                                     //在部分获取的模式下 只有当当前干部在页面范围内 才继续识别
                                                     //所以要进行进一步判断，当前干部名称是否所在页为替换页面 
-                                                    if (convertPageIndexes.Count == 0  //情况一：全部重新定义干部位置
+                                                    if ((oSelection.Range.Font.Name == "黑体")
+                                                        && (convertPageIndexes.Count == 0  //情况一：全部重新定义干部位置
                                                         || ((convertPageIndexes.Count > 0 && convertPageIndexes.Contains(oPageStart - 1))//情况二：识别指定页面的干部信息
                                                         && (convertPageIndexes.Count > 0 && convertPageIndexes.Contains(oPageEnd - 1)))//情况三：识别指定页面的干部信息
-                                                        )
+                                                        ))
                                                     {
                                                         if (!allindexinp.Contains(index_start))
                                                         {
@@ -658,26 +654,22 @@ namespace ImgLocation
 
                                                             g.TouchStartPointY = oParagraphStart;
                                                             g.TouchEndPointY = oParagraphStart + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2)) > 1 ? 1 : oParagraphStart + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2));
+                                                            g.TouchStartPointX = oParagraphHorizontalStart;
+                                                            g.TouchEndPointX = oParagraphHorizontalEnd;
 
                                                             g.Local_SourceLrmFullpath = convertHelper.GetLrmFilePath(g.XM);
                                                             g.Local_SourcePicFullpath = convertHelper.GetPicFilePath(g.XM);
                                                             g.Local_SourceResFullpath = convertHelper.GetResFilePath(g.XM);
 
-                                                            //获取当前光标位置与页面左端的宽度 单位英寸
-                                                            oParagraphHorizontalEnd = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
-                                                            //获取当前段落的结束位置与页面顶端的高度 单位英寸
-                                                            oParagraphEnd = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
-                                                            g.TouchStartPointX = oParagraphHorizontalStart;
-                                                            g.TouchEndPointX = oParagraphHorizontalEnd;
-
-                                                            if (g.TouchEndPointX < g.TouchStartPointX)
+                                                            if(g.TouchEndPointX < g.TouchStartPointX)
                                                             {
-                                                                g.TouchEndPointX = 0.9524;
+                                                                g.TouchEndPointX = 0.96;
 
-                                                                ///TODO 需要DDIP2 和 DDID2 解决名字跨页断行的问题
+                                                                //需要DDIP2 和 DDID2 解决名字跨页断行的问题
+                                                                //名字跨页断行问题不再通过代码解决。
                                                                 g.TouchStartPointY2 = g.TouchEndPointY;
                                                                 g.TouchEndPointY2 = g.TouchEndPointY + ((double)28 / (double)72 * 25.4) / (297 - (Global.VerticalCutSize * 2));
-                                                                //g.DIHS2 = 0.047535945;
+
                                                                 g.TouchStartPointX2 = 0.035;
                                                                 g.TouchEndPointX2 = oParagraphHorizontalEnd;
                                                             }
@@ -691,8 +683,9 @@ namespace ImgLocation
 
                                                             GBsFromDocumentPage.Add(g);
 
-                                                            //重新获取当前光标位置与页面左端的宽度 单位英寸
-                                                            oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
+                                                            ////重新获取当前光标位置与页面左端的宽度 单位英寸
+                                                            //oParagraphHorizontalStart = ((oSelection.get_Information(Word.WdInformation.wdHorizontalPositionRelativeToPage) / 72 * 25.4) - Global.HorizontalCutSize) / (210 - (Global.HorizontalCutSize * 2));
+                                                            
                                                             //重新获取当前段落的起始位置与页面顶端的高度 单位英寸
                                                             oParagraphStart = ((oSelection.get_Information(Word.WdInformation.wdVerticalPositionRelativeToPage) / 72 * 25.4) - Global.VerticalCutSize) / (297 - (Global.VerticalCutSize * 2));
                                                         }
@@ -775,8 +768,6 @@ namespace ImgLocation
 
                     LogRecord(string.Format("[正在转换文档]{0}：文档中共识别{1}个干部姓名。", Path.GetFileName(d.Local_SourceDocumnetFullpath), d.GBS.Count));
 
-
-                    ///TODO 转换需要转换的干部列表
                     if (IsLocationCadre)
                     {
                         List<GB> ListGBToConvert = convertPageIndexes.Count == 0 ? d.GBS : d.GBS.Where(gb => convertPageIndexes.Contains(gb.DocumentImagePageNumber - 1)).ToList();
@@ -887,37 +878,29 @@ namespace ImgLocation
             {
                 try
                 {
-                    g.Lrm_Guid = Guid.NewGuid().ToString();
                     g.LrmImageCount = 1;
-                    File.Copy(g.Local_SourceLrmFullpath, g.Local_StorgeLrmFullpath, true);
+                    g.Lrm_Guid = Guid.NewGuid().ToString();
                     if (Path.GetExtension(g.Local_SourceLrmFullpath).ToLower() == ".lrm")
                     {
+                        File.Copy(g.Local_SourceLrmFullpath, g.Local_StorgeLrmFullpath, true);
                         File.Copy(g.Local_SourcePicFullpath, g.Local_StorgePicFullpath, true);
                     }
-                    if (Global.IsUsingLrmToImageModel)
+                    else
+                    {
+                        File.Copy(g.Local_SourceLrmFullpath, g.Local_StorgeLrmFullpath, true);
+                    }
+
+                    if (Global.IsUsingLrmToImageModel && File.Exists(g.Local_StorgeLrmFullpath))
                     {
                         LrmHelper lrmReader = new LrmHelper();
-                        Person person = new Person();
-                        if (Path.GetExtension(g.Local_StorgeLrmFullpath) == ".lrm")
-                        {
-                            person = lrmReader.GetPersonFromLrm(g.Local_StorgeLrmFullpath, g.Local_StorgePicFullpath);
-                        }
-                        else if (Path.GetExtension(g.Local_StorgeLrmFullpath) == ".lrmx")
-                        {
-                            person = lrmReader.GetPersonFromLrmx(g.Local_StorgeLrmFullpath);
-                        }
-
-                        if ((g.XM + "").Trim().Length == 0)
-                        {
-                            g.XM = person.XingMing;
-                        }
+                        Person person = lrmReader.GetPersonFromLrmFile(g.Local_StorgeLrmFullpath);
                         LrmToImage lti = new LrmToImage(person);
                         Bitmap lrmImage = lti.CreateImage();
                         lrmImage.Save(g.LrmImageFileFullPaths[0]);
                         lrmImage.Dispose();
                         person.Dispose();
                     }
-                    else
+                    else if (File.Exists(g.Local_StorgeLrmFullpath))
                     {
                         g = ConvertLrmToWordSaveAsXPS(Global.LrmToWordModelPath, g, Convert.ToDouble((CountDate).Date.ToString("yyyy.MM")));
                         List<Bitmap> bmps = ConvertLrmXPSToBitmapList(g.Local_StorgeLrmPdfFullpath);
@@ -925,6 +908,10 @@ namespace ImgLocation
                         bmps[0].Save(g.LrmImageFileFullPaths[0]);
                         bmps[0].Dispose();
                         bmps.Clear();
+                    }
+                    else
+                    {
+                        g.LrmImageCount = 0;
                     }
                 }
                 catch (Exception ex)
@@ -945,13 +932,11 @@ namespace ImgLocation
             //        g.Lrm_Guid = Guid.NewGuid().ToString();
             //        g.LrmImageCount = 1;
 
-            //        /////TODO 为什么要赋值 不设置为只读属性？
             //        //g.LrmImageFilename = string.Format("{0}_01_{1}.{2}", g.XM, g.Lrm_Guid, Global.ImgFormat.ToString().ToLower())
             //        //    .Replace(" ", "").Replace("　", "")
             //        //    .Replace("\r", "").Replace("\n", "")
             //        //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
 
-            //        /////TODO 本地存储路径不再赋值，直接在对象属性内生成
             //        //g.Local_StorgeLrmFullpath = Global.ProjectLrmPicDirectory + g.XM + ".lrm";
             //        //g.Local_StorgePicFullpath = Global.ProjectLrmPicDirectory + g.XM + ".pic";
             //        //g.Local_StorgeDocumentWordFullpath = Global.ProjectTempWordDirectory + g.XM + ".docx";
@@ -993,7 +978,6 @@ namespace ImgLocation
             //        //    .Replace("\r", "").Replace("\n", "")
             //        //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
 
-            //        /////TODO 本地存储路径不再赋值，直接在对象属性内生成
             //        //g.Local_StorgeLrmFullpath = Global.ProjectLrmPicDirectory + g.XM + ".lrmx";
             //        //g.Local_StorgePicFullpath = "";
             //        //g.Local_StorgeDocumentWordFullpath = Global.ProjectTempWordDirectory + g.XM + ".docx";
@@ -1039,7 +1023,6 @@ namespace ImgLocation
                     //    .Replace("\r", "").Replace("\n", "")
                     //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
 
-                    /////TODO 本地存储路径不再赋值，直接在对象属性内生成
                     //string ex = Path.GetExtension(g.Local_SourceResFullpath);
                     //g.Local_StorgeResFullpath = Global.ProjectResDirectory + g.XM + ex;
                     //g.Local_StorgeResPdfFullPath = Global.ProjectTempPDFDirectory + g.XM + "同志的考察材料.pdf";
@@ -1127,8 +1110,105 @@ namespace ImgLocation
             GC.Collect();
             return g;
         }
+        public void ConvertProjectToPdfForStorge()
+        {
+            #region 转换前关闭其他Word进程
+            try
+            {
+                Process[] pcs = Process.GetProcessesByName("WINWORD");
+                if (pcs.Length > 0)
+                {
+                    foreach (Process pc in pcs)
+                    {
+                        try
+                        {
+                            pc.Kill(); //强制关闭
+                        }
+                        catch (Exception ep)
+                        {
+                            ShowMessage(string.Format("关闭进程（{0}）错误：{1}", pc.ProcessName, ep.Message),MessageType.Error);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage(string.Format("关闭进错误：{1}", ex.Message), MessageType.Error);
+            }
+            #endregion
 
+            DataRepository dr = new DataRepository(Global.ProjectOutputDbPath);
+            List<DW> convert_dws = dr.GetAllDWs();
+            foreach(DW convert_d in convert_dws)
+            {
+                List<string> convertPdfFullPath = new List<string>();
 
+                ConvertWordToPDF(convert_d.Local_SourceDocumnetFullpath, convert_d.Local_SaveDocumentPdfForCombineFullpath);
+                //convertPdfFullPath.Add(convert_d.Local_SaveDocumentPdfForCombineFullpath);
+                foreach(GB g in convert_d.GBS)
+                {
+                    if (File.Exists(g.Local_SourceLrmFullpath))
+                    {
+                        try
+                        {
+                            ConvertLrmToWordForPDF(Global.LrmToPDFModelPath, g, Convert.ToDouble(CountDate.ToString("yyyy.MM")), (CountDate.Date));
+                            convertPdfFullPath.Add(g.Local_StorgeLrmPdfFullpath);
+                        }
+                        catch (Exception ex)
+                        {
+                            ShowMessage(string.Format("转换干部任免审批表失败：{0}", ex.Message), MessageType.Error);
+                        }
+                    }
+                    
+                    //转换考察材料到PDF
+                    if (File.Exists(g.Local_SourceResFullpath))
+                    {
+                        try
+                        {
+                            ConvertWordToPDF(g.Local_SourceResFullpath, g.Local_StorgeResPdfFullPath);
+                            convertPdfFullPath.Add(g.Local_StorgeResPdfFullPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            ShowMessage(string.Format("转换干部考察材料失败：{0}", ex.Message), MessageType.Error);
+                        }
+                    }
+
+                }
+                iTextPdf.PdfReader blankreader;
+                blankreader = new iTextPdf.PdfReader(Global.BlankPDFModelPath);
+                iTextPdf.PdfReader reader;
+                iText.Document document = new iText.Document();
+                iTextPdf.PdfWriter writer = iTextPdf.PdfWriter.GetInstance(document, new FileStream(convert_d.Local_SaveDocumentPdfForCombineFullpath, FileMode.Create));
+                document.Open();
+                iTextPdf.PdfContentByte cb = writer.DirectContent;
+                iTextPdf.PdfImportedPage newpage;
+                for (int i = 0; i < convertPdfFullPath.ToArray().Length; i++)
+                {
+                    reader = new iTextPdf.PdfReader(convertPdfFullPath.ToArray()[i]);
+                    int ipagenumber = reader.NumberOfPages;
+                    for (int j = 1; j <= ipagenumber; j++)
+                    {
+                        document.NewPage();
+                        newpage = writer.GetImportedPage(reader, j);
+                        cb.AddTemplate(newpage, 0, 0);
+                    }
+                    if (ipagenumber > 0 && ipagenumber % 2 == 1)
+                    {
+                        document.NewPage();
+                        newpage = writer.GetImportedPage(blankreader, 1);
+                        cb.AddTemplate(newpage, 0, 0);
+                    }
+                }
+                document.Close();
+                GC.Collect();
+            }
+            if (DialogResult.Yes == MessageBox.Show(string.Format("批量转换文档[{0}]完成{1}。\r\n\r\n是否关闭当前转换窗口？", WordDirectory, HasError ? "。\r\n（提示）转换过程中存在错误，详细情况查看错误日志" : ""), "转换完成", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
+            {
+                this.Close();
+                this.FatherForm.Show();
+            }
+        }
         public List<PersonWithFile> GetAllLrmPersonWithFile()
         {
             List<PersonWithFile> allLrms = new List<PersonWithFile>();
@@ -1147,7 +1227,7 @@ namespace ImgLocation
                     p.LrmxFullPath = "";
                     p.LrmxFilename = "";
 
-                    Person pe = lrmHelper.GetPersonFromLrm(p.LrmFullPath, p.PicFullPath);
+                    Person pe = lrmHelper.GetPersonFromLrmFile(p.LrmFullPath);
                     var ParentType = typeof(Person);
                     var Properties = ParentType.GetProperties();
                     foreach (var Propertie in Properties)
@@ -1173,7 +1253,7 @@ namespace ImgLocation
                     p.LrmxFullPath = f.FileFullname;
                     p.LrmxFilename = Path.GetFileName(f.FileFullname);
 
-                    Person pe = lrmHelper.GetPersonFromLrmx(p.LrmxFullPath);
+                    Person pe = lrmHelper.GetPersonFromLrmFile(p.LrmxFullPath);
                     var ParentType = typeof(Person);
                     var Properties = ParentType.GetProperties();
                     foreach (var Propertie in Properties)
@@ -1219,7 +1299,6 @@ namespace ImgLocation
             }
             return allDocuments;
         }
-
         private void ConvertPadDataForm_Load(object sender, EventArgs e)
         {
             this.picLoading.Image = Properties.Resources.loading;
@@ -1236,23 +1315,10 @@ namespace ImgLocation
         //内部方法
         private GB ConvertLrmToWordSaveAsXPS(string ModelPath, GB g, double countdate)
         {
-            Person cadre_person;
             using (WordHelper wordHelper = new WordHelper(ModelPath, Global.IsShowWord))
             {
                 LrmHelper lrmReader = new LrmHelper();
-
-                if (Path.GetExtension(g.Local_StorgeLrmFullpath) == ".lrm")
-                {
-                    cadre_person = lrmReader.GetPersonFromLrm(g.Local_StorgeLrmFullpath, g.Local_StorgePicFullpath);
-                }
-                else if (Path.GetExtension(g.Local_StorgeLrmFullpath) == ".lrmx")
-                {
-                    cadre_person = lrmReader.GetPersonFromLrmx(g.Local_StorgeLrmFullpath);
-                }
-                else
-                {
-                    cadre_person = new Person();
-                }
+                Person cadre_person = lrmReader.GetPersonFromLrmFile(g.Local_StorgeLrmFullpath);
                 if ((g.XM + "").Trim().Length == 0)
                 {
                     g.XM = cadre_person.XingMing;
@@ -1688,7 +1754,6 @@ namespace ImgLocation
             }
             return g;
         }
-
         private void FormatResDocumentSaveAsPDF(GB g)
         {
             using (WordHelper wordHelper = new WordHelper(g.Local_StorgeResFullpath, Global.IsShowWord))
@@ -1741,7 +1806,6 @@ namespace ImgLocation
         {
             return ConvertPdfToBitmapList(pdfPath, new List<int>());
         }
-
         private List<Bitmap> ConvertPdfToBitmapList(string pdfPath, List<int> ConvertPageIndexes)
         {
             List<Bitmap> DocumentPdfPageImages = new List<Bitmap>();
@@ -1874,7 +1938,6 @@ namespace ImgLocation
             }
             catch (Exception e)
             {
-                ///TODO 这里直接抛出异常是否合适？
                 throw e;
             }
             finally
@@ -1894,7 +1957,6 @@ namespace ImgLocation
             }
             return DocumentPdfPageImages;
         }
-
         private List<Bitmap> ConvertLrmPdfToBitmapList(string pdfPath)
         {
             List<Bitmap> DocumentPdfPageImages = new List<Bitmap>();
@@ -1978,7 +2040,6 @@ namespace ImgLocation
             }
             catch (Exception e)
             {
-                ///TODO 这里直接抛出异常是否合适？
                 throw e;
             }
             finally
@@ -1998,7 +2059,6 @@ namespace ImgLocation
             }
             return DocumentPdfPageImages;
         }
-
         private List<Bitmap> ConvertXPSToBitmapList(string xpsPath, List<int> ConvertPageIndexes)
         {
             //页面初始图像集
@@ -2078,7 +2138,6 @@ namespace ImgLocation
             }
             return bmps;
         }
-
         private List<Bitmap> ConvertLrmXPSToBitmapList(string xpsPath)
         {
             //页面初始图像集
@@ -2286,6 +2345,7 @@ namespace ImgLocation
         //    }
         //    return tableChartImage;
         //}
+
         private Bitmap CutRoundBitmap(Bitmap sourceBitmap, int VerticalCutPixel, int HorizontalCutPixel)
         {
             int iSourceWidth = sourceBitmap.Width;
@@ -2311,5 +2371,397 @@ namespace ImgLocation
             return bmpDest;
         }
 
+
+        GB ConvertLrmToWordForPDF(string ModelPath, GB g, double countdate, DateTime countdatetime)
+        {
+            using (WordHelper wordHelper = new WordHelper(ModelPath, Global.IsShowWord))
+            {
+                LrmHelper lrmreader = new LrmHelper();
+                Person cadre_person = lrmreader.GetPersonFromLrmFile(g.Local_StorgeLrmFullpath);
+
+                Word.Table t1 = wordHelper.GetTable(1);
+                t1.Cell(1, 2).Range.Text = cadre_person.XingMing;
+                t1.Cell(1, 4).Range.Text = cadre_person.XingBie;
+                string strAge;
+                try
+                {
+                    strAge = (Math.Floor(countdate - Convert.ToDouble(cadre_person.ChuShengNianYue))).ToString();
+                }
+                catch (Exception)
+                {
+                    strAge = "";
+                }
+                t1.Cell(1, 6).Range.Text = cadre_person.ChuShengNianYue + "\r\n（" + strAge + "岁）";
+
+                object anchor = t1.Cell(1, 7).Range;
+                string otpic = Path.Combine(Path.GetDirectoryName(g.Local_StorgeDocumentWordFullpath), cadre_person.XingMing + ".bmp");
+                convertHelper.ZoomImageToFile(cadre_person.ZhaoPian_Image, otpic, 6);
+                wordHelper.InsertImage(otpic, 2f, 0f, 101f, 134f, anchor);
+
+                t1.Cell(2, 2).Range.Text = cadre_person.MinZu;
+                t1.Cell(2, 4).Range.Text = cadre_person.JiGuan;
+                t1.Cell(2, 6).Range.Text = cadre_person.ChuShengDi;
+
+                t1.Cell(3, 2).Range.Text = cadre_person.RuDangShiJian;
+                t1.Cell(3, 4).Range.Text = cadre_person.CanJiaGongZuoShiJian;
+                t1.Cell(3, 6).Range.Text = cadre_person.JianKangZhuangKuang;
+
+                t1.Cell(4, 2).Range.Text = cadre_person.ZhuanYeJiShuZhiWu;
+                t1.Cell(4, 4).Range.Text = cadre_person.ShuXiZhuanYeYouHeZhuanChang;
+
+                #region 全日制学历和学位
+                if (cadre_person.QuanRiZhiJiaoYu_XueLi.Trim().Length * cadre_person.QuanRiZhiJiaoYu_XueWei.Trim().Length == 0)
+                {
+                    t1.Cell(5, 3).Range.Text = cadre_person.QuanRiZhiJiaoYu_XueLi + cadre_person.QuanRiZhiJiaoYu_XueWei;
+                    int length = cadre_person.QuanRiZhiJiaoYu_XueLi.Length + cadre_person.QuanRiZhiJiaoYu_XueWei.Length;
+                    if (length <= 16)
+                    {
+                        t1.Cell(5, 3).Range.Font.Size = 14;
+                        t1.Cell(5, 3).Range.Paragraphs.Format.LineSpacing = 17;//磅值
+                    }
+                    else if (length <= 18)
+                    {
+                        t1.Cell(5, 3).Range.Font.Size = 12;
+                        t1.Cell(5, 3).Range.Paragraphs.Format.LineSpacing = 13;//磅值
+                    }
+                    else if (length <= 33)
+                    {
+                        t1.Cell(5, 3).Range.Font.Size = 10;
+                        t1.Cell(5, 3).Range.Paragraphs.Format.LineSpacing = 11;//磅值
+                    }
+                    else
+                    {
+                        t1.Cell(5, 3).Range.Font.Size = 8;
+                        t1.Cell(5, 3).Range.Paragraphs.Format.LineSpacing = 8;//磅值
+                    }
+                }
+                else
+                {
+                    t1.Cell(5, 3).Range.Text = cadre_person.QuanRiZhiJiaoYu_XueLi + "\r\n" + cadre_person.QuanRiZhiJiaoYu_XueWei;
+                    int length1 = cadre_person.QuanRiZhiJiaoYu_XueLi.Length;
+                    int length2 = cadre_person.QuanRiZhiJiaoYu_XueWei.Length;
+                    if (length1 <= 8 && length2 <= 8)
+                    {
+                        t1.Cell(5, 3).Range.Font.Size = 14;
+                        t1.Cell(5, 3).Range.Paragraphs.Format.LineSpacing = 17;//磅值
+                    }
+                    else if (length1 <= 9 && length2 <= 9)
+                    {
+                        t1.Cell(5, 3).Range.Font.Size = 12;
+                        t1.Cell(5, 3).Range.Paragraphs.Format.LineSpacing = 13;//磅值
+                    }
+                    else if ((length1 <= 22 && length2 <= 11) || (length1 <= 11 && length2 <= 22))
+                    {
+                        t1.Cell(5, 3).Range.Font.Size = 10;
+                        t1.Cell(5, 3).Range.Paragraphs.Format.LineSpacing = 11;//磅值
+                    }
+                    else
+                    {
+                        t1.Cell(5, 3).Range.Font.Size = 8;
+                        t1.Cell(5, 3).Range.Paragraphs.Format.LineSpacing = 8;//磅值
+                    }
+                }
+                #endregion
+                #region 全日制院校和专业
+                if (cadre_person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Trim().Length * cadre_person.QuanRiZhiJiaoYu_XueWei_BiYeYuanXiaoXi.Trim().Length == 0)
+                {
+                    t1.Cell(5, 5).Range.Text = cadre_person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Trim() + cadre_person.QuanRiZhiJiaoYu_XueWei_BiYeYuanXiaoXi.Trim();
+                    int length = cadre_person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Trim().Length + cadre_person.QuanRiZhiJiaoYu_XueWei_BiYeYuanXiaoXi.Trim().Length;
+                    if (length <= 22)
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 14;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 17;//磅值
+                    }
+                    else if (length <= 24)
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 12;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 13;//磅值
+                    }
+                    else if (length <= 45)
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 10;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 11;//磅值
+                    }
+                    else
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 8;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 8;//磅值
+                    }
+                }
+                else if (cadre_person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Trim() == cadre_person.QuanRiZhiJiaoYu_XueWei_BiYeYuanXiaoXi.Trim())//院校和专业相等的情况下只取一个
+                {
+                    t1.Cell(5, 5).Range.Text = cadre_person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Trim();
+                    int length = cadre_person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Trim().Length;
+                    if (length <= 22)
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 14;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 17;//磅值
+                    }
+                    else if (length <= 24)
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 12;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 13;//磅值
+                    }
+                    else if (length <= 45)
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 10;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 11;//磅值
+                    }
+                    else
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 8;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 8;//磅值
+                    }
+                }
+                else
+                {
+                    t1.Cell(5, 5).Range.Text = cadre_person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi + "\r\n" + cadre_person.QuanRiZhiJiaoYu_XueWei_BiYeYuanXiaoXi;
+                    int length1 = cadre_person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Length;
+                    int length2 = cadre_person.QuanRiZhiJiaoYu_XueWei_BiYeYuanXiaoXi.Length;
+                    if (length1 <= 11 && length2 <= 11)
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 14;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 17;//磅值
+                    }
+                    else if (length1 <= 12 && length2 <= 12)
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 12;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 13;//磅值
+                    }
+                    else if ((length1 <= 30 && length2 <= 15) || (length1 <= 15 && length2 <= 30))
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 10;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 11;//磅值
+                    }
+                    else
+                    {
+                        t1.Cell(5, 5).Range.Font.Size = 8;
+                        t1.Cell(5, 5).Range.Paragraphs.Format.LineSpacing = 8;//磅值
+                    }
+                }
+                #endregion
+                #region 在职学历和学位
+                if (cadre_person.ZaiZhiJiaoYu_XueLi.Trim().Length * cadre_person.ZaiZhiJiaoYu_XueWei.Trim().Length == 0)
+                {
+                    t1.Cell(6, 3).Range.Text = cadre_person.ZaiZhiJiaoYu_XueLi + cadre_person.ZaiZhiJiaoYu_XueWei;
+                    int length = cadre_person.ZaiZhiJiaoYu_XueLi.Length + cadre_person.ZaiZhiJiaoYu_XueWei.Length;
+                    if (length <= 16)
+                    {
+                        t1.Cell(6, 3).Range.Font.Size = 14;
+                        t1.Cell(6, 3).Range.Paragraphs.Format.LineSpacing = 17;//磅值
+                    }
+                    else if (length <= 18)
+                    {
+                        t1.Cell(6, 3).Range.Font.Size = 12;
+                        t1.Cell(6, 3).Range.Paragraphs.Format.LineSpacing = 13;//磅值
+                    }
+                    else if (length <= 33)
+                    {
+                        t1.Cell(6, 3).Range.Font.Size = 10;
+                        t1.Cell(6, 3).Range.Paragraphs.Format.LineSpacing = 11;//磅值
+                    }
+                    else
+                    {
+                        t1.Cell(6, 3).Range.Font.Size = 8;
+                        t1.Cell(6, 3).Range.Paragraphs.Format.LineSpacing = 8;//磅值
+                    }
+                }
+                else
+                {
+                    t1.Cell(6, 3).Range.Text = cadre_person.ZaiZhiJiaoYu_XueLi + "\r\n" + cadre_person.ZaiZhiJiaoYu_XueWei;
+                    int length1 = cadre_person.ZaiZhiJiaoYu_XueLi.Length;
+                    int length2 = cadre_person.ZaiZhiJiaoYu_XueWei.Length;
+                    if (length1 <= 8 && length2 <= 8)
+                    {
+                        t1.Cell(6, 3).Range.Font.Size = 14;
+                        t1.Cell(6, 3).Range.Paragraphs.Format.LineSpacing = 17;//磅值
+                    }
+                    else if (length1 <= 9 && length2 <= 9)
+                    {
+                        t1.Cell(6, 3).Range.Font.Size = 12;
+                        t1.Cell(6, 3).Range.Paragraphs.Format.LineSpacing = 13;//磅值
+                    }
+                    else if ((length1 <= 22 && length2 <= 11) || (length1 <= 11 && length2 <= 22))
+                    {
+                        t1.Cell(6, 3).Range.Font.Size = 10;
+                        t1.Cell(6, 3).Range.Paragraphs.Format.LineSpacing = 11;//磅值
+                    }
+                    else
+                    {
+                        t1.Cell(6, 3).Range.Font.Size = 8;
+                        t1.Cell(6, 3).Range.Paragraphs.Format.LineSpacing = 8;//磅值
+                    }
+                }
+                #endregion
+                #region 在职院校和专业
+                if (cadre_person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Trim().Length * cadre_person.ZaiZhiJiaoYu_XueWei_BiYeYuanXiaoXi.Trim().Length == 0)
+                {
+                    t1.Cell(6, 5).Range.Text = cadre_person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi + cadre_person.ZaiZhiJiaoYu_XueWei_BiYeYuanXiaoXi;
+                    int length = cadre_person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Length + cadre_person.ZaiZhiJiaoYu_XueWei_BiYeYuanXiaoXi.Length;
+                    if (length <= 22)
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 14;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 17;//磅值
+                    }
+                    else if (length <= 24)
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 12;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 13;//磅值
+                    }
+                    else if (length <= 45)
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 10;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 11;//磅值
+                    }
+                    else
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 8;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 8;//磅值
+                    }
+                }
+                else if (cadre_person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Trim().Length == cadre_person.ZaiZhiJiaoYu_XueWei_BiYeYuanXiaoXi.Trim().Length)
+                {
+                    t1.Cell(6, 5).Range.Text = cadre_person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Trim();
+                    int length = cadre_person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Trim().Length;
+                    if (length <= 22)
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 14;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 17;//磅值
+                    }
+                    else if (length <= 24)
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 12;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 13;//磅值
+                    }
+                    else if (length <= 45)
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 10;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 11;//磅值
+                    }
+                    else
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 8;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 8;//磅值
+                    }
+                }
+                else
+                {
+                    t1.Cell(6, 5).Range.Text = cadre_person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi + "\r\n" + cadre_person.ZaiZhiJiaoYu_XueWei_BiYeYuanXiaoXi;
+                    int length1 = cadre_person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi.Length;
+                    int length2 = cadre_person.ZaiZhiJiaoYu_XueWei_BiYeYuanXiaoXi.Length;
+                    if (length1 <= 11 && length2 <= 11)
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 14;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 17;//磅值
+                    }
+                    else if (length1 <= 12 && length2 <= 12)
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 12;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 13;//磅值
+                    }
+                    else if ((length1 <= 30 && length2 <= 15) || (length1 <= 15 && length2 <= 30))
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 10;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 11;//磅值
+                    }
+                    else
+                    {
+                        t1.Cell(6, 5).Range.Font.Size = 8;
+                        t1.Cell(6, 5).Range.Paragraphs.Format.LineSpacing = 8;//磅值
+                    }
+                }
+                #endregion
+
+                t1.Cell(7, 2).Range.Text = cadre_person.XianRenZhiWu;
+                t1.Cell(8, 2).Range.Text = cadre_person.NiRenZhiWu;
+                t1.Cell(9, 2).Range.Text = cadre_person.NiMianZhiWu;
+
+                string resume = cadre_person.JianLi;
+                if (ResumeFontSizeAndLineSpaceForPDF(resume, 22, 30))
+                {
+                    t1.Cell(10, 2).Range.Font.Size = 14;
+                    t1.Cell(10, 2).Range.Paragraphs.LineSpacing = 15;
+                }
+                else if (ResumeFontSizeAndLineSpaceForPDF(resume, 24, 33))
+                {
+                    t1.Cell(10, 2).Range.Font.Size = 13;
+                    t1.Cell(10, 2).Range.Paragraphs.LineSpacing = 14;
+                }
+                else if (ResumeFontSizeAndLineSpaceForPDF(resume, 26, 36))
+                {
+                    t1.Cell(10, 2).Range.Font.Size = 12;
+                    t1.Cell(10, 2).Range.Paragraphs.LineSpacing = 13;
+                }
+                else if (ResumeFontSizeAndLineSpaceForPDF(resume, 28, 39))
+                {
+                    t1.Cell(10, 2).Range.Font.Size = 11;
+                    t1.Cell(10, 2).Range.Paragraphs.LineSpacing = 12;
+                }
+                else if (ResumeFontSizeAndLineSpaceForPDF(resume, 31, 43))
+                {
+                    t1.Cell(10, 2).Range.Font.Size = 10;
+                    t1.Cell(10, 2).Range.Paragraphs.LineSpacing = 11;
+                }
+                else if (ResumeFontSizeAndLineSpaceForPDF(resume, 34, 48))
+                {
+                    t1.Cell(10, 2).Range.Font.Size = 9;
+                    t1.Cell(10, 2).Range.Paragraphs.LineSpacing = 10;
+                }
+                else
+                {
+                    t1.Cell(10, 2).Range.Font.Size = 8;
+                    t1.Cell(10, 2).Range.Paragraphs.LineSpacing = 9;
+                }
+
+
+                t1.Cell(10, 2).Range.Text = cadre_person.JianLi; ;
+
+
+                Word.Table wt2 = wordHelper.GetTable(2);
+                wt2.Cell(1, 2).Range.Text = cadre_person.JiangChengQingKuang;
+                wt2.Cell(2, 2).Range.Text = cadre_person.NianDuKaoHeJieGuo;
+                wt2.Cell(3, 2).Range.Text = cadre_person.RenMianLiYou;
+
+                Regex r = new Regex(@"^\d{4}\.\d{2,4}$");
+
+                for (int i = 0; i < 6; i++)
+                {
+                    if (cadre_person.JiaTingChengYuan.Count > i)
+                    {
+
+                        wt2.Cell(i + 5, 2).Range.Text = cadre_person.JiaTingChengYuan[i].ChengWei;
+                        wt2.Cell(i + 5, 3).Range.Text = cadre_person.JiaTingChengYuan[i].XingMing;
+                        wt2.Cell(i + 5, 4).Range.Text = r.Match(cadre_person.JiaTingChengYuan[i].ChuShengRiQi.Trim()).Success
+                            && convertHelper.RelationIsAlive(cadre_person.JiaTingChengYuan[i].GongZuoDanWeiJiZhiWu)
+                            ? (Math.Floor(countdate - Convert.ToDouble(cadre_person.JiaTingChengYuan[i].ChuShengRiQi))).ToString()
+                            : "";
+                        wt2.Cell(i + 5, 5).Range.Text = cadre_person.JiaTingChengYuan[i].ZhengZhiMianMao.Replace("\r", "");
+                        wt2.Cell(i + 5, 6).Range.Text = cadre_person.JiaTingChengYuan[i].GongZuoDanWeiJiZhiWu;
+                    }
+                }
+
+                wt2.Cell(14, 7).Range.Text = countdatetime.ToString("yyyy年MM月dd日");
+                wordHelper.SaveDocumentAsPDF(g.Local_SaveLrmPdfForCombineFullpath);
+            }
+            return g;
+        }
+        bool ResumeFontSizeAndLineSpaceForPDF(string resume, int maxlines, int maxwords)
+        {
+
+            string[] resumecontents = resume.Split('\r');
+            int rlines = resumecontents.Length;
+            foreach (string resumecontent in resumecontents)
+            {
+                rlines += (int)Math.Floor((double)((resumecontent.Length - 9) / (maxwords - 9)));
+            }
+            return (maxlines > rlines);
+        }
+        void ConvertWordToPDF(object wordPath, object pdfPath)
+        {
+            using (WordHelper wordHelper = new WordHelper(wordPath.ToString(), Global.IsShowWord))
+            {
+                wordHelper.SaveDocumentAsPDF(pdfPath.ToString());
+            }
+        }
     }
 }

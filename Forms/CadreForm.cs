@@ -1,5 +1,5 @@
 ﻿using ImgLocation.Models;
-
+using ImgLocation.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,7 +40,7 @@ namespace ImgLocation.Forms
             {
                 checkKCCL.Checked = true;
             }
-            if((g.Local_StorgeOtherFullpath+string.Empty).Trim().Length>0)
+            if((g.Local_SourceOtherFullpath + string.Empty).Trim().Length>0)
             {
                 checkOther.Checked = true;
             }
@@ -78,6 +78,7 @@ namespace ImgLocation.Forms
 
         private void btnOK_Click(object sender, EventArgs e)
         {
+            ///TODO 手工添加干部时，应当在这里就打开任免表获取干部姓名
             bool exist_lrm = !isLrm;
             bool exist_res = !isRes;
             bool exist_other = !isOther;
@@ -86,6 +87,9 @@ namespace ImgLocation.Forms
                 g.Local_SourceLrmFullpath = lbllrm.Text.Trim();
                 g.Local_SourcePicFullpath = lblpic.Text.Trim();
                 exist_lrm = ((Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrm" && File.Exists(g.Local_SourceLrmFullpath) && File.Exists(g.Local_SourcePicFullpath)) || (Path.GetExtension(g.Local_SourceLrmFullpath) == ".lrmx" && File.Exists(g.Local_SourceLrmFullpath)));
+                LrmHelper lr = new LrmHelper();
+                Person person = lr.GetPersonFromLrmFile(g.Local_SourceLrmFullpath);//此时GB对象的XM尚未赋值，因此不能使用Storge属性。
+                g.XM = person.XingMing;
             }
             else
             {
@@ -105,6 +109,10 @@ namespace ImgLocation.Forms
             {
                 g.Local_SourceOtherFullpath = lblOther.Text.Trim();
                 exist_other = File.Exists(lblOther.Text.Trim());
+            }
+            else
+            {
+                g.Local_SourceOtherFullpath = "";
             }
             if (exist_lrm&&exist_other&&exist_other)
             {

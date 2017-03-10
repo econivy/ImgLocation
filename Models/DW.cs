@@ -37,19 +37,19 @@ namespace ImgLocation.Models
 
         }     //转为非存储字段
 
-        public string Local_SavePDFForPrintFullpath
-        {
-            get
-            {
-                return Global.ProjectPDFOutputDirectory + WH + "——" + MC + @".pdf";
-            }
-        }
+        //public string Local_SavePDFForPrintFullpath
+        //{
+        //    get
+        //    {
+        //        return Global.ProjectPDFOutputDirectory + WH + "——" + MC + @".pdf";
+        //    }
+        //}
 
         public string Local_SaveDocumentPdfForCombineFullpath
         {
             get
             {
-                return Global.ProjectPDFTempDirectory + WH + @"\000.pdf";
+                return Global.ProjectPDFTempDirectory + WH + @"000.pdf";
             }
         }
 

@@ -369,8 +369,15 @@ namespace ImgLocation
                     td.Tag = d;
 
                     td.Text = d.XH.Trim().Length > 0 ? d.XH + "." + d.MC : d.MC;
-                    td.Text += d.WH.Trim().Length > 0 ? d.WH + "—" : "";
-
+                    if(d.WH.Trim().Length > 0)
+                    {
+                        td.Text += string.Format("（{0}）", d.WH);
+                    }
+                    if (d.GBS.Any(dg => dg.LrmImageCount == 0))
+                    {
+                        td.Text += string.Format("***文档中{0}个任免审图像不存在***", d.GBS.Count(dg => dg.LrmImageCount == 0).ToString());
+                        td.ForeColor = Color.Red;
+                    }
 
                     foreach (GB g in d.GBS.OrderBy(gg => gg.Rank))
                     {
@@ -378,6 +385,7 @@ namespace ImgLocation
                         tg.ImageIndex = 1;
                         tg.Text = g.XM;
                         tg.Tag = g;
+                        tg.ForeColor = g.LrmImageCount > 0? Color.Black:Color.Red;
                         //tg.ToolTipText = string.Format("{0},任免表信息：[{1}]；文件任免信息：[{2}]；相似度：[{3}]。", g.XM, g.RESUUID + "", g.SPBUUID + "", g.XSD + "");
                         td.Nodes.Add(tg);
                     }
@@ -454,7 +462,7 @@ namespace ImgLocation
             FolderForm fm = new FolderForm();
             if (fm.ShowDialog() == DialogResult.OK)
             {
-                ConvertPadDataForm c = new ConvertPadDataForm();
+                ConvertProcessForm c = new ConvertProcessForm();
                 c.FatherForm = this;
                 c.WordDirectory = fm.sworddir;
                 c.LrmDirectory = fm.slrmdir;
@@ -468,26 +476,16 @@ namespace ImgLocation
         }
         private void iConvertPDF_Click(object sender, EventArgs e)
         {
-            FolderForm fm = new FolderForm();
-            if (fm.ShowDialog() == DialogResult.OK)
+            //Project p = Global.LoadDefaultProject();
+            DataRepository sr = new DataRepository(Global.ProjectOutputDbPath);
+            List<DW> ldw = sr.GetAllDWs();
+            if (DialogResult.OK==MessageBox.Show(string.Format("是否转换当前项目：{0}，共存在{1}个文档。",Global.ProjectName,ldw.Count),"是否开始转换项目为存档PDF",MessageBoxButtons.OKCancel,MessageBoxIcon.Question))
             {
-                ConvertPDFFileForm c = new ConvertPDFFileForm();
-                c.FatherForm = this;
-                c.WordDirectory = fm.sworddir;
-                c.LrmDirectory = fm.slrmdir;
-                c.ResDirectory = fm.sresdir;
-                c.CountDate = this.iCountDate.Value;
-                c.Show();
-                c.ConvertDocumentListToPDF();
-                //ConformDate cf = new ConformDate();
-                //if (cf.ShowDialog() == DialogResult.OK)
-                //{
-                //    iCountDate.Value = cf.ConfirmDatetime;
-                //    ConvertDocumentListToPDF(fm.sworddir, fm.slrmdir, fm.sresdir);
-                //    MessageBox.Show("批量导入成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                //    LogRecord("完成");
-                //    LogRecord("【共" + ConvertParams.iSumDocument + "个文档，已处理" + ConvertParams.iCountDocument + "个文档】");
-                //}
+                ConvertProcessForm cpf = new ConvertProcessForm();
+                cpf.FatherForm = this;
+                cpf.CountDate = this.iCountDate.Value;
+                cpf.Show();
+                cpf.ConvertProjectToPdfForStorge();
             }
         }
         private void iReOrder_Click(object sender, EventArgs e)
@@ -635,14 +633,14 @@ namespace ImgLocation
                 {
                     if (df.IsConvertFileImage)
                     {
-                        ConvertPadDataForm c = new ConvertPadDataForm();
+                        ConvertProcessForm c = new ConvertProcessForm();
                         c.FatherForm = this;
                         c.LrmDirectory = df.LrmDirectory;
                         c.ResDirectory = df.ResDirectory;
                         c.CountDate = this.iCountDate.Value;
                         c.Show();
                         //添加单子时忽视是否替换文档页码范围和查找干部信息
-                        d = c.ConvertSingleDocument(df.document);
+                        d = c.ConvertSingleDocument(df.document,string.Empty,true);
                         dr.EditDW(df.document);
                     }
                     else
@@ -673,7 +671,7 @@ namespace ImgLocation
                         if (df.IsConvertFileImage)
                         {
                             //dr.RemoveDW(df.document);
-                            ConvertPadDataForm c = new ConvertPadDataForm();
+                            ConvertProcessForm c = new ConvertProcessForm();
                             c.FatherForm = this;
                             c.LrmDirectory = df.LrmDirectory;
                             c.ResDirectory = df.ResDirectory;
@@ -704,7 +702,7 @@ namespace ImgLocation
                 CadreForm cf = new CadreForm(gb);
                 if (DialogResult.OK == cf.ShowDialog())
                 {
-                    ConvertPadDataForm c = new ConvertPadDataForm();
+                    ConvertProcessForm c = new ConvertProcessForm();
                     c.FatherForm = this;
                     c.CountDate = this.iCountDate.Value;
                     c.Show();
@@ -746,19 +744,27 @@ namespace ImgLocation
 
             TreeNode tf = t.Parent;
             DW d = (DW)tf.Tag;
+            int index = d.GBS.IndexOf(gb);
 
             CadreForm cf = new CadreForm(gb);
             if (DialogResult.OK == cf.ShowDialog())
             {
-                ConvertPadDataForm c = new ConvertPadDataForm();
+                ConvertProcessForm c = new ConvertProcessForm();
                 c.FatherForm = this;
                 c.CountDate = this.iCountDate.Value;
                 c.Show();
                 GB g = c.ConvertSingleCadre(d, cf.g);
                 convertHelper.UpdateDataId();
 
+                //更新选中的干部节点
                 t.Tag = g;
+                t.ForeColor = g.LrmImageCount > 0 ? Color.Black : Color.Red;
                 TreeDW.SelectedNode = t;
+
+                //更新选中的干部节点对应的父节点
+                d.GBS[index] = g;
+                tf.ForeColor = d.GBS.Any(dg => dg.LrmImageCount == 0) ? Color.Red : Color.Black;
+
                 LoadImage();
             }
         }
@@ -1054,7 +1060,7 @@ namespace ImgLocation
                             CadreForm cf = new CadreForm(gb);
                             if (DialogResult.OK == cf.ShowDialog())
                             {
-                                ConvertPadDataForm c = new ConvertPadDataForm();
+                                ConvertProcessForm c = new ConvertProcessForm();
                                 c.FatherForm = this;
                                 c.CountDate = this.iCountDate.Value;
                                 c.Show();
