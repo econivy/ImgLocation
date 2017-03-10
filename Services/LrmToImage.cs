@@ -160,7 +160,7 @@ namespace ImgLocation.Services
                 }
                 y14 = y13 + tempHeight;
 
-                y15 = y14 + GetFamilyHeight(g, person.JiaTingChengYuan, font, brush, x17 - x16);
+                y15 = y14 + GetFamilyTotalHeight(g, person.JiaTingChengYuan, font, brush, x17 - x16);
 
                 imageHeight = y15 + 150;
 
@@ -272,7 +272,7 @@ namespace ImgLocation.Services
                 g.DrawLine(pen, x1, y8, x8, y8);//截至行
 
                 DrawInCenter(g, "现 任 职 务", font, brush, x1, y7, x3, y8);
-                DrawInLeftAutoRow(g, person.XianRenZhiWu, font, brush, x3, y7, x8, y8);
+                DrawInLeftAutoRowBaseOnTwo(g, person.XianRenZhiWu, font, brush, x3, y7, x8, y8);
 
 
                 g.DrawLine(pen, x1, y8, x1, y9);
@@ -281,7 +281,7 @@ namespace ImgLocation.Services
                 g.DrawLine(pen, x1, y9, x8, y9);//截至行
 
                 DrawInCenter(g, "拟 任 职 务", font, brush, x1, y8, x3, y9);
-                DrawInLeftAutoRow(g, person.NiRenZhiWu, font, brush, x3, y8, x8, y9);
+                DrawInLeftAutoRowBaseOnTwo(g, person.NiRenZhiWu, font, brush, x3, y8, x8, y9);
 
 
 
@@ -292,7 +292,7 @@ namespace ImgLocation.Services
                 g.DrawLine(pen, x1, y10, x8, y10);//截至行
 
                 DrawInCenter(g, "拟 免 职 务", font, brush, x1, y9, x3, y10);
-                DrawInLeftAutoRow(g, person.NiMianZhiWu, font, brush, x3, y9, x8, y10);
+                DrawInLeftAutoRowBaseOnTwo(g, person.NiMianZhiWu, font, brush, x3, y9, x8, y10);
 
 
                 g.DrawLine(pen, x1, y10, x1, y11);
@@ -365,7 +365,7 @@ namespace ImgLocation.Services
                     if (n < Items.Count)
                     {
                         Item item = Items[n];
-                        familyHeight = GetHeight(g, item.GongZuoDanWeiJiZhiWu, font, brush, x17 - x16);
+                        familyHeight = GetJianTingChengYuanHeight(g, item.GongZuoDanWeiJiZhiWu, font, brush, x17 - x16);
 
                         //绘制内容
                         DrawInCenter(g, item.ChengWei, font, brush, x12, yFamily, x13, yFamily + familyHeight);
@@ -377,7 +377,7 @@ namespace ImgLocation.Services
                         }
                         DrawInCenter(g, strAge, font, brush, x14, yFamily, x15, yFamily + familyHeight);
                         DrawInCenter(g, item.ZhengZhiMianMao, font, brush, x15, yFamily, x16, yFamily + familyHeight);
-                        DrawInLeftAutoRow(g, item.GongZuoDanWeiJiZhiWu, font, brush, x16, yFamily, x17, yFamily + familyHeight);
+                        DrawInLeftAutoRowBaseOnTwo(g, item.GongZuoDanWeiJiZhiWu, font, brush, x16, yFamily, x17, yFamily + familyHeight);
                     }
 
 
@@ -409,7 +409,7 @@ namespace ImgLocation.Services
             return b;
         }
 
-        private int GetFamilyHeight(Graphics g, List<Item> Items, Font font, SolidBrush b, int width)
+        private int GetFamilyTotalHeight(Graphics g, List<Item> Items, Font font, SolidBrush b, int width)
         {
             int back = this.minHeight;
 
@@ -436,7 +436,7 @@ namespace ImgLocation.Services
                 {
                     Item item = Items[n];
 
-                    myHeight = GetHeight(g, item.GongZuoDanWeiJiZhiWu, font, b, width);
+                    myHeight = GetJianTingChengYuanHeight(g, item.GongZuoDanWeiJiZhiWu, font, b, width);
                 }
                 back = back + myHeight;
             }
@@ -483,7 +483,7 @@ namespace ImgLocation.Services
                     {
                         Lines.Add(str);
                         str = "";
-                        str = "          " + "        ";
+                        str ="          " + "        ";
                         str = str + temp[k].ToString();
                     }
                     else
@@ -604,6 +604,33 @@ namespace ImgLocation.Services
             //g.DrawRectangle(new Pen(new SolidBrush(Color.Blue), 1.0f), rectangleF2.X, rectangleF2.Y, rectangleF2.Width, rectangleF2.Height);
         }
 
+
+
+        private int GetJianTingChengYuanHeight(Graphics g, string text, Font font, SolidBrush b, int width)
+        {
+            int _height = this.minHeight;
+            //字体排版格式
+            StringFormat sf = new StringFormat();
+            //居左显示
+            sf.Alignment = StringAlignment.Near;
+            //垂直居中
+            sf.LineAlignment = StringAlignment.Center;
+            //自动换行
+            sf.FormatFlags = StringFormatFlags.LineLimit;
+            //如果注销，不允许计算空格
+            sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
+
+            SizeF sizeF = g.MeasureString(text, font, width, sf);
+
+            return (int)sizeF.Height <= this.minHeight ? this.minHeight : (int)sizeF.Height;
+
+            //_height = (int)sizeF.Height; //+ font.Height;
+            //if (_height <= this.minHeight)
+            //{
+            //    _height = this.minHeight;
+            //}
+            //return _height;
+        }
 
         private int GetHeight(Graphics g, string text, Font font, SolidBrush b, int width)
         {
@@ -747,8 +774,48 @@ namespace ImgLocation.Services
             }
         }
 
+
         /// <summary>
-        /// 居左，自动换行：（现任职务  拟任职务 拟免职务）
+        /// 居左，超过两行自动换行：（现任职务  拟任职务 拟免职务 家庭成员的单位职务）
+        /// </summary>
+        private void DrawInLeftAutoRowBaseOnTwo(Graphics g, string text, Font font, SolidBrush b, int x1, int y1, int x2, int y2)
+        {
+            //字体排版格式
+            StringFormat sf = new StringFormat();
+            //居左显示
+            sf.Alignment = StringAlignment.Near;
+            //垂直居中
+            sf.LineAlignment = StringAlignment.Center;
+            //自动换行
+            sf.FormatFlags = StringFormatFlags.LineLimit;
+            //如果注销，不允许计算空格
+            sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
+
+            int width = x2 - x1 - 1;
+            int height = y2 - y1 - 1;
+
+            SizeF sizeF = g.MeasureString(text, font,width, sf);
+
+            float xStart = x1;
+            float yStart = y1;
+            if(sizeF.Height<height)
+            {
+                yStart += height / 2 - sizeF.Height / 2+10;
+            }
+            else
+            {
+                //＋5是按照经验值修正偏移量
+                yStart += 5;
+            }
+
+            RectangleF rectangleF = new RectangleF(xStart, yStart, sizeF.Width, sizeF.Height);
+
+            g.DrawString(text, font, b, rectangleF, sf);
+        }
+
+
+        /// <summary>
+        /// 居左，自动换行：（奖惩情况 年度考核情况 任免理由）
         /// </summary>
         private void DrawInLeftAutoRow(Graphics g, string text, Font font, SolidBrush b, int x1, int y1, int x2, int y2)
         {

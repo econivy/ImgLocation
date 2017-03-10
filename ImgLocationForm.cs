@@ -2,6 +2,7 @@
 using ImgLocation.Models;
 using ImgLocation.Repository;
 using ImgLocation.Services;
+using ImgLocation.UnitTest;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -1156,6 +1157,12 @@ namespace ImgLocation
 
             Global.RefreshParams();
             Global.ValidateDirectory();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            TestLrmToImage t = new TestLrmToImage();
+            t.ShowDialog();
         }
     }
 }

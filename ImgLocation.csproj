@@ -239,6 +239,12 @@
     <Compile Include="Services\ConvertHelper.cs" />
     <Compile Include="Services\LrmHelper.cs" />
     <Compile Include="Services\WordHelper.cs" />
+    <Compile Include="UnitTest\TestLrmToImage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UnitTest\TestLrmToImage.Designer.cs">
+      <DependentUpon>TestLrmToImage.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
@@ -276,6 +282,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UnitTest\TestLrmToImage.resx">
+      <DependentUpon>TestLrmToImage.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config">
       <SubType>Designer</SubType>

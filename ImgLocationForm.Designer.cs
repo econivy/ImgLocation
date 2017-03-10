@@ -95,6 +95,7 @@
             this.padMonitor27 = new ImgLocation.PadMonitor();
             this.padMonitor28 = new ImgLocation.PadMonitor();
             this.padMonitor29 = new ImgLocation.PadMonitor();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -123,6 +124,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.button1);
             this.splitContainer1.Panel1.Controls.Add(this.checkUseLrmImageModel);
             this.splitContainer1.Panel1.Controls.Add(this.checkShowError);
             this.splitContainer1.Panel1.Controls.Add(this.checkShowWord);
@@ -1103,6 +1105,16 @@
             this.padMonitor29.Size = new System.Drawing.Size(198, 34);
             this.padMonitor29.TabIndex = 29;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(1035, 10);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 49;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // ImgLocationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -1208,5 +1220,6 @@
         private System.Windows.Forms.CheckBox checkShowError;
         private System.Windows.Forms.CheckBox checkShowWord;
         private System.Windows.Forms.CheckBox checkUseLrmImageModel;
+        private System.Windows.Forms.Button button1;
     }
 }
