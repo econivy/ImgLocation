@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImgLocationForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.button1 = new System.Windows.Forms.Button();
             this.checkUseLrmImageModel = new System.Windows.Forms.CheckBox();
             this.checkShowError = new System.Windows.Forms.CheckBox();
             this.checkShowWord = new System.Windows.Forms.CheckBox();
@@ -95,7 +96,6 @@
             this.padMonitor27 = new ImgLocation.PadMonitor();
             this.padMonitor28 = new ImgLocation.PadMonitor();
             this.padMonitor29 = new ImgLocation.PadMonitor();
-            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -153,6 +153,7 @@
             this.splitContainer1.Panel1.Controls.Add(this.iConvertPadData);
             this.splitContainer1.Panel1.Controls.Add(this.btnFreshPad);
             this.splitContainer1.Panel1.Controls.Add(this.btnPushAll);
+            this.splitContainer1.Panel1.DoubleClick += new System.EventHandler(this.splitContainer1_Panel1_DoubleClick);
             // 
             // splitContainer1.Panel2
             // 
@@ -160,6 +161,17 @@
             this.splitContainer1.Size = new System.Drawing.Size(1444, 736);
             this.splitContainer1.SplitterDistance = 85;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(1035, 10);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 49;
+            this.button1.Text = "ForTest";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Visible = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // checkUseLrmImageModel
             // 
@@ -1104,16 +1116,6 @@
             this.padMonitor29.Serial = null;
             this.padMonitor29.Size = new System.Drawing.Size(198, 34);
             this.padMonitor29.TabIndex = 29;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(1035, 10);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 49;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // ImgLocationForm
             // 

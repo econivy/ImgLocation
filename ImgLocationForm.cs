@@ -489,6 +489,11 @@ namespace ImgLocation
                 cpf.ConvertProjectToPdfForStorge();
             }
         }
+        struct OrderDW
+        {
+            public int R;
+            public DW OriDW;
+        }
         private void iReOrder_Click(object sender, EventArgs e)
         {
             if (DialogResult.OK == MessageBox.Show("确认要按照文号进行排序？\r执行此操作前，请确认已经对所有文件设置文号，无文号的节点将被移到最顶端。", "确认操作", MessageBoxButtons.OKCancel, MessageBoxIcon.Question))
@@ -496,8 +501,33 @@ namespace ImgLocation
                 try
                 {
                     DataRepository dr = new DataRepository(Global.ProjectOutputDbPath);
-                    dr.CoverSX("WH");
+                    List<OrderDW> DWsForOrder = new List<OrderDW>();
+                    foreach(DW d in dr.GetAllDWs())
+                    {
+                        OrderDW odw = new OrderDW();
+                        odw.OriDW= d;
+                        try
+                        {
+                            string stri = d.WH.Split('〕')[1].Split('号')[0];
+                            int ir = Convert.ToInt32(stri);
+                            odw.R = ir;
+                        }
+                        catch
+                        {
+                            odw.R = 999;
+                        }
+                        DWsForOrder.Add(odw);
+                    }
+                    DWsForOrder= DWsForOrder.OrderBy(dfo => dfo.R).ToList();
+                    for(int i = 0; i < DWsForOrder.Count; i++)
+                    {
+                        DW d = DWsForOrder[i].OriDW;
+                        d.Rank = i + 101;
+                        dr.EditDW(d);
+                    }
+                    //dr.CoverSX("WH");
                     ReloadTree();
+                    TreeDW.CollapseAll();
                 }
                 catch (Exception ex)
                 {
@@ -525,7 +555,10 @@ namespace ImgLocation
                     tn.Tag = d;
 
                     tn.Text = d.XH.Trim().Length > 0 ? d.XH + "." + d.MC : d.MC;
-                    tn.Text += d.WH.Trim().Length > 0 ? d.WH + "—" : "";
+                    if(d.WH.Length>0)
+                    {
+                        tn.Text += string.Format("（{0}）", d.WH);
+                    }
 
                     TreeDW.Nodes.Insert(tp.Index, tn);
 
@@ -534,8 +567,10 @@ namespace ImgLocation
                     tp.Tag = dp;
 
                     tp.Text = dp.XH.Trim().Length > 0 ? dp.XH + "." + dp.MC : dp.MC;
-                    tp.Text += dp.WH.Trim().Length > 0 ? dp.WH + "—" : "";
-
+                    if(dp.WH.Length>0)
+                    {
+                        tp.Text += string.Format("（{0}）", dp.WH);
+                    }
 
                     t.Remove();
                     TreeDW.SelectedNode = tn;
@@ -564,7 +599,10 @@ namespace ImgLocation
                     tnn.Tag = dn;
 
                     tnn.Text = dn.XH.Trim().Length > 0 ? dn.XH + "." + dn.MC : dn.MC;
-                    tnn.Text += dn.WH.Trim().Length > 0 ? dn.WH + "—" : "";
+                    if(dn.WH.Length>0)
+                    {
+                        tn.Text += string.Format("（{0}）", dn.WH);
+                    }
 
                     TreeDW.Nodes.Insert(t.Index, tnn);
 
@@ -573,7 +611,10 @@ namespace ImgLocation
                     t.Tag = d;
 
                     t.Text = d.XH.Trim().Length > 0 ? d.XH + "." + d.MC : d.MC;
-                    t.Text += d.WH.Trim().Length > 0 ? d.WH + "—" : "";
+                    if (d.WH.Length > 0)
+                    {
+                        t.Text += string.Format("（{0}）", d.WH);
+                    }
 
                     tn.Remove();
                     tnn.Expand();
@@ -1163,6 +1204,11 @@ namespace ImgLocation
         {
             TestLrmToImage t = new TestLrmToImage();
             t.ShowDialog();
+        }
+
+        private void splitContainer1_Panel1_DoubleClick(object sender, EventArgs e)
+        {
+            this.button1.Visible = !this.button1.Visible;
         }
     }
 }

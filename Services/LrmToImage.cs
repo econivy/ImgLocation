@@ -36,7 +36,7 @@ namespace ImgLocation.Services
         /// <summary>
         /// 表格起点 Y 坐标
         /// </summary>
-        private readonly int yStart = 150;
+        private readonly int yStart = 100;
         /// <summary>
         /// 最小行高
         /// </summary>
@@ -85,13 +85,13 @@ namespace ImgLocation.Services
             Bitmap b = new Bitmap(imageWidth, 3200, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             Graphics g = Graphics.FromImage(b);
 
-            try
-            {
+            //try
+            //{
 
                 //画笔
                 SolidBrush brush = new SolidBrush(Color.FromArgb(0, 0, 0));
                 //字体
-                Font font = new System.Drawing.Font(this.fontName, this.fontSize, FontStyle.Regular);
+                Font font = new System.Drawing.Font(this.fontName, this.fontSize, FontStyle.Bold);
                 Font fontTitle = new System.Drawing.Font("方正小标宋简体", 50, FontStyle.Bold);
 
                 int x1 = xStart;
@@ -127,16 +127,16 @@ namespace ImgLocation.Services
                 //计算图片大小
                 int tempHeight = 0;
                 //现 任 职 务
-                tempHeight = GetHeight(g, person.XianRenZhiWu, font, brush, x8 - x3);
+                tempHeight = GetHeightBaseOnMinHeight(g, person.XianRenZhiWu, font, brush, x8 - x3);
                 y8 = y7 + tempHeight;
                 //拟 任 职 务
-                tempHeight = GetHeight(g, person.NiRenZhiWu, font, brush, x8 - x3);
+                tempHeight = GetHeightBaseOnMinHeight(g, person.NiRenZhiWu, font, brush, x8 - x3);
                 y9 = y8 + tempHeight;
                 //拟 免 职 务
-                tempHeight = GetHeight(g, person.NiMianZhiWu, font, brush, x8 - x3);
+                tempHeight = GetHeightBaseOnMinHeight(g, person.NiMianZhiWu, font, brush, x8 - x3);
                 y10 = y9 + tempHeight;
                 //简历
-                tempHeight = GetResumeHeight(g, person.JianLi, font, brush, x12, y10, x17 - x12);
+                tempHeight = DrawResume(g, person.JianLi, font, brush, x12, y10, x17 - x12,false);
                 y11 = y10 + tempHeight;
                 //奖惩情况
                 tempHeight = GetHeight(g, person.JiangChengQingKuang, font, brush, x17 - x12);
@@ -172,7 +172,7 @@ namespace ImgLocation.Services
                 g = Graphics.FromImage(b);
 
                 // 插值算法的质量
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality; //高质量
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; //高质量
                 g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality; //高像素偏移质量
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;//增强字体
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -216,9 +216,9 @@ namespace ImgLocation.Services
 
 
                 //绘制标题文字
-                DrawInCenter(g, "干 部 任 免 审 批 表", fontTitle, brush, x1, y0, x8, y1);
+                DrawInCenter(g, "干  部  任  免  审  批  表", fontTitle, brush, x1, y0, x8, y1);
                 //照片
-                g.DrawImage(person.ZhaoPian_Image, x7 + 1, y1 + 1, x8 - x7 - 2, y5 - y1 - 2);
+                g.DrawImage(person.ZhaoPian_Image, x7 + 1, y1 + 1, x8 - x7 - 2, y5 - y1 - 3);
 
                 DrawInCenter(g, "姓  名", font, brush, x1, y1, x2, y2);
                 DrawInCenterByFont(g, person.XingMing, font, brush, x2, y1, x3, y2);
@@ -261,7 +261,7 @@ namespace ImgLocation.Services
                 DrawSchool(g, person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi, person.QuanRiZhiJiaoYu_XueWei_BiYeYuanXiaoXi, font, brush, x6, y5, x8, y6);
 
                 DrawInCenterByLine(g, "在  职\r\n教  育", font, brush, x2, y6, x3, y7);
-                DrawInCenter(g, person.ZaiZhiJiaoYu_XueLi + "\r\n" + person.ZaiZhiJiaoYu_XueWei, font, brush, x3, y6, x5, y7);
+                DrawInCenterByLine(g, person.ZaiZhiJiaoYu_XueLi + "\r\n" + person.ZaiZhiJiaoYu_XueWei, font, brush, x3, y6, x5, y7);
                 DrawInCenterByLine(g, "毕业院校\r\n系及专业", font, brush, x5, y6, x6, y7);
                 DrawSchool(g, person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi, person.ZaiZhiJiaoYu_XueWei_BiYeYuanXiaoXi, font, brush, x6, y6, x8, y7);
 
@@ -302,7 +302,7 @@ namespace ImgLocation.Services
 
 
                 DrawInCenterH(g, "简          历", font, brush, x1, y10, x12, y11);
-                DrawResume(g, person.JianLi, font, brush, x12, y10, x8 - x12);
+                DrawResume(g, person.JianLi, font, brush, x12, y10, x8 - x12,true);
 
 
                 g.DrawLine(pen, x1, y11, x1, y12);
@@ -348,7 +348,7 @@ namespace ImgLocation.Services
 
                 DrawInCenter(g, "称谓", font, brush, x12, yFamily, x13, yFamily + minHeight);
                 DrawInCenter(g, "姓  名", font, brush, x13, yFamily, x14, yFamily + minHeight);
-                DrawInCenterH(g, "年龄", font, brush, x14, yFamily, x15, yFamily + minHeight);
+                DrawInCenterByLine(g, "年\r\n龄", font, brush, x14, yFamily, x15, yFamily + minHeight);
                 DrawInCenterByLine(g, "政  治\r\n面  貌", font, brush, x15, yFamily, x16, yFamily + minHeight);
                 DrawInCenter(g, "工 作 单 位 及 职 务", font, brush, x16, yFamily, x17, yFamily + minHeight);
                 yFamily = yFamily + this.minHeight;
@@ -365,11 +365,11 @@ namespace ImgLocation.Services
                     if (n < Items.Count)
                     {
                         Item item = Items[n];
-                        familyHeight = GetJianTingChengYuanHeight(g, item.GongZuoDanWeiJiZhiWu, font, brush, x17 - x16);
+                        familyHeight = GetHeightBaseOnMinHeight(g, item.GongZuoDanWeiJiZhiWu, font, brush, x17 - x16);
 
                         //绘制内容
                         DrawInCenter(g, item.ChengWei, font, brush, x12, yFamily, x13, yFamily + familyHeight);
-                        DrawInCenter(g, item.XingMing, font, brush, x13, yFamily, x14, yFamily + familyHeight);
+                    DrawName(g, item.XingMing.Replace("(", "\r\n(").Replace("（", "\r\n（"), font, brush, x13, yFamily, x14, yFamily + familyHeight);
                         string strAge = "";
                         if (!string.IsNullOrWhiteSpace(item.ChuShengRiQi))
                         {
@@ -401,11 +401,11 @@ namespace ImgLocation.Services
 
                 g.DrawImage(b, 0, 0, imageWidth, imageHeight);
                 //b.Save(strPath);
-            }
-            catch(Exception Ex)
-            {
-                b = null;
-            }
+            //}
+            //catch(Exception Ex)
+            //{
+            //    b = null;
+            //}
             return b;
         }
 
@@ -436,7 +436,7 @@ namespace ImgLocation.Services
                 {
                     Item item = Items[n];
 
-                    myHeight = GetJianTingChengYuanHeight(g, item.GongZuoDanWeiJiZhiWu, font, b, width);
+                    myHeight = GetHeightBaseOnMinHeight(g, item.GongZuoDanWeiJiZhiWu, font, b, width);
                 }
                 back = back + myHeight;
             }
@@ -454,7 +454,7 @@ namespace ImgLocation.Services
         /// <summary>
         /// 绘制【简历】
         /// </summary>
-        private void DrawResume(Graphics g, string text, Font font, SolidBrush sbrush, int x, int y, int width)
+        private int DrawResume(Graphics g, string text, Font font, SolidBrush sbrush, int x, int y, int width,bool isDrawing)
         {
             //字体排版格式
             StringFormat sf = new StringFormat();
@@ -462,107 +462,167 @@ namespace ImgLocation.Services
             sf.Alignment = StringAlignment.Near;
             //垂直居中
             sf.LineAlignment = StringAlignment.Center;
+
+            sf.FormatFlags = StringFormatFlags.FitBlackBox;
             //自动换行
-            sf.FormatFlags = StringFormatFlags.LineLimit;
+            sf.FormatFlags |= StringFormatFlags.LineLimit;
             //如果注销，不允许计算空格
             sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
 
-            List<string> Lines = new List<string>();
+            List<string> DrawingLines = new List<string>();
 
-            string[] temps = text.Split('\n');
+            string[] ResumeLines = text.Split('\n');
 
 
-            foreach (string s in temps)
+            foreach (string ResumeLine in ResumeLines)
             {
-                string temp = s.Trim();
-                string str = "";
-                for (int k = 0; k < temp.Length; k++)
+                string SingleLineForDrawing = "";
+                string CurrentResumeLine = ResumeLine.Trim();
+
+                if (CurrentResumeLine.Length>0&&!Char.IsNumber(CurrentResumeLine[0])) //期间 段落直接缩进绘制
                 {
-                    SizeF sizef = g.MeasureString(str + temp[k].ToString(), font, 10000, sf);
+                    SingleLineForDrawing = "                  ";
+                }
+
+                for (int k = 0; k < CurrentResumeLine.Length; k++)
+                {
+                    SizeF sizef = g.MeasureString(SingleLineForDrawing + CurrentResumeLine[k].ToString(), font, 10000, sf);
                     if (sizef.Width >= width)
                     {
-                        Lines.Add(str);
-                        str = "";
-                        str ="          " + "        ";
-                        str = str + temp[k].ToString();
+                        if(CurrentResumeLine[k-1]=='(' || CurrentResumeLine[k-1]=='（') //避免行末单左括号
+                        {
+                            char LineLastChar = SingleLineForDrawing[SingleLineForDrawing.Length - 1];
+                            SingleLineForDrawing = SingleLineForDrawing.Substring(0, SingleLineForDrawing.Length - 1);
+                            DrawingLines.Add(SingleLineForDrawing);
+                            SingleLineForDrawing = "                  " + LineLastChar;
+                        }
+                        else if(CurrentResumeLine[k] == ')' || CurrentResumeLine[k] == '）')//避免行首出现右括号
+                        {
+                            SingleLineForDrawing = SingleLineForDrawing + CurrentResumeLine[k].ToString();
+                            DrawingLines.Add(SingleLineForDrawing);
+                            SingleLineForDrawing = "                  ";
+                        }
+                        else if (IsCharCannotChangeLine(CurrentResumeLine[k]) && IsCharCannotChangeLine(CurrentResumeLine[k - 1])) //避免年月断行
+                        {
+                            string NewLine= CurrentResumeLine[k].ToString();
+                            int j = 0;
+                            while (IsCharCannotChangeLine(CurrentResumeLine[k - j]) && IsCharCannotChangeLine(CurrentResumeLine[k - j - 1]))
+                            {
+                                NewLine = SingleLineForDrawing[SingleLineForDrawing.Length - 1]+NewLine;
+                                SingleLineForDrawing = SingleLineForDrawing.Substring(0, SingleLineForDrawing.Length - 1);
+                                j++;
+                            }
+                            DrawingLines.Add(SingleLineForDrawing);
+                            SingleLineForDrawing = "                  " + NewLine ;
+                        }
+                        else
+                        {
+                            DrawingLines.Add(SingleLineForDrawing);
+                            SingleLineForDrawing = "                  " + CurrentResumeLine[k].ToString();
+                        }
                     }
                     else
                     {
-                        str = str + temp[k].ToString();
+                        SingleLineForDrawing = SingleLineForDrawing + CurrentResumeLine[k].ToString();
                     }
 
-                    if (k == temp.Length - 1)
+                    if (k == CurrentResumeLine.Length - 1)
                     {
-                        Lines.Add(str);
+                        DrawingLines.Add(SingleLineForDrawing);
                     }
                 }
-
+            }
+            if(DrawingLines[DrawingLines.Count-1].Length>0 && !Char.IsNumber((DrawingLines[DrawingLines.Count - 1].Trim())[0]))
+            {
+                DrawingLines.Insert(DrawingLines.Count - 1, " \r\n");
             }
             int x0 = x + 2;
             int y0 = y + font.Height;
-            foreach (string line in Lines)
+
+            foreach (string line in DrawingLines)
             {
-                g.DrawString(line, font, sbrush, x0, y0, sf);
+                //判断是绘制图像还是计算高度。
+                if(isDrawing)
+                {
+                    g.DrawString(line, font, sbrush, x0, y0, sf);
+                }
                 y0 = y0 + font.Height;
             }
 
             //绘制边框
             //g.DrawRectangle(new Pen(new SolidBrush(Color.Red), 1.0f), x, y, width, y0 - y);
 
-        }
-
-        private int GetResumeHeight(Graphics g, string text, Font font, SolidBrush sbrush, int x, int y, int width)
-        {
-            //字体排版格式
-            StringFormat sf = new StringFormat();
-            //居左显示
-            sf.Alignment = StringAlignment.Near;
-            //垂直居中
-            sf.LineAlignment = StringAlignment.Center;
-            //自动换行
-            sf.FormatFlags = StringFormatFlags.LineLimit;
-            //如果注销，不允许计算空格
-            sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
-
-            List<string> Lines = new List<string>();
-
-            string[] temps = text.Split('\n');
-
-
-            foreach (string s in temps)
-            {
-                string temp = s.Trim();
-                string str = "";
-                for (int k = 0; k < temp.Length; k++)
-                {
-                    SizeF sizef = g.MeasureString(str + temp[k].ToString(), font, 10000, sf);
-                    if (sizef.Width >= width)
-                    {
-                        Lines.Add(str);
-                        str = "";
-                        str = "          " + "        ";
-                        str = str + temp[k].ToString();
-                    }
-                    else
-                    {
-                        str = str + temp[k].ToString();
-                    }
-
-                    if (k == temp.Length - 1)
-                    {
-                        Lines.Add(str);
-                    }
-                }
-
-            }
-            int x0 = x + 2;
-            int y0 = y + font.Height;
-            foreach (string line in Lines)
-            {
-                y0 = y0 + font.Height;
-            }
             return y0 - y;
         }
+        private bool IsCharCannotChangeLine(char c)
+        {
+            if(Char.IsNumber(c))
+            {
+                return true;
+            }
+            else if(c=='(' || c=='（' || c == ')' || c == '）' || c =='.'||c=='-' || c == '—'|| c == ':' || c == '：' || c == '期' || c == '间' || c == '其')
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        //整合到DrawResume
+        //private int GetResumeHeight(Graphics g, string text, Font font, SolidBrush sbrush, int x, int y, int width)
+        //{
+        //    //字体排版格式
+        //    StringFormat sf = new StringFormat();
+        //    //居左显示
+        //    sf.Alignment = StringAlignment.Near;
+        //    //垂直居中
+        //    sf.LineAlignment = StringAlignment.Center;
+        //    //自动换行
+        //    sf.FormatFlags = StringFormatFlags.LineLimit;
+        //    //如果注销，不允许计算空格
+        //    sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
+
+        //    List<string> Lines = new List<string>();
+
+        //    string[] temps = text.Split('\n');
+
+
+        //    foreach (string s in temps)
+        //    {
+        //        string temp = s.Trim();
+        //        string str = "";
+        //        for (int k = 0; k < temp.Length; k++)
+        //        {
+        //            SizeF sizef = g.MeasureString(str + temp[k].ToString(), font, 10000, sf);
+        //            if (sizef.Width >= width)
+        //            {
+        //                Lines.Add(str);
+        //                str = "";
+        //                str = "          " + "        ";
+        //                str = str + temp[k].ToString();
+        //            }
+        //            else
+        //            {
+        //                str = str + temp[k].ToString();
+        //            }
+
+        //            if (k == temp.Length - 1)
+        //            {
+        //                Lines.Add(str);
+        //            }
+        //        }
+
+        //    }
+        //    int x0 = x + 2;
+        //    int y0 = y + font.Height;
+        //    foreach (string line in Lines)
+        //    {
+        //        y0 = y0 + font.Height;
+        //    }
+        //    return y0 - y;
+        //}
 
 
         private void DrawInCenter(Graphics g, string text, Font font, SolidBrush sbrush, int x, int y, int width, int height, StringFormat format)
@@ -606,7 +666,7 @@ namespace ImgLocation.Services
 
 
 
-        private int GetJianTingChengYuanHeight(Graphics g, string text, Font font, SolidBrush b, int width)
+        private int GetHeightBaseOnMinHeight(Graphics g, string text, Font font, SolidBrush b, int width)
         {
             int _height = this.minHeight;
             //字体排版格式
@@ -717,7 +777,7 @@ namespace ImgLocation.Services
                 Font newFont = font;//依次减少字体
                 while (sizeF.Width >= width || sizeF.Height >= height)
                 {
-                    newFont = new Font(font.FontFamily, newFont.Size - 1);
+                    newFont = new Font(font.FontFamily, newFont.Size - 1,FontStyle.Bold);
                     sizeF = g.MeasureString(text, newFont, width, sf);
                 }
 
@@ -735,7 +795,7 @@ namespace ImgLocation.Services
                 Font newFont1 = font;//依次减少字体
                 while (sizeF1.Width >= width || sizeF1.Height >= height / 2)
                 {
-                    newFont1 = new Font(font.FontFamily, newFont1.Size - 1);
+                    newFont1 = new Font(font.FontFamily, newFont1.Size - 1, FontStyle.Bold);
                     sizeF1 = g.MeasureString(xueli, newFont1, width, sf);
                 }
 
@@ -745,17 +805,17 @@ namespace ImgLocation.Services
                 Font newFont2 = font;//依次减少字体
                 while (sizeF2.Width >= width || sizeF2.Height >= height / 2)
                 {
-                    newFont2 = new Font(font.FontFamily, newFont2.Size - 1);
+                    newFont2 = new Font(font.FontFamily, newFont2.Size - 1, FontStyle.Bold);
                     sizeF2 = g.MeasureString(xuexiao, newFont2, width, sf);
                 }
 
                 if (newFont2.Size >= newFont1.Size)
                 {
-                    newFont2 = new Font(font.FontFamily, newFont1.Size);
+                    newFont2 = new Font(font.FontFamily, newFont1.Size, FontStyle.Bold);
                 }
                 else
                 {
-                    newFont1 = new Font(font.FontFamily, newFont2.Size);
+                    newFont1 = new Font(font.FontFamily, newFont2.Size, FontStyle.Bold);
                 }
 
                 myY1 = y1 + height * 1 / 4 - sizeF1.Height / 2 + 2;
@@ -774,6 +834,44 @@ namespace ImgLocation.Services
             }
         }
 
+        private void DrawName(Graphics g, string name,  Font font, SolidBrush b, int x1, int y1, int x2, int y2)
+        {
+            //字体排版格式
+            StringFormat sf = new StringFormat();
+            //居左显示
+            sf.Alignment = StringAlignment.Center;
+            //垂直居中
+            sf.LineAlignment = StringAlignment.Center;
+            //自动换行
+            sf.FormatFlags = StringFormatFlags.LineLimit;
+            //如果注销，不允许计算空格
+            sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
+
+            int width = x2 - x1 - 1;
+            int height = y2 - y1 - 1;
+         
+
+                SizeF sizeF = g.MeasureString(name, font, width, sf);
+
+                float x0 = x1;
+                float y0 = y1 + height / 2 - sizeF.Height / 2;
+
+                float xStart = x0;
+                float yStart = y0 + 2;
+
+                Font newFont = font;//依次减少字体
+                while (sizeF.Width >= width || sizeF.Height >= height)
+                {
+                    newFont = new Font(font.FontFamily, newFont.Size - 1, FontStyle.Bold);
+                    sizeF = g.MeasureString(name, newFont, width, sf);
+                }
+
+                y0 = y1 + height / 2 - sizeF.Height / 2;
+                yStart = y0 + 2;
+                RectangleF rectangleF = new RectangleF(x0, yStart, sizeF.Width, sizeF.Height);
+                g.DrawString(name, newFont, b, rectangleF, sf);
+                //g.DrawRectangle(new Pen(new SolidBrush(Color.Red), 1.0f), x0, y0, sizeF.Width, sizeF.Height);
+        }
 
         /// <summary>
         /// 居左，超过两行自动换行：（现任职务  拟任职务 拟免职务 家庭成员的单位职务）
@@ -801,6 +899,44 @@ namespace ImgLocation.Services
             if(sizeF.Height<height)
             {
                 yStart += height / 2 - sizeF.Height / 2+10;
+            }
+            else
+            {
+                //＋5是按照经验值修正偏移量
+                yStart += 5;
+            }
+
+            RectangleF rectangleF = new RectangleF(xStart, yStart, sizeF.Width, sizeF.Height);
+
+            g.DrawString(text, font, b, rectangleF, sf);
+        }
+
+        /// <summary>
+        /// 居中，超过两行自动换行：（家庭成员姓名）
+        /// </summary>
+        private void DrawInCenterAutoRowBaseOnTwo(Graphics g, string text, Font font, SolidBrush b, int x1, int y1, int x2, int y2)
+        {
+            //字体排版格式
+            StringFormat sf = new StringFormat();
+            //居左显示
+            sf.Alignment = StringAlignment.Center;
+            //垂直居中
+            sf.LineAlignment = StringAlignment.Center;
+            //自动换行
+            sf.FormatFlags = StringFormatFlags.LineLimit;
+            //如果注销，不允许计算空格
+            sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
+
+            int width = x2 - x1 - 1;
+            int height = y2 - y1 - 1;
+
+            SizeF sizeF = g.MeasureString(text, font, width, sf);
+
+            float xStart = x1;
+            float yStart = y1;
+            if (sizeF.Height < height)
+            {
+                yStart += height / 2 - sizeF.Height / 2 + 10;
             }
             else
             {
@@ -895,7 +1031,6 @@ namespace ImgLocation.Services
             StringFormat sf = new StringFormat(StringFormat.GenericTypographic);
             //计算空格并且不支持换行
             sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces | StringFormatFlags.LineLimit;
-
             sf.FormatFlags |= StringFormatFlags.NoWrap;//禁用文本换行功能
 
             int width = x2 - x1 - 1;
@@ -906,7 +1041,7 @@ namespace ImgLocation.Services
             Font newFont = font;//依次减少字体
             while (sizeF.Width >= (width - 2))
             {
-                newFont = new Font(font.FontFamily, newFont.Size - 1);
+                newFont = new Font(font.FontFamily, newFont.Size - 1,FontStyle.Bold);
                 sizeF = g.MeasureString(text, newFont, width, sf);
             }
 
@@ -1008,7 +1143,7 @@ namespace ImgLocation.Services
             Font newFont = font;//依次减少字体
             while (sizeF.Width >= (width - 2))
             {
-                newFont = new Font(font.FontFamily, newFont.Size - 1);
+                newFont = new Font(font.FontFamily, newFont.Size - 1,FontStyle.Bold);
                 sizeF = g.MeasureString(text, newFont, width, sf);
             }
 
@@ -1043,7 +1178,7 @@ namespace ImgLocation.Services
             Font newFont = font;//依次减少字体
             while (sizeF.Width >= (width - 2))
             {
-                newFont = new Font(font.FontFamily, newFont.Size - 1);
+                newFont = new Font(font.FontFamily, newFont.Size - 1,FontStyle.Bold);
                 sizeF = g.MeasureString(text, newFont, width, sf);
             }
 

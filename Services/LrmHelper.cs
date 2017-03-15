@@ -59,10 +59,14 @@ namespace ImgLocation.Services
                     p.RuDangShiJian = this.AddDot(p.RuDangShiJian);
                     p.CanJiaGongZuoShiJian = this.AddDot(p.CanJiaGongZuoShiJian);
                     p.JiSuanNianLingShiJian = this.AddDot(p.JiSuanNianLingShiJian);
+
                     foreach (Item i in p.JiaTingChengYuan)
                     {
                         i.ChuShengRiQi = this.AddDot(i.ChuShengRiQi);
                     }
+
+                    p.JianLi = p.JianLi.Replace("","");
+
                     if ((p.ZhaoPian + "").Trim().Length > 0)
                     {
                         byte[] b = Convert.FromBase64String(p.ZhaoPian);//转化为byte[]  

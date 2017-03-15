@@ -101,21 +101,21 @@ namespace ImgLocation.Models
         {
             get
             {
-                return Global.ProjectTempPDFDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + ".pdf";
+                return Global.ProjectTempXpsDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + ".xps";
             }
         }
         public string Local_StorgeResPdfFullPath
         {
             get
             {
-                return Global.ProjectTempPDFDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + "的考察材料.pdf";
+                return Global.ProjectTempXpsDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + "的考察材料.xps";
             }
         }
         public string Local_StorgeOtherPdfFullpath
         {
             get
             {
-                return Global.ProjectTempPDFDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + "的其他文件.pdf";
+                return Global.ProjectTempXpsDirectory + ((XM + string.Empty).Trim().Length == 0 ? Guid.NewGuid().ToString() : this.XM) + "的其他文件.xps";
             }
         }
 

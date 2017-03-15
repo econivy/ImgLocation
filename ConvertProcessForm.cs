@@ -262,7 +262,7 @@ namespace ImgLocation
             ConvertProcess.Maximum = 100;
             this.picLoading.Image = Properties.Resources.loading;
             document = ConvertDocument(document, ConvertPageRange, IsRelocationCadre);
-            System.GC.Collect();
+            GC.Collect();
             ConvertProcess.Value = 100;
             //this.picLoading.Image = Properties.Resources.right;
             if (DialogResult.Yes == MessageBox.Show(string.Format("批量转换文档[{0}]完成{1}。\r\n\r\n是否关闭当前转换窗口？", WordDirectory, HasError ? "。\r\n（提示）转换过程中存在错误，详细情况查看错误日志" : ""), "转换完成", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
@@ -277,7 +277,7 @@ namespace ImgLocation
             ConvertProcess.Maximum = 50;
             this.picLoading.Image = Properties.Resources.loading;
             g = ConvertCadre(g);
-            System.GC.Collect();
+            GC.Collect();
             ConvertProcess.Value = 50;
             this.picLoading.Image = Properties.Resources.right;
             DataRepository dr = new DataRepository(Global.ProjectOutputDbPath);
@@ -824,20 +824,33 @@ namespace ImgLocation
 
                     //现有模式下一般不会在产生空白页，因此这段代码废弃
                     //移除空白页
-                    //Bitmap QuestionImage = (Bitmap)Image.FromFile(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]);
-                    //Color p = QuestionImage.GetPixel(QuestionImage.Width / 2, 0);
-                    //Color p1 = QuestionImage.GetPixel(QuestionImage.Width / 2, 1);
-                    //Color p2 = QuestionImage.GetPixel(QuestionImage.Width / 2, 2);
-                    //Color p3 = QuestionImage.GetPixel(QuestionImage.Width / 2, 3);
-                    //if ((p.R == 0 && p.G == 128 && p.B == 0)
-                    //    || (p1.R == 0 && p1.G == 128 && p1.B == 0)
-                    //    || (p2.R == 0 && p2.G == 128 && p2.B == 0)
-                    //    || (p3.R == 0 && p3.G == 128 && p3.B == 0))
-                    //{
-                    //    d.DocumentImageCount -= 1;
-                    //}
-                    //QuestionImage.Dispose();
-
+                    Bitmap QuestionImage = (Bitmap)Image.FromFile(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]);
+                    bool question = true;
+                    for(int h=0;h<QuestionImage.Height;h++)
+                    {
+                        Color p = QuestionImage.GetPixel(1116, h);
+                        Color p2 = QuestionImage.GetPixel(1232, h);
+                        Color p3 = QuestionImage.GetPixel(1348, h);
+                        if((p.R==p2.R&&p2.R==p3.R &&p.G==p2.G&&p2.G==p3.G&&p.B==p2.B&&p2.B==p3.B)&&((p.R>200&&p.G>200&&p.B>200)||(p.R<50&&p.G>200&&p.B<50)))
+                        {
+                            h++;
+                        }
+                        else
+                        {
+                            question = false;
+                            break;
+                        }
+                    }
+                    if(question&& File.Exists(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]))
+                    {
+                        QuestionImage.Dispose();
+                        File.Delete(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]);
+                        d.DocumentImageCount -= 1;
+                    }
+                    else
+                    {
+                        QuestionImage.Dispose();
+                    }
                     GC.Collect();
                     ConvertProcess.Value = ConvertProcess.Value + 5;
                 }
@@ -855,7 +868,7 @@ namespace ImgLocation
 
             FatherForm.ReloadTree();
             convertHelper.UpdateDataId();
-            System.GC.Collect();
+            GC.Collect();
             return d;
         }
         public GB ConvertCadre(GB g)
@@ -913,12 +926,12 @@ namespace ImgLocation
                     {
                         g.LrmImageCount = 0;
                     }
-                }
-                catch (Exception ex)
-                {
-                    ShowMessage(string.Format("[转换干部任免审批表失败:{0}]，{1}", g.Local_SourceLrmFullpath, ex.Message), MessageType.Error);
-                }
             }
+                catch (Exception ex)
+            {
+                ShowMessage(string.Format("[转换干部任免审批表失败:{0}]，{1}", g.Local_SourceLrmFullpath, ex.Message), MessageType.Error);
+            }
+        }
             else
             {
                 g.LrmImageCount = 0;
@@ -2195,8 +2208,8 @@ namespace ImgLocation
                 }
                 if (p[0].R < 50 && p[0].G > 120 && p[0].B < 50 && p[3].R > 200 && p[3].G > 200 && p[3].B > 200)
                 {
-                    bmpDest = new Bitmap(w, h - 2, PixelFormat.Format32bppRgb);
-                    Rectangle rectDest = new Rectangle(0, 0, w, h - 2);
+                    bmpDest = new Bitmap(w, h - 4, PixelFormat.Format32bppRgb);
+                    Rectangle rectDest = new Rectangle(0, 0, w, h - 4);
                     Graphics graphic = Graphics.FromImage(bmpDest);
                     graphic.DrawImage(sbmp, rectDest, rectDest, GraphicsUnit.Pixel);
                     graphic.Dispose();

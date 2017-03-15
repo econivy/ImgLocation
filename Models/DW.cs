@@ -32,7 +32,7 @@ namespace ImgLocation.Models
         {
             get
             {
-                return Global.ProjectTempPDFDirectory + MC + ".pdf";
+                return Global.ProjectTempXpsDirectory + MC + ".xps";
             }
 
         }     //转为非存储字段

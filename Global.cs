@@ -84,7 +84,7 @@ namespace ImgLocation
         public static string ProjectResDirectory;
 
         public static string ProjectTemp;//生成过程中的临时目录
-        public static string ProjectTempPDFDirectory;//生成过程中的pdf文件目录
+        public static string ProjectTempXpsDirectory;//生成过程中的pdf文件目录
         public static string ProjectTempWordDirectory;//生成过程中的，lrm转制成的word文档目录
 
         public static string OutputDirectory;//总的输出目录，存储在SystemConfig的101属性中
@@ -126,7 +126,7 @@ namespace ImgLocation
             ProjectLrmPicDirectory = p.PATH + @"lrm\";
             ProjectResDirectory = p.PATH + @"res\";
             ProjectTemp = p.PATH + @"temp\";
-            ProjectTempPDFDirectory = ProjectTemp + @"pdf\";
+            ProjectTempXpsDirectory = ProjectTemp + @"xps\";
             ProjectTempWordDirectory = ProjectTemp + @"word\";
 
             ProjectOutputDirectory = OutputDirectory + @"Project_" + p.id + @"\";
@@ -135,7 +135,7 @@ namespace ImgLocation
             ProjectOutputDbPath = ProjectOutputDbDirectory + @"imgLocation.db";
             ProjectOutputImgDirectory = ProjectOutputDirectory + @"gbchd\" + meeting.Trim() + @"\pic\";
 
-            ProjectPDFTempDirectory = ProjectTemp + @"wordtopdf\";
+            ProjectPDFTempDirectory = p.PATH + @"pdf\";
             ProjectPDFOutputDirectory = OutputDirectory + @"Project_" + p.id + @"_PDF\";
 
             LrmToWordModelPath = approot + @"model.docx";
@@ -169,9 +169,9 @@ namespace ImgLocation
             {
                 Directory.CreateDirectory(ProjectResDirectory);
             }
-            if (!Directory.Exists(ProjectTempPDFDirectory))
+            if (!Directory.Exists(ProjectTempXpsDirectory))
             {
-                Directory.CreateDirectory(ProjectTempPDFDirectory);
+                Directory.CreateDirectory(ProjectTempXpsDirectory);
             }
             if (!Directory.Exists(ProjectTempWordDirectory))
             {
