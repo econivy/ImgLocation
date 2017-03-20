@@ -352,8 +352,9 @@ namespace ImgLocation.Forms
             this.ProgressPushData.Value = e.ProgressPercentage * 100;
             this.lblPad.Text = string.Format("正在向平板{0}推送数据：{1}\r\n", this._PadInfo.id, e.UserState.ToString());
             DateTime d = DateTime.Now;
-            this.tbOut.Text += string.Format("[{0}]正在向平板{1}推送数据：{2}\r\n", d.ToString("yyyy-MM-dd HH:mm:ss"), this._PadInfo.id, e.UserState.ToString());
-            tbOut.Select();
+            this.tbOut.AppendText(string.Format("[{0}]正在向平板{1}推送数据：{2}\r\n", d.ToString("yyyy-MM-dd HH:mm:ss"), this._PadInfo.id, e.UserState.ToString()));
+            tbOut.Focus();
+            tbOut.Select(tbOut.TextLength, 0);
             tbOut.ScrollToCaret();
         }
 
