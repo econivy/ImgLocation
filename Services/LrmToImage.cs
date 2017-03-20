@@ -63,7 +63,7 @@ namespace ImgLocation.Services
 
         public LrmToImage()
         {
-           
+
         }
 
         public LrmToImage(Person _person)
@@ -71,7 +71,7 @@ namespace ImgLocation.Services
             person = _person;
         }
 
-        public LrmToImage(Person _person,int _imageWidth)
+        public LrmToImage(Person _person, int _imageWidth)
         {
             person = _person;
             this.imageWidth = _imageWidth;
@@ -88,325 +88,367 @@ namespace ImgLocation.Services
             //try
             //{
 
-                //画笔
-                SolidBrush brush = new SolidBrush(Color.FromArgb(0, 0, 0));
-                //字体
-                Font font = new System.Drawing.Font(this.fontName, this.fontSize, FontStyle.Bold);
-                Font fontTitle = new System.Drawing.Font("方正小标宋简体", 50, FontStyle.Bold);
+            //画笔
+            SolidBrush brush = new SolidBrush(Color.FromArgb(0, 0, 0));
+            //字体
+            Font font = new System.Drawing.Font(this.fontName, this.fontSize, FontStyle.Bold);
+            Font fontTitle = new System.Drawing.Font("方正小标宋简体", 50, FontStyle.Bold);
 
-                int x1 = xStart;
-                int x2 = x1 + minWidth;
-                int x3 = x2 + minWidth;
-                int x4 = x3 + minWidth;
-                int x5 = x4 + minWidth;
-                int x6 = x5 + minWidth;
-                int x7 = x6 + minWidth;
-                int x8 = x7 + 300;
+            int x1 = xStart;
+            int x2 = x1 + minWidth;
+            int x3 = x2 + minWidth;
+            int x4 = x3 + minWidth;
+            int x5 = x4 + minWidth;
+            int x6 = x5 + minWidth;
+            int x7 = x6 + minWidth;
+            int x8 = x7 + 300;
 
-                int x11 = x1;
-                int x12 = x11 + 100;
-                int x13 = x12 + 150;
-                int x14 = x13 + 200;
-                int x15 = x14 + 100;
-                int x16 = x15 + 200;
-                int x17 = x8;
+            int x11 = x1;
+            int x12 = x11 + 100;
+            int x13 = x12 + 150;
+            int x14 = x13 + 200;
+            int x15 = x14 + 100;
+            int x16 = x15 + 200;
+            int x17 = x8;
 
-                int y0 = yStart;
-                int y1 = y0 + fontTitle.Height + 50;
-                int y2 = y1 + minHeight;
-                int y3 = y2 + minHeight;
-                int y4 = y3 + minHeight;
-                int y5 = y4 + minHeight;
-                int y6 = y5 + minHeight;
-                int y7 = y6 + minHeight;
+            int y0 = yStart;
+            int y1 = y0 + fontTitle.Height + 50;
+            int y2 = y1 + minHeight;
+            int y3 = y2 + minHeight;
+            int y4 = y3 + minHeight;
+            int y5 = y4 + minHeight;
+            int y6 = y5 + minHeight;
+            int y7 = y6 + minHeight;
 
-                int y8, y9, y10, y11, y12, y13, y14, y15;
-
-
-
-                //计算图片大小
-                int tempHeight = 0;
-                //现 任 职 务
-                tempHeight = GetHeightBaseOnMinHeight(g, person.XianRenZhiWu, font, brush, x8 - x3);
-                y8 = y7 + tempHeight;
-                //拟 任 职 务
-                tempHeight = GetHeightBaseOnMinHeight(g, person.NiRenZhiWu, font, brush, x8 - x3);
-                y9 = y8 + tempHeight;
-                //拟 免 职 务
-                tempHeight = GetHeightBaseOnMinHeight(g, person.NiMianZhiWu, font, brush, x8 - x3);
-                y10 = y9 + tempHeight;
-                //简历
-                tempHeight = DrawResume(g, person.JianLi, font, brush, x12, y10, x17 - x12,false);
-                y11 = y10 + tempHeight;
-                //奖惩情况
-                tempHeight = GetHeight(g, person.JiangChengQingKuang, font, brush, x17 - x12);
-                if (tempHeight < font.Height * 4)
-                {
-                    tempHeight = font.Height * 4;
-                }
-                y12 = y11 + tempHeight;
-                //年核\r\n度结\r\n考果
-                tempHeight = GetHeight(g, person.NianDuKaoHeJieGuo, font, brush, x17 - x12);
-                if (tempHeight < font.Height * 4)
-                {
-                    tempHeight = font.Height * 4;
-                }
-                y13 = y12 + tempHeight;
-                //任免理由
-                tempHeight = GetHeight(g, person.RenMianLiYou, font, brush, x17 - x12);
-                if (tempHeight < font.Height * 4)
-                {
-                    tempHeight = font.Height * 4;
-                }
-                y14 = y13 + tempHeight;
-
-                y15 = y14 + GetFamilyTotalHeight(g, person.JiaTingChengYuan, font, brush, x17 - x16);
-
-                imageHeight = y15 + 150;
-
-                //计算图片大小
-                Rectangle rect = new Rectangle(0, 0, imageWidth, imageHeight);
-
-                //重新创建画布和画笔
-                b = new Bitmap(rect.Width, rect.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                g = Graphics.FromImage(b);
-
-                // 插值算法的质量
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; //高质量
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality; //高像素偏移质量
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;//增强字体
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.FillRectangle(Brushes.White, rect);
-
-                //列
-                //第1列
-                g.DrawLine(pen, x1, y1, x1, y7);
-                //第2列
-                g.DrawLine(pen, x2, y1, x2, y7);
-                //第3列
-                g.DrawLine(pen, x3, y1, x3, y4);
-                g.DrawLine(pen, x3, y5, x3, y7);
-                //第4列
-                g.DrawLine(pen, x4, y1, x4, y5);
-                //第5列
-                g.DrawLine(pen, x5, y1, x5, y7);
-                //第6列
-                g.DrawLine(pen, x6, y1, x6, y4);
-                g.DrawLine(pen, x6, y5, x6, y7);
-                //第7列
-                g.DrawLine(pen, x7, y1, x7, y5);
-                //第8列
-                g.DrawLine(pen, x8, y1, x8, y7);
-
-                //行
-                //第1行
-                g.DrawLine(pen, x1, y1, x8, y1);
-                //第2行
-                g.DrawLine(pen, x1, y2, x7, y2);
-                //第3行
-                g.DrawLine(pen, x1, y3, x7, y3);
-                //第4行
-                g.DrawLine(pen, x1, y4, x7, y4);
-                //第5行
-                g.DrawLine(pen, x1, y5, x7, y5);
-                //第6行
-                g.DrawLine(pen, x1, y6, x8, y6);
-                //第7行
-                g.DrawLine(pen, x1, y7, x8, y7);
+            int y8, y9, y10, y11, y12, y13, y14, y15;
 
 
-                //绘制标题文字
-                DrawInCenter(g, "干  部  任  免  审  批  表", fontTitle, brush, x1, y0, x8, y1);
-                //照片
-                g.DrawImage(person.ZhaoPian_Image, x7 + 1, y1 + 1, x8 - x7 - 2, y5 - y1 - 3);
 
-                DrawInCenter(g, "姓  名", font, brush, x1, y1, x2, y2);
-                DrawInCenterByFont(g, person.XingMing, font, brush, x2, y1, x3, y2);
-                DrawInCenter(g, "性  别", font, brush, x3, y1, x4, y2);
+            //计算图片大小
+            int tempHeight = 0;
+            //现 任 职 务
+            tempHeight = GetHeightBaseOnMinHeight(g, person.XianRenZhiWu, font, brush, x8 - x3);
+            y8 = y7 + tempHeight;
+            //拟 任 职 务
+            tempHeight = GetHeightBaseOnMinHeight(g, person.NiRenZhiWu, font, brush, x8 - x3);
+            y9 = y8 + tempHeight;
+            //拟 免 职 务
+            tempHeight = GetHeightBaseOnMinHeight(g, person.NiMianZhiWu, font, brush, x8 - x3);
+            y10 = y9 + tempHeight;
+            //简历
+            tempHeight = DrawResume(g, person.JianLi, font, brush, x12, y10, x17 - x12, false);
+            y11 = y10 + tempHeight;
+            //奖惩情况
+            tempHeight = GetHeight(g, person.JiangChengQingKuang, font, brush, x17 - x12);
+            if (tempHeight < font.Height * 4)
+            {
+                tempHeight = font.Height * 4;
+            }
+            y12 = y11 + tempHeight;
+            //年核\r\n度结\r\n考果
+            tempHeight = GetHeight(g, person.NianDuKaoHeJieGuo, font, brush, x17 - x12);
+            if (tempHeight < font.Height * 4)
+            {
+                tempHeight = font.Height * 4;
+            }
+            y13 = y12 + tempHeight;
+            //任免理由
+            tempHeight = GetHeight(g, person.RenMianLiYou, font, brush, x17 - x12);
+            if (tempHeight < font.Height * 4)
+            {
+                tempHeight = font.Height * 4;
+            }
+            y14 = y13 + tempHeight;
 
-                DrawInCenter(g, "男", font, brush, x4, y1, x5, y2);
-                DrawInCenterByLine(g, "出生年月\r\n（ 岁）", font, brush, x5, y1, x6, y2);
+            y15 = y14 + GetFamilyTotalHeight(g, person.JiaTingChengYuan, font, brush, x17 - x16);
 
-                int age = CalAge(person.ChuShengNianYue);
+            imageHeight = y15 + 150;
 
-                DrawInCenterByLine(g, person.ChuShengNianYue + "\r\n（" + age + "岁）", font, brush, x6, y1, x7, y2);
+            //计算图片大小
+            Rectangle rect = new Rectangle(0, 0, imageWidth, imageHeight);
 
-                DrawInCenter(g, "民  族", font, brush, x1, y2, x2, y3);
-                DrawInCenterByFont(g, person.MinZu, font, brush, x2, y2, x3, y3);
-                DrawInCenter(g, "籍  贯", font, brush, x3, y2, x4, y3);
-                DrawInCenterByFont(g, person.JiGuan, font, brush, x4, y2, x5, y3);
-                DrawInCenter(g, "出 生 地", font, brush, x5, y2, x6, y3);
-                DrawInCenterByFont(g, person.ChuShengDi, font, brush, x6, y2, x7, y3);
+            //重新创建画布和画笔
+            b = new Bitmap(rect.Width, rect.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+            g = Graphics.FromImage(b);
 
-                DrawInCenterByLine(g, "入  党\r\n时  间", font, brush, x1, y3, x2, y4);
-                DrawInCenter(g, person.RuDangShiJian, font, brush, x2, y3, x3, y4);
-                DrawInCenterByLine(g, "参加工\r\n作时间", font, brush, x3, y3, x4, y4);
-                DrawInCenter(g, person.CanJiaGongZuoShiJian, font, brush, x4, y3, x5, y4);
-                DrawInCenter(g, "健康状况", font, brush, x5, y3, x6, y4);
-                DrawInCenter(g, person.JianKangZhuangKuang, font, brush, x6, y3, x7, y4);
+            // 插值算法的质量
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; //高质量
+            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality; //高像素偏移质量
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;//增强字体
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            g.FillRectangle(Brushes.White, rect);
 
-                DrawInCenterByLine(g, "专业技术\r\n职    务", font, brush, x1, y4, x2, y5);
-                DrawInCenter(g, person.ZhuanYeJiShuZhiWu, font, brush, x2, y4, x4, y5);
-                DrawInCenterByLine(g, "熟悉专业\r\n有何专长", font, brush, x4, y4, x5, y5);
-                DrawInCenter(g, person.ShuXiZhuanYeYouHeZhuanChang, font, brush, x5, y4, x7, y5);
+            //列
+            //第1列
+            g.DrawLine(pen, x1, y1, x1, y7);
+            //第2列
+            g.DrawLine(pen, x2, y1, x2, y7);
+            //第3列
+            g.DrawLine(pen, x3, y1, x3, y4);
+            g.DrawLine(pen, x3, y5, x3, y7);
+            //第4列
+            g.DrawLine(pen, x4, y1, x4, y5);
+            //第5列
+            g.DrawLine(pen, x5, y1, x5, y7);
+            //第6列
+            g.DrawLine(pen, x6, y1, x6, y4);
+            g.DrawLine(pen, x6, y5, x6, y7);
+            //第7列
+            g.DrawLine(pen, x7, y1, x7, y5);
+            //第8列
+            g.DrawLine(pen, x8, y1, x8, y7);
+
+            //行
+            //第1行
+            g.DrawLine(pen, x1, y1, x8, y1);
+            //第2行
+            g.DrawLine(pen, x1, y2, x7, y2);
+            //第3行
+            g.DrawLine(pen, x1, y3, x7, y3);
+            //第4行
+            g.DrawLine(pen, x1, y4, x7, y4);
+            //第5行
+            g.DrawLine(pen, x1, y5, x7, y5);
+            //第6行
+            g.DrawLine(pen, x1, y6, x8, y6);
+            //第7行
+            g.DrawLine(pen, x1, y7, x8, y7);
 
 
-                y7 = y6 + minHeight;
+            //绘制标题文字
+            DrawInCenter(g, "干  部  任  免  审  批  表", fontTitle, brush, x1, y0, x8, y1);
+            //照片
+            g.DrawImage(person.ZhaoPian_Image, x7 + 1, y1 + 1, x8 - x7 - 2, y5 - y1 - 3);
 
-                DrawInCenter(g, "学  历", font, brush, x1, y5, x2, y6);
-                DrawInCenter(g, "学  位", font, brush, x1, y6, x2, y7);
-                DrawInCenterByLine(g, "全日制\r\n教  育", font, brush, x2, y5, x3, y6);
+            DrawInCenter(g, "姓  名", font, brush, x1, y1, x2, y2);
+            DrawInCenterLimitInTwoLineOnAutoFontSize(g, person.XingMing, font, brush, x2, y1, x3, y2);
+            DrawInCenter(g, "性  别", font, brush, x3, y1, x4, y2);
+
+            DrawInCenter(g, "男", font, brush, x4, y1, x5, y2);
+            DrawInCenterByLine(g, "出生年月\r\n（ 岁）", font, brush, x5, y1, x6, y2);
+
+            int age = CalAge(person.ChuShengNianYue);
+
+            DrawInCenterByLine(g, person.ChuShengNianYue + "\r\n（" + age + "岁）", font, brush, x6, y1, x7, y2);
+
+            DrawInCenter(g, "民  族", font, brush, x1, y2, x2, y3);
+            DrawInCenterLimitInTwoLineOnAutoFontSize(g, person.MinZu, font, brush, x2, y2, x3, y3);
+            DrawInCenter(g, "籍  贯", font, brush, x3, y2, x4, y3);
+            DrawInCenterLimitInTwoLineOnAutoFontSize(g, person.JiGuan, font, brush, x4, y2, x5, y3);
+            DrawInCenter(g, "出 生 地", font, brush, x5, y2, x6, y3);
+            DrawInCenterLimitInTwoLineOnAutoFontSize(g, person.ChuShengDi, font, brush, x6, y2, x7, y3);
+
+            DrawInCenterByLine(g, "入  党\r\n时  间", font, brush, x1, y3, x2, y4);
+            DrawInCenter(g, person.RuDangShiJian, font, brush, x2, y3, x3, y4);
+            DrawInCenterByLine(g, "参加工\r\n作时间", font, brush, x3, y3, x4, y4);
+            DrawInCenter(g, person.CanJiaGongZuoShiJian, font, brush, x4, y3, x5, y4);
+            DrawInCenter(g, "健康状况", font, brush, x5, y3, x6, y4);
+            DrawInCenter(g, person.JianKangZhuangKuang, font, brush, x6, y3, x7, y4);
+
+            DrawInCenterByLine(g, "专业技术\r\n职    务", font, brush, x1, y4, x2, y5);
+            DrawInCenterLimitInTwoLineOnAutoFontSize(g, person.ZhuanYeJiShuZhiWu, font, brush, x2, y4, x4, y5);
+            DrawInCenterByLine(g, "熟悉专业\r\n有何专长", font, brush, x4, y4, x5, y5);
+            DrawInCenterLimitInTwoLineOnAutoFontSize(g, person.ShuXiZhuanYeYouHeZhuanChang, font, brush, x5, y4, x7, y5);
+
+
+            y7 = y6 + minHeight;
+
+            DrawInCenter(g, "学  历", font, brush, x1, y5, x2, y6);
+            DrawInCenter(g, "学  位", font, brush, x1, y6, x2, y7);
+            DrawInCenterByLine(g, "全日制\r\n教  育", font, brush, x2, y5, x3, y6);
+            if(person.QuanRiZhiJiaoYu_XueLi.Trim().Length>0 && person.QuanRiZhiJiaoYu_XueWei.Trim().Length>0)
+            {
                 DrawInCenterByLine(g, person.QuanRiZhiJiaoYu_XueLi + "\r\n" + person.QuanRiZhiJiaoYu_XueWei, font, brush, x3, y5, x5, y6);
-                DrawInCenterByLine(g, "毕业院校\r\n系及专业", font, brush, x5, y5, x6, y6);
-                DrawSchool(g, person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi, person.QuanRiZhiJiaoYu_XueWei_BiYeYuanXiaoXi, font, brush, x6, y5, x8, y6);
+            }
+            else if(person.QuanRiZhiJiaoYu_XueLi.Trim().Length > 0)
+            {
+                DrawInCenterByLine(g, person.QuanRiZhiJiaoYu_XueLi , font, brush, x3, y5, x5, y6);
+            }
+            else
+            {
+                DrawInCenterByLine(g, person.QuanRiZhiJiaoYu_XueWei, font, brush, x3, y5, x5, y6);
+            }
+            DrawInCenterByLine(g, "毕业院校\r\n系及专业", font, brush, x5, y5, x6, y6);
+            DrawSchool(g, person.QuanRiZhiJiaoYu_XueLi_BiYeYuanXiaoXi, person.QuanRiZhiJiaoYu_XueWei_BiYeYuanXiaoXi, font, brush, x6, y5, x8, y6);
 
-                DrawInCenterByLine(g, "在  职\r\n教  育", font, brush, x2, y6, x3, y7);
+            DrawInCenterByLine(g, "在  职\r\n教  育", font, brush, x2, y6, x3, y7);
+            if(person.ZaiZhiJiaoYu_XueLi.Trim().Length>0&& person.ZaiZhiJiaoYu_XueWei.Trim().Length>0)
+            {
                 DrawInCenterByLine(g, person.ZaiZhiJiaoYu_XueLi + "\r\n" + person.ZaiZhiJiaoYu_XueWei, font, brush, x3, y6, x5, y7);
-                DrawInCenterByLine(g, "毕业院校\r\n系及专业", font, brush, x5, y6, x6, y7);
-                DrawSchool(g, person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi, person.ZaiZhiJiaoYu_XueWei_BiYeYuanXiaoXi, font, brush, x6, y6, x8, y7);
+            }
+            else if(person.ZaiZhiJiaoYu_XueLi.Trim().Length > 0)
+            {
+                DrawInCenterByLine(g, person.ZaiZhiJiaoYu_XueLi , font, brush, x3, y6, x5, y7);
+            }
+            else
+            {
+                DrawInCenterByLine(g, person.ZaiZhiJiaoYu_XueWei, font, brush, x3, y6, x5, y7);
+            }
+
+            DrawInCenterByLine(g, "毕业院校\r\n系及专业", font, brush, x5, y6, x6, y7);
+            DrawSchool(g, person.ZaiZhiJiaoYu_XueLi_BiYeYuanXiaoXi, person.ZaiZhiJiaoYu_XueWei_BiYeYuanXiaoXi, font, brush, x6, y6, x8, y7);
 
 
-                g.DrawLine(pen, x1, y7, x1, y8);
-                g.DrawLine(pen, x3, y7, x3, y8);
-                g.DrawLine(pen, x8, y7, x8, y8);
-                g.DrawLine(pen, x1, y8, x8, y8);//截至行
+            g.DrawLine(pen, x1, y7, x1, y8);
+            g.DrawLine(pen, x3, y7, x3, y8);
+            g.DrawLine(pen, x8, y7, x8, y8);
+            g.DrawLine(pen, x1, y8, x8, y8);//截至行
 
-                DrawInCenter(g, "现 任 职 务", font, brush, x1, y7, x3, y8);
-                DrawInLeftAutoRowBaseOnTwo(g, person.XianRenZhiWu, font, brush, x3, y7, x8, y8);
-
-
-                g.DrawLine(pen, x1, y8, x1, y9);
-                g.DrawLine(pen, x3, y8, x3, y9);
-                g.DrawLine(pen, x8, y8, x8, y9);
-                g.DrawLine(pen, x1, y9, x8, y9);//截至行
-
-                DrawInCenter(g, "拟 任 职 务", font, brush, x1, y8, x3, y9);
-                DrawInLeftAutoRowBaseOnTwo(g, person.NiRenZhiWu, font, brush, x3, y8, x8, y9);
+            DrawInCenter(g, "现 任 职 务", font, brush, x1, y7, x3, y8);
+            DrawInLeftAutoRowBaseOnTwo(g, person.XianRenZhiWu, font, brush, x3, y7, x8, y8);
 
 
+            g.DrawLine(pen, x1, y8, x1, y9);
+            g.DrawLine(pen, x3, y8, x3, y9);
+            g.DrawLine(pen, x8, y8, x8, y9);
+            g.DrawLine(pen, x1, y9, x8, y9);//截至行
 
-
-                g.DrawLine(pen, x1, y9, x1, y10);
-                g.DrawLine(pen, x3, y9, x3, y10);
-                g.DrawLine(pen, x8, y9, x8, y10);
-                g.DrawLine(pen, x1, y10, x8, y10);//截至行
-
-                DrawInCenter(g, "拟 免 职 务", font, brush, x1, y9, x3, y10);
-                DrawInLeftAutoRowBaseOnTwo(g, person.NiMianZhiWu, font, brush, x3, y9, x8, y10);
-
-
-                g.DrawLine(pen, x1, y10, x1, y11);
-                g.DrawLine(pen, x12, y10, x12, y11);
-                g.DrawLine(pen, x8, y10, x8, y11);
-                g.DrawLine(pen, x1, y11, x8, y11);//截至行
-
-
-                DrawInCenterH(g, "简          历", font, brush, x1, y10, x12, y11);
-                DrawResume(g, person.JianLi, font, brush, x12, y10, x8 - x12,true);
-
-
-                g.DrawLine(pen, x1, y11, x1, y12);
-                g.DrawLine(pen, x12, y11, x12, y12);
-                g.DrawLine(pen, x8, y11, x8, y12);
-                g.DrawLine(pen, x1, y12, x8, y12);//截至行
-
-                DrawInCenterH(g, "奖惩情况", font, brush, x1, y11, x12, y12);
-                DrawInLeftAutoRow(g, person.JiangChengQingKuang, font, brush, x12, y11, x8, y12);
-
-
-                g.DrawLine(pen, x1, y12, x1, y13);
-                g.DrawLine(pen, x12, y12, x12, y13);
-                g.DrawLine(pen, x8, y12, x8, y13);
-                g.DrawLine(pen, x1, y13, x8, y13);//截至行
-
-                DrawKaoHeTitle(g, font, brush, x11, y12, x12, y13);
-                DrawInLeftAutoRow(g, person.NianDuKaoHeJieGuo, font, brush, x12, y12, x8, y13);
+            DrawInCenter(g, "拟 任 职 务", font, brush, x1, y8, x3, y9);
+            DrawInLeftAutoRowBaseOnTwo(g, person.NiRenZhiWu, font, brush, x3, y8, x8, y9);
 
 
 
-                g.DrawLine(pen, x1, y13, x1, y14);
-                g.DrawLine(pen, x12, y13, x12, y14);
-                g.DrawLine(pen, x8, y13, x8, y14);
-                g.DrawLine(pen, x1, y14, x8, y14);//截至行
 
-                DrawInCenterH(g, "任免理由", font, brush, x1, y13, x12, y14);
-                DrawInLeftAutoRow(g, person.RenMianLiYou, font, brush, x12, y13, x8, y14);
+            g.DrawLine(pen, x1, y9, x1, y10);
+            g.DrawLine(pen, x3, y9, x3, y10);
+            g.DrawLine(pen, x8, y9, x8, y10);
+            g.DrawLine(pen, x1, y10, x8, y10);//截至行
 
-                //家庭成员
-                int yFamily = y14;
-                List<Item> Items = person.JiaTingChengYuan;
+            DrawInCenter(g, "拟 免 职 务", font, brush, x1, y9, x3, y10);
+            DrawInLeftAutoRowBaseOnTwo(g, person.NiMianZhiWu, font, brush, x3, y9, x8, y10);
 
-                //标题
-                g.DrawLine(pen, x11, yFamily, x11, yFamily + this.minHeight);
-                g.DrawLine(pen, x12, yFamily, x12, yFamily + this.minHeight);
-                g.DrawLine(pen, x13, yFamily, x13, yFamily + this.minHeight);
-                g.DrawLine(pen, x14, yFamily, x14, yFamily + this.minHeight);
-                g.DrawLine(pen, x15, yFamily, x15, yFamily + this.minHeight);
-                g.DrawLine(pen, x16, yFamily, x16, yFamily + this.minHeight);
-                g.DrawLine(pen, x17, yFamily, x17, yFamily + this.minHeight);
-                g.DrawLine(pen, x12, yFamily + this.minHeight, x17, yFamily + this.minHeight);
 
-                DrawInCenter(g, "称谓", font, brush, x12, yFamily, x13, yFamily + minHeight);
-                DrawInCenter(g, "姓  名", font, brush, x13, yFamily, x14, yFamily + minHeight);
-                DrawInCenterByLine(g, "年\r\n龄", font, brush, x14, yFamily, x15, yFamily + minHeight);
-                DrawInCenterByLine(g, "政  治\r\n面  貌", font, brush, x15, yFamily, x16, yFamily + minHeight);
-                DrawInCenter(g, "工 作 单 位 及 职 务", font, brush, x16, yFamily, x17, yFamily + minHeight);
-                yFamily = yFamily + this.minHeight;
+            g.DrawLine(pen, x1, y10, x1, y11);
+            g.DrawLine(pen, x12, y10, x12, y11);
+            g.DrawLine(pen, x8, y10, x8, y11);
+            g.DrawLine(pen, x1, y11, x8, y11);//截至行
 
-                int max = Items.Count;
-                if (max < maxFamilyCount)
+
+            DrawInCenterH(g, "简          历", font, brush, x1, y10, x12, y11);
+            DrawResume(g, person.JianLi, font, brush, x12, y10, x8 - x12, true);
+
+
+            g.DrawLine(pen, x1, y11, x1, y12);
+            g.DrawLine(pen, x12, y11, x12, y12);
+            g.DrawLine(pen, x8, y11, x8, y12);
+            g.DrawLine(pen, x1, y12, x8, y12);//截至行
+
+            DrawInCenterH(g, "奖惩情况", font, brush, x1, y11, x12, y12);
+            DrawInLeftAutoRow(g, person.JiangChengQingKuang, font, brush, x12, y11, x8, y12);
+
+
+            g.DrawLine(pen, x1, y12, x1, y13);
+            g.DrawLine(pen, x12, y12, x12, y13);
+            g.DrawLine(pen, x8, y12, x8, y13);
+            g.DrawLine(pen, x1, y13, x8, y13);//截至行
+
+            DrawKaoHeTitle(g, font, brush, x11, y12, x12, y13);
+            DrawInLeftAutoRow(g, person.NianDuKaoHeJieGuo, font, brush, x12, y12, x8, y13);
+
+
+
+            g.DrawLine(pen, x1, y13, x1, y14);
+            g.DrawLine(pen, x12, y13, x12, y14);
+            g.DrawLine(pen, x8, y13, x8, y14);
+            g.DrawLine(pen, x1, y14, x8, y14);//截至行
+
+            DrawInCenterH(g, "任免理由", font, brush, x1, y13, x12, y14);
+            DrawInLeftAutoRow(g, person.RenMianLiYou, font, brush, x12, y13, x8, y14);
+
+            //家庭成员
+            int yFamily = y14;
+            List<Item> Items = person.JiaTingChengYuan;
+
+            //标题
+            g.DrawLine(pen, x11, yFamily, x11, yFamily + this.minHeight);
+            g.DrawLine(pen, x12, yFamily, x12, yFamily + this.minHeight);
+            g.DrawLine(pen, x13, yFamily, x13, yFamily + this.minHeight);
+            g.DrawLine(pen, x14, yFamily, x14, yFamily + this.minHeight);
+            g.DrawLine(pen, x15, yFamily, x15, yFamily + this.minHeight);
+            g.DrawLine(pen, x16, yFamily, x16, yFamily + this.minHeight);
+            g.DrawLine(pen, x17, yFamily, x17, yFamily + this.minHeight);
+            g.DrawLine(pen, x12, yFamily + this.minHeight, x17, yFamily + this.minHeight);
+
+            DrawInCenter(g, "称谓", font, brush, x12, yFamily, x13, yFamily + minHeight);
+            DrawInCenter(g, "姓  名", font, brush, x13, yFamily, x14, yFamily + minHeight);
+            DrawInCenterByLine(g, "年\r\n龄", font, brush, x14, yFamily, x15, yFamily + minHeight);
+            DrawInCenterByLine(g, "政  治\r\n面  貌", font, brush, x15, yFamily, x16, yFamily + minHeight);
+            DrawInCenter(g, "工 作 单 位 及 职 务", font, brush, x16, yFamily, x17, yFamily + minHeight);
+            yFamily = yFamily + this.minHeight;
+
+            int max = Items.Count;
+            if (max < maxFamilyCount)
+            {
+                max = maxFamilyCount;
+            }
+
+            for (int n = 0; n < max; n++)
+            {
+                int familyHeight = this.minHeight;
+                if (n < Items.Count)
                 {
-                    max = maxFamilyCount;
-                }
+                    Item item = Items[n];
+                    familyHeight = GetHeightBaseOnMinHeight(g, item.GongZuoDanWeiJiZhiWu, font, brush, x17 - x16);
 
-                for (int n = 0; n < max; n++)
-                {
-                    int familyHeight = this.minHeight;
-                    if (n < Items.Count)
+                    //绘制内容
+                    DrawInCenter(g, item.ChengWei, font, brush, x12, yFamily, x13, yFamily + familyHeight);
+                    DrawInCenterLimitInTwoLineOnAutoFontSize(g, item.XingMing/*.Replace("(", "\r\n(").Replace("（", "\r\n（")*/, font, brush, x13, yFamily, x14, yFamily + familyHeight);
+                    string strAge = "";
+                    if (!string.IsNullOrWhiteSpace(item.ChuShengRiQi) && RelationIsAlive(item.GongZuoDanWeiJiZhiWu))
                     {
-                        Item item = Items[n];
-                        familyHeight = GetHeightBaseOnMinHeight(g, item.GongZuoDanWeiJiZhiWu, font, brush, x17 - x16);
-
-                        //绘制内容
-                        DrawInCenter(g, item.ChengWei, font, brush, x12, yFamily, x13, yFamily + familyHeight);
-                    DrawName(g, item.XingMing.Replace("(", "\r\n(").Replace("（", "\r\n（"), font, brush, x13, yFamily, x14, yFamily + familyHeight);
-                        string strAge = "";
-                        if (!string.IsNullOrWhiteSpace(item.ChuShengRiQi))
-                        {
-                            strAge = CalAge(item.ChuShengRiQi).ToString();
-                        }
-                        DrawInCenter(g, strAge, font, brush, x14, yFamily, x15, yFamily + familyHeight);
-                        DrawInCenter(g, item.ZhengZhiMianMao, font, brush, x15, yFamily, x16, yFamily + familyHeight);
-                        DrawInLeftAutoRowBaseOnTwo(g, item.GongZuoDanWeiJiZhiWu, font, brush, x16, yFamily, x17, yFamily + familyHeight);
+                        strAge = CalAge(item.ChuShengRiQi).ToString();
                     }
-
-
-                    //绘制表格
-                    g.DrawLine(pen, x11, yFamily, x11, yFamily + familyHeight);
-                    g.DrawLine(pen, x12, yFamily, x12, yFamily + familyHeight);
-                    g.DrawLine(pen, x13, yFamily, x13, yFamily + familyHeight);
-                    g.DrawLine(pen, x14, yFamily, x14, yFamily + familyHeight);
-                    g.DrawLine(pen, x15, yFamily, x15, yFamily + familyHeight);
-                    g.DrawLine(pen, x16, yFamily, x16, yFamily + familyHeight);
-                    g.DrawLine(pen, x17, yFamily, x17, yFamily + familyHeight);
-                    g.DrawLine(pen, x12, yFamily + familyHeight, x17, yFamily + familyHeight);
-
-                    yFamily = yFamily + familyHeight;
+                    DrawInCenter(g, strAge, font, brush, x14, yFamily, x15, yFamily + familyHeight);
+                    DrawInCenter(g, item.ZhengZhiMianMao, font, brush, x15, yFamily, x16, yFamily + familyHeight);
+                    DrawInLeftAutoRowBaseOnTwo(g, item.GongZuoDanWeiJiZhiWu, font, brush, x16, yFamily, x17, yFamily + familyHeight);
                 }
 
-                //补充划线
-                g.DrawLine(pen, x11, yFamily, x12, yFamily);
-                DrawInCenterH(g, "家 庭 成 员 及 主 要 社 会 关 系", font, brush, x11, y14, x12, yFamily);
+
+                //绘制表格
+                g.DrawLine(pen, x11, yFamily, x11, yFamily + familyHeight);
+                g.DrawLine(pen, x12, yFamily, x12, yFamily + familyHeight);
+                g.DrawLine(pen, x13, yFamily, x13, yFamily + familyHeight);
+                g.DrawLine(pen, x14, yFamily, x14, yFamily + familyHeight);
+                g.DrawLine(pen, x15, yFamily, x15, yFamily + familyHeight);
+                g.DrawLine(pen, x16, yFamily, x16, yFamily + familyHeight);
+                g.DrawLine(pen, x17, yFamily, x17, yFamily + familyHeight);
+                g.DrawLine(pen, x12, yFamily + familyHeight, x17, yFamily + familyHeight);
+
+                yFamily = yFamily + familyHeight;
+            }
+
+            //补充划线
+            g.DrawLine(pen, x11, yFamily, x12, yFamily);
+            DrawInCenterH(g, "家 庭 成 员 及 主 要 社 会 关 系", font, brush, x11, y14, x12, yFamily);
 
 
-                g.DrawImage(b, 0, 0, imageWidth, imageHeight);
-                //b.Save(strPath);
+            g.DrawImage(b, 0, 0, imageWidth, imageHeight);
+            //b.Save(strPath);
             //}
             //catch(Exception Ex)
             //{
             //    b = null;
             //}
             return b;
+        }
+
+        private bool RelationIsAlive(string duty)
+        {
+            List<string> deadlist = new List<string>();
+            deadlist.Add("去世");
+            deadlist.Add("已逝");
+            deadlist.Add("逝世");
+            deadlist.Add("病故");
+            deadlist.Add("已故");
+            bool isalive = true;
+            foreach (string dead in deadlist)
+            {
+                if ((duty + "").Contains(dead))
+                {
+                    isalive = false;
+                }
+            }
+            return isalive;
         }
 
         private int GetFamilyTotalHeight(Graphics g, List<Item> Items, Font font, SolidBrush b, int width)
@@ -454,7 +496,7 @@ namespace ImgLocation.Services
         /// <summary>
         /// 绘制【简历】
         /// </summary>
-        private int DrawResume(Graphics g, string text, Font font, SolidBrush sbrush, int x, int y, int width,bool isDrawing)
+        private int DrawResume(Graphics g, string text, Font font, SolidBrush sbrush, int x, int y, int width, bool isDrawing)
         {
             //字体排版格式
             StringFormat sf = new StringFormat();
@@ -471,17 +513,23 @@ namespace ImgLocation.Services
 
             List<string> DrawingLines = new List<string>();
 
-            string[] ResumeLines = text.Split('\n');
+            string[] ResumeLines = text.Split('\n').Where(s => s.Length > 0).ToArray();//剔除空白行
 
 
-            foreach (string ResumeLine in ResumeLines)
+            for (int i = 0; i < ResumeLines.Length; i++)
             {
+                string ResumeLine = ResumeLines[i];
                 string SingleLineForDrawing = "";
                 string CurrentResumeLine = ResumeLine.Trim();
 
-                if (CurrentResumeLine.Length>0&&!Char.IsNumber(CurrentResumeLine[0])) //期间 段落直接缩进绘制
+                if (CurrentResumeLine.Length > 0 && !Char.IsNumber(CurrentResumeLine[0])) //期间 段落直接缩进绘制
                 {
                     SingleLineForDrawing = "                  ";
+                }
+
+                if (i == (ResumeLines.Length - 1) && CurrentResumeLine.Length > 0 && !Char.IsNumber(CurrentResumeLine[0]) && CurrentResumeLine[0] != '(' && CurrentResumeLine[0] != '（')
+                {
+                    DrawingLines.Add(" \r\n");
                 }
 
                 for (int k = 0; k < CurrentResumeLine.Length; k++)
@@ -489,14 +537,14 @@ namespace ImgLocation.Services
                     SizeF sizef = g.MeasureString(SingleLineForDrawing + CurrentResumeLine[k].ToString(), font, 10000, sf);
                     if (sizef.Width >= width)
                     {
-                        if(CurrentResumeLine[k-1]=='(' || CurrentResumeLine[k-1]=='（') //避免行末单左括号
+                        if (CurrentResumeLine[k - 1] == '(' || CurrentResumeLine[k - 1] == '（') //避免行末单左括号
                         {
                             char LineLastChar = SingleLineForDrawing[SingleLineForDrawing.Length - 1];
                             SingleLineForDrawing = SingleLineForDrawing.Substring(0, SingleLineForDrawing.Length - 1);
                             DrawingLines.Add(SingleLineForDrawing);
                             SingleLineForDrawing = "                  " + LineLastChar;
                         }
-                        else if(CurrentResumeLine[k] == ')' || CurrentResumeLine[k] == '）')//避免行首出现右括号
+                        else if (CurrentResumeLine[k] == ')' || CurrentResumeLine[k] == '）')//避免行首出现右括号
                         {
                             SingleLineForDrawing = SingleLineForDrawing + CurrentResumeLine[k].ToString();
                             DrawingLines.Add(SingleLineForDrawing);
@@ -504,16 +552,16 @@ namespace ImgLocation.Services
                         }
                         else if (IsCharCannotChangeLine(CurrentResumeLine[k]) && IsCharCannotChangeLine(CurrentResumeLine[k - 1])) //避免年月断行
                         {
-                            string NewLine= CurrentResumeLine[k].ToString();
+                            string NewLine = CurrentResumeLine[k].ToString();
                             int j = 0;
                             while (IsCharCannotChangeLine(CurrentResumeLine[k - j]) && IsCharCannotChangeLine(CurrentResumeLine[k - j - 1]))
                             {
-                                NewLine = SingleLineForDrawing[SingleLineForDrawing.Length - 1]+NewLine;
+                                NewLine = SingleLineForDrawing[SingleLineForDrawing.Length - 1] + NewLine;
                                 SingleLineForDrawing = SingleLineForDrawing.Substring(0, SingleLineForDrawing.Length - 1);
                                 j++;
                             }
                             DrawingLines.Add(SingleLineForDrawing);
-                            SingleLineForDrawing = "                  " + NewLine ;
+                            SingleLineForDrawing = "                  " + NewLine;
                         }
                         else
                         {
@@ -526,23 +574,20 @@ namespace ImgLocation.Services
                         SingleLineForDrawing = SingleLineForDrawing + CurrentResumeLine[k].ToString();
                     }
 
-                    if (k == CurrentResumeLine.Length - 1)
+                    if (k == CurrentResumeLine.Length - 1 && SingleLineForDrawing.Trim().Length>0)
                     {
                         DrawingLines.Add(SingleLineForDrawing);
                     }
                 }
             }
-            if(DrawingLines[DrawingLines.Count-1].Length>0 && !Char.IsNumber((DrawingLines[DrawingLines.Count - 1].Trim())[0]))
-            {
-                DrawingLines.Insert(DrawingLines.Count - 1, " \r\n");
-            }
+
             int x0 = x + 2;
             int y0 = y + font.Height;
 
             foreach (string line in DrawingLines)
             {
                 //判断是绘制图像还是计算高度。
-                if(isDrawing)
+                if (isDrawing)
                 {
                     g.DrawString(line, font, sbrush, x0, y0, sf);
                 }
@@ -556,11 +601,11 @@ namespace ImgLocation.Services
         }
         private bool IsCharCannotChangeLine(char c)
         {
-            if(Char.IsNumber(c))
+            if (Char.IsNumber(c))
             {
                 return true;
             }
-            else if(c=='(' || c=='（' || c == ')' || c == '）' || c =='.'||c=='-' || c == '—'|| c == ':' || c == '：' || c == '期' || c == '间' || c == '其')
+            else if (c == '(' || c == '（' || c == ')' || c == '）' || c == '.' || c == '-' || c == '—' || c == ':' || c == '：' || c == '期' || c == '间' || c == '其')
             {
                 return true;
             }
@@ -631,11 +676,10 @@ namespace ImgLocation.Services
             StringFormat sf = new StringFormat(StringFormat.GenericTypographic);
             //计算空格并且不支持换行
             sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces | StringFormatFlags.LineLimit;
+            //禁用文本换行功能
+            sf.FormatFlags |= StringFormatFlags.NoWrap;
 
             int fieldWidth = 0;//定义内容宽度
-
-            sf.FormatFlags |= StringFormatFlags.NoWrap;//禁用文本换行功能
-
 
             SizeF sizeF = g.MeasureString(text, font, width, sf);
 
@@ -777,7 +821,7 @@ namespace ImgLocation.Services
                 Font newFont = font;//依次减少字体
                 while (sizeF.Width >= width || sizeF.Height >= height)
                 {
-                    newFont = new Font(font.FontFamily, newFont.Size - 1,FontStyle.Bold);
+                    newFont = new Font(font.FontFamily, newFont.Size - 1, FontStyle.Bold);
                     sizeF = g.MeasureString(text, newFont, width, sf);
                 }
 
@@ -834,43 +878,39 @@ namespace ImgLocation.Services
             }
         }
 
-        private void DrawName(Graphics g, string name,  Font font, SolidBrush b, int x1, int y1, int x2, int y2)
+        private void DrawName(Graphics g, string name, Font font, SolidBrush b, int x1, int y1, int x2, int y2)
         {
             //字体排版格式
-            StringFormat sf = new StringFormat();
-            //居左显示
-            sf.Alignment = StringAlignment.Center;
-            //垂直居中
-            sf.LineAlignment = StringAlignment.Center;
-            //自动换行
-            sf.FormatFlags = StringFormatFlags.LineLimit;
-            //如果注销，不允许计算空格
-            sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
+            StringFormat sf = new StringFormat(StringFormat.GenericTypographic);
+
+            //计算空格并且不支持换行
+            sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces | StringFormatFlags.LineLimit;
+            sf.FormatFlags |= StringFormatFlags.NoWrap;//禁用文本换行功能
 
             int width = x2 - x1 - 1;
             int height = y2 - y1 - 1;
-         
 
-                SizeF sizeF = g.MeasureString(name, font, width, sf);
 
-                float x0 = x1;
-                float y0 = y1 + height / 2 - sizeF.Height / 2;
+            SizeF sizeF = g.MeasureString(name, font, width, sf);
 
-                float xStart = x0;
-                float yStart = y0 + 2;
+            float x0 = x1;
+            float y0 = y1 + height / 2 - sizeF.Height / 2;
 
-                Font newFont = font;//依次减少字体
-                while (sizeF.Width >= width || sizeF.Height >= height)
-                {
-                    newFont = new Font(font.FontFamily, newFont.Size - 1, FontStyle.Bold);
-                    sizeF = g.MeasureString(name, newFont, width, sf);
-                }
+            float xStart = x0;
+            float yStart = y0 + 2;
 
-                y0 = y1 + height / 2 - sizeF.Height / 2;
-                yStart = y0 + 2;
-                RectangleF rectangleF = new RectangleF(x0, yStart, sizeF.Width, sizeF.Height);
-                g.DrawString(name, newFont, b, rectangleF, sf);
-                //g.DrawRectangle(new Pen(new SolidBrush(Color.Red), 1.0f), x0, y0, sizeF.Width, sizeF.Height);
+            Font newFont = font;//依次减少字体
+            while (sizeF.Width >= width || sizeF.Height >= height)
+            {
+                newFont = new Font(font.FontFamily, newFont.Size - 1, FontStyle.Bold);
+                sizeF = g.MeasureString(name, newFont, width, sf);
+            }
+
+            y0 = y1 + height / 2 - sizeF.Height / 2;
+            yStart = y0 + 2;
+            RectangleF rectangleF = new RectangleF(x0, yStart, sizeF.Width, sizeF.Height);
+            g.DrawString(name, newFont, b, rectangleF, sf);
+            //g.DrawRectangle(new Pen(new SolidBrush(Color.Red), 1.0f), x0, y0, sizeF.Width, sizeF.Height);
         }
 
         /// <summary>
@@ -892,13 +932,13 @@ namespace ImgLocation.Services
             int width = x2 - x1 - 1;
             int height = y2 - y1 - 1;
 
-            SizeF sizeF = g.MeasureString(text, font,width, sf);
+            SizeF sizeF = g.MeasureString(text, font, width, sf);
 
             float xStart = x1;
             float yStart = y1;
-            if(sizeF.Height<height)
+            if (sizeF.Height < height)
             {
-                yStart += height / 2 - sizeF.Height / 2+10;
+                yStart += height / 2 - sizeF.Height / 2 + 10;
             }
             else
             {
@@ -1041,7 +1081,7 @@ namespace ImgLocation.Services
             Font newFont = font;//依次减少字体
             while (sizeF.Width >= (width - 2))
             {
-                newFont = new Font(font.FontFamily, newFont.Size - 1,FontStyle.Bold);
+                newFont = new Font(font.FontFamily, newFont.Size - 1, FontStyle.Bold);
                 sizeF = g.MeasureString(text, newFont, width, sf);
             }
 
@@ -1058,6 +1098,60 @@ namespace ImgLocation.Services
             //g.DrawString(text, font, sbrush, rectangleF, sf);
             //g.DrawRectangle(new Pen(new SolidBrush(Color.Red), 1.0f), x0, y0, sizeF.Width, sizeF.Height);
         }
+        private void DrawInCenterLimitInTwoLineOnAutoFontSize(Graphics g, string text, Font font, SolidBrush b, int x1, int y1, int x2, int y2)
+        {
+            //字体排版格式
+            StringFormat sf = new StringFormat();
+            //水平居中
+            sf.Alignment = StringAlignment.Center;
+            //垂直居中
+            sf.LineAlignment = StringAlignment.Center;
+            //自动换行
+            //sf.FormatFlags |= StringFormatFlags.LineLimit;
+            //如果注销，不允许计算空格
+            sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
+
+            int width = x2 - x1;// - 1;
+            int height = y2 - y1;// - 1;
+
+            SizeF sizeF = g.MeasureString(text, font, width, sf);
+
+            float xStart = x1;
+            float yStart = y1;
+            Font newFont = font;//依次减少字体
+
+            if (sizeF.Height<font.Height+5)
+            {
+                xStart +=width / 2 - sizeF.Width / 2 + 1;
+                yStart += height / 2 - sizeF.Height / 2 + 8;
+            }
+            else
+            {
+                int m = 1;
+                while (sizeF.Height > height)
+                {
+                    newFont = new Font(font.FontFamily, newFont.Size - 1, FontStyle.Bold);
+                    sf.Alignment = StringAlignment.Near;
+                    sizeF = g.MeasureString(text, newFont, width, sf);
+                    m += 1;
+                }
+                yStart += height / 2 - sizeF.Height / 2 +7-m%2;
+            }
+            //if (sizeF.Height < height)
+            //{
+            //    
+            //}
+            //else
+            //{
+            //    //＋5是按照经验值修正偏移量
+            //    yStart += 5;
+            //}
+
+            RectangleF rectangleF = new RectangleF(xStart, yStart, sizeF.Width, sizeF.Height);
+
+            g.DrawString(text,newFont, b, rectangleF, sf);
+        }
+
 
         /// <summary>
         /// 绘制【年度考核结果】
@@ -1143,7 +1237,7 @@ namespace ImgLocation.Services
             Font newFont = font;//依次减少字体
             while (sizeF.Width >= (width - 2))
             {
-                newFont = new Font(font.FontFamily, newFont.Size - 1,FontStyle.Bold);
+                newFont = new Font(font.FontFamily, newFont.Size - 1, FontStyle.Bold);
                 sizeF = g.MeasureString(text, newFont, width, sf);
             }
 
@@ -1178,7 +1272,7 @@ namespace ImgLocation.Services
             Font newFont = font;//依次减少字体
             while (sizeF.Width >= (width - 2))
             {
-                newFont = new Font(font.FontFamily, newFont.Size - 1,FontStyle.Bold);
+                newFont = new Font(font.FontFamily, newFont.Size - 1, FontStyle.Bold);
                 sizeF = g.MeasureString(text, newFont, width, sf);
             }
 

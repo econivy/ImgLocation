@@ -65,6 +65,7 @@ namespace ImgLocation.Services
                         i.ChuShengRiQi = this.AddDot(i.ChuShengRiQi);
                     }
 
+                    p.XingMing=p.XingMing.Replace(" ", "").Replace("　", "");
                     p.JianLi = p.JianLi.Replace("","");
 
                     if ((p.ZhaoPian + "").Trim().Length > 0)

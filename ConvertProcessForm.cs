@@ -68,27 +68,28 @@ namespace ImgLocation
         void LogRecord(string message, MessageType type)    //int type)
         {
             lblMessage.Text = message;
-            //tbLog.Text += string.Format("[{0}]{1}\r\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), message);
-
-            //tbLog.SelectionStart = tbLog.Text.Length;
-            //tbLog.Select();
-            //tbLog.ScrollToCaret();
-
-            //tbError.SelectionStart = tbError.Text.Length;
-            //tbError.Select();
-            //tbError.ScrollToCaret();
-
+            tbLog.AppendText(string.Format("[{0}]{1}\r\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), message));
+            tbLog.Focus();//获取焦点
+            tbLog.Select(tbLog.TextLength, 0);//光标定位到文本最后           
+            tbLog.ScrollToCaret();
             switch (type)
             {
                 case MessageType.Error:
-                    tbError.Text += string.Format("[错误]{0}\r\n", message);
+                    tbError.AppendText(string.Format("[错误]{0}\r\n", message));
+                    tbError.Focus();//获取焦点
+                    tbError.Select(tbError.TextLength, 0);//光标定位到文本最后           
+                    tbError.ScrollToCaret();
                     break;
                 case MessageType.Warnning:
-                    tbError.Text += string.Format("[警告]{0}\r\n", message);
+                    tbError.AppendText( string.Format("[警告]{0}\r\n", message));
+                    tbError.Focus();//获取焦点
+                    tbError.Select(tbError.TextLength, 0);//光标定位到文本最后           
+                    tbError.ScrollToCaret();
                     break;
                 default:
                     break;
             }
+
         }
 
         public DialogResult ShowMessage(string message)
@@ -416,10 +417,10 @@ namespace ImgLocation
             using (DataRepository dr = new DataRepository(Global.ProjectOutputDbPath))
             {
                 LogRecord(string.Format("[正在读取文档]{0}", d.Local_SourceDocumnetFullpath));
-                //try
-                //{
-                //DW对象必须指定source属性
-                if ((d.Local_SourceDocumnetFullpath + "").Trim().Length > 0)
+                try
+                {
+                    //DW对象必须指定source属性
+                    if ((d.Local_SourceDocumnetFullpath + "").Trim().Length > 0)
                 {
                     LogRecord(string.Format("[正在转换文档]{0}:识别文档中的干部姓名，另存为PDF文件。", Path.GetFileName(d.Local_SourceDocumnetFullpath)));
                     //转换成PDF，需要调整函数，明确是否需要识别文档中的干部
@@ -822,35 +823,35 @@ namespace ImgLocation
                         }
                     }
 
-                    //现有模式下一般不会在产生空白页，因此这段代码废弃
-                    //移除空白页
-                    Bitmap QuestionImage = (Bitmap)Image.FromFile(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]);
-                    bool question = true;
-                    for(int h=0;h<QuestionImage.Height;h++)
-                    {
-                        Color p = QuestionImage.GetPixel(1116, h);
-                        Color p2 = QuestionImage.GetPixel(1232, h);
-                        Color p3 = QuestionImage.GetPixel(1348, h);
-                        if((p.R==p2.R&&p2.R==p3.R &&p.G==p2.G&&p2.G==p3.G&&p.B==p2.B&&p2.B==p3.B)&&((p.R>200&&p.G>200&&p.B>200)||(p.R<50&&p.G>200&&p.B<50)))
-                        {
-                            h++;
-                        }
-                        else
-                        {
-                            question = false;
-                            break;
-                        }
-                    }
-                    if(question&& File.Exists(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]))
-                    {
-                        QuestionImage.Dispose();
-                        File.Delete(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]);
-                        d.DocumentImageCount -= 1;
-                    }
-                    else
-                    {
-                        QuestionImage.Dispose();
-                    }
+                    ////现有模式下一般不会在产生空白页，因此这段代码废弃
+                    ////移除空白页
+                    //Bitmap QuestionImage = (Bitmap)Image.FromFile(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]);
+                    //bool question = true;
+                    //for(int h=0;h<QuestionImage.Height;h++)
+                    //{
+                    //    Color p = QuestionImage.GetPixel(1116, h);
+                    //    Color p2 = QuestionImage.GetPixel(1232, h);
+                    //    Color p3 = QuestionImage.GetPixel(1348, h);
+                    //    if((p.R==p2.R&&p2.R==p3.R &&p.G==p2.G&&p2.G==p3.G&&p.B==p2.B&&p2.B==p3.B)&&((p.R>200&&p.G>200&&p.B>200)||(p.R<50&&p.G>200&&p.B<50)))
+                    //    {
+                    //        h++;
+                    //    }
+                    //    else
+                    //    {
+                    //        question = false;
+                    //        break;
+                    //    }
+                    //}
+                    //if(question&& File.Exists(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]))
+                    //{
+                    //    QuestionImage.Dispose();
+                    //    File.Delete(d.DocumentImageFileFullPaths[d.DocumentImageCount - 1]);
+                    //    d.DocumentImageCount -= 1;
+                    //}
+                    //else
+                    //{
+                    //    QuestionImage.Dispose();
+                    //}
                     GC.Collect();
                     ConvertProcess.Value = ConvertProcess.Value + 5;
                 }
@@ -858,11 +859,11 @@ namespace ImgLocation
                 {
                     d.DocumentImageCount = 0;
                 }
-                //}
-                //catch (Exception ex)
-                //{
-                //    ShowMessage(string.Format("[转换文档{0}发生错误]，{1}", d.DocumentImageFileFullPaths, ex.Message), MessageType.Error);
-                //}
+                }
+                catch (Exception ex)
+                {
+                    ShowMessage(string.Format("[转换文档{0}发生错误]，{1}", d.DocumentImageFileFullPaths, ex.Message), MessageType.Error);
+                }
                 dr.EditDW(d);
             }
 

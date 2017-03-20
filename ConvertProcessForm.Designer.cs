@@ -51,8 +51,7 @@
             // 
             // tbLog
             // 
-            this.tbLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.tbLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbLog.BackColor = System.Drawing.SystemColors.Window;
             this.tbLog.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -60,9 +59,8 @@
             this.tbLog.Multiline = true;
             this.tbLog.Name = "tbLog";
             this.tbLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbLog.Size = new System.Drawing.Size(634, 26);
+            this.tbLog.Size = new System.Drawing.Size(1153, 171);
             this.tbLog.TabIndex = 2;
-            this.tbLog.Visible = false;
             // 
             // tbError
             // 
@@ -76,7 +74,7 @@
             this.tbError.Multiline = true;
             this.tbError.Name = "tbError";
             this.tbError.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbError.Size = new System.Drawing.Size(1026, 422);
+            this.tbError.Size = new System.Drawing.Size(1153, 425);
             this.tbError.TabIndex = 3;
             // 
             // ConvertProcess
@@ -85,7 +83,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ConvertProcess.Location = new System.Drawing.Point(70, 37);
             this.ConvertProcess.Name = "ConvertProcess";
-            this.ConvertProcess.Size = new System.Drawing.Size(966, 23);
+            this.ConvertProcess.Size = new System.Drawing.Size(1093, 23);
             this.ConvertProcess.TabIndex = 4;
             // 
             // label2
@@ -100,7 +98,7 @@
             // btnClose
             // 
             this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClose.Location = new System.Drawing.Point(961, 517);
+            this.btnClose.Location = new System.Drawing.Point(1088, 691);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
             this.btnClose.TabIndex = 7;
@@ -118,11 +116,11 @@
             this.picLoading.TabIndex = 0;
             this.picLoading.TabStop = false;
             // 
-            // ConvertPadDataForm
+            // ConvertProcessForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1048, 552);
+            this.ClientSize = new System.Drawing.Size(1175, 726);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.ConvertProcess);
@@ -130,7 +128,7 @@
             this.Controls.Add(this.tbLog);
             this.Controls.Add(this.lblMessage);
             this.Controls.Add(this.picLoading);
-            this.Name = "ConvertPadDataForm";
+            this.Name = "ConvertProcessForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PDF文件转换";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;

@@ -36,16 +36,17 @@ namespace ImgLocation.UnitTest
                     }
                 }
             }
-            List<string> paths = new List<string>();
-            int count = 10;
-            Random r = new Random();
-            while(count>0)
-            {
-                paths.Add(LrmxPaths[r.Next(LrmxPaths.Count)]);
-                count--;
-            }
+            //List<string> paths = new List<string>();
+            //int count = 10;
+            //Random r = new Random();
+            //while(count>0)
+            //{
+            //    paths.Add(LrmxPaths[r.Next(LrmxPaths.Count)]);
+            //    count--;
+            //}
             List<Image> images = new List<Image>();
-            foreach( string path in paths)
+            //foreach( string path in paths)
+            foreach (string path in LrmxPaths)
             {
                 LrmHelper l = new LrmHelper();
                 LrmToImage lti = new LrmToImage();
