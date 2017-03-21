@@ -366,30 +366,8 @@ namespace ImgLocation
                 List<DW> ds = dr.GetAllDWs();
                 foreach (DW d in ds.OrderBy(dd => dd.Rank))
                 {
-                    TreeNode td = new TreeNode();
-                    td.Tag = d;
-
-                    td.Text = d.XH.Trim().Length > 0 ? d.XH + "." + d.MC : d.MC;
-                    if(d.WH.Trim().Length > 0)
-                    {
-                        td.Text += string.Format("（{0}）", d.WH);
-                    }
-                    if (d.GBS.Any(dg => dg.LrmImageCount == 0))
-                    {
-                        td.Text += string.Format("***文档中{0}个任免审图像不存在***", d.GBS.Count(dg => dg.LrmImageCount == 0).ToString());
-                        td.ForeColor = Color.Red;
-                    }
-
-                    foreach (GB g in d.GBS.OrderBy(gg => gg.Rank))
-                    {
-                        TreeNode tg = new TreeNode();
-                        tg.ImageIndex = 1;
-                        tg.Text = g.XM;
-                        tg.Tag = g;
-                        tg.ForeColor = g.LrmImageCount > 0? Color.Black:Color.Red;
-                        //tg.ToolTipText = string.Format("{0},任免表信息：[{1}]；文件任免信息：[{2}]；相似度：[{3}]。", g.XM, g.RESUUID + "", g.SPBUUID + "", g.XSD + "");
-                        td.Nodes.Add(tg);
-                    }
+                    TreeNode td = CreateDocumentTreenode(d);
+                  
                     TreeDW.Nodes.Add(td);
                 }
                 TreeDW.ExpandAll();
@@ -455,7 +433,7 @@ namespace ImgLocation
 
             checkShowWord.Checked = sr.ReadSystemConfig(701).Trim().Length > 0 ? sr.ReadSystemConfig(701) == "是" : true;
             checkShowError.Checked = sr.ReadSystemConfig(702).Trim().Length > 0 ? sr.ReadSystemConfig(702) == "是" : true;
-            checkUseLrmImageModel.Checked= sr.ReadSystemConfig(801).Trim().Length > 0 ? sr.ReadSystemConfig(801) == "是" : true;
+            checkUseLrmImageModel.Checked = sr.ReadSystemConfig(801).Trim().Length > 0 ? sr.ReadSystemConfig(801) == "是" : true;
         }
         private void iConvertPadData_Click(object sender, EventArgs e)
         {
@@ -480,7 +458,7 @@ namespace ImgLocation
             //Project p = Global.LoadDefaultProject();
             DataRepository sr = new DataRepository(Global.ProjectOutputDbPath);
             List<DW> ldw = sr.GetAllDWs();
-            if (DialogResult.OK==MessageBox.Show(string.Format("是否转换当前项目：{0}，共存在{1}个文档。",Global.ProjectName,ldw.Count),"是否开始转换项目为存档PDF",MessageBoxButtons.OKCancel,MessageBoxIcon.Question))
+            if (DialogResult.OK == MessageBox.Show(string.Format("是否转换当前项目：{0}，共存在{1}个文档。", Global.ProjectName, ldw.Count), "是否开始转换项目为存档PDF", MessageBoxButtons.OKCancel, MessageBoxIcon.Question))
             {
                 ConvertProcessForm cpf = new ConvertProcessForm();
                 cpf.FatherForm = this;
@@ -502,10 +480,10 @@ namespace ImgLocation
                 {
                     DataRepository dr = new DataRepository(Global.ProjectOutputDbPath);
                     List<OrderDW> DWsForOrder = new List<OrderDW>();
-                    foreach(DW d in dr.GetAllDWs())
+                    foreach (DW d in dr.GetAllDWs())
                     {
                         OrderDW odw = new OrderDW();
-                        odw.OriDW= d;
+                        odw.OriDW = d;
                         try
                         {
                             string stri = d.WH.Split('〕')[1].Split('号')[0];
@@ -518,8 +496,8 @@ namespace ImgLocation
                         }
                         DWsForOrder.Add(odw);
                     }
-                    DWsForOrder= DWsForOrder.OrderBy(dfo => dfo.R).ToList();
-                    for(int i = 0; i < DWsForOrder.Count; i++)
+                    DWsForOrder = DWsForOrder.OrderBy(dfo => dfo.R).ToList();
+                    for (int i = 0; i < DWsForOrder.Count; i++)
                     {
                         DW d = DWsForOrder[i].OriDW;
                         d.Rank = i + 101;
@@ -555,7 +533,7 @@ namespace ImgLocation
                     tn.Tag = d;
 
                     tn.Text = d.XH.Trim().Length > 0 ? d.XH + "." + d.MC : d.MC;
-                    if(d.WH.Length>0)
+                    if (d.WH.Length > 0)
                     {
                         tn.Text += string.Format("（{0}）", d.WH);
                     }
@@ -567,7 +545,7 @@ namespace ImgLocation
                     tp.Tag = dp;
 
                     tp.Text = dp.XH.Trim().Length > 0 ? dp.XH + "." + dp.MC : dp.MC;
-                    if(dp.WH.Length>0)
+                    if (dp.WH.Length > 0)
                     {
                         tp.Text += string.Format("（{0}）", dp.WH);
                     }
@@ -599,7 +577,7 @@ namespace ImgLocation
                     tnn.Tag = dn;
 
                     tnn.Text = dn.XH.Trim().Length > 0 ? dn.XH + "." + dn.MC : dn.MC;
-                    if(dn.WH.Length>0)
+                    if (dn.WH.Length > 0)
                     {
                         tn.Text += string.Format("（{0}）", dn.WH);
                     }
@@ -682,7 +660,7 @@ namespace ImgLocation
                         c.CountDate = this.iCountDate.Value;
                         c.Show();
                         //添加单子时忽视是否替换文档页码范围和查找干部信息
-                        d = c.ConvertSingleDocument(df.document,string.Empty,true);
+                        d = c.ConvertSingleDocument(df.document, string.Empty, true);
                         dr.EditDW(df.document);
                     }
                     else
@@ -1121,10 +1099,13 @@ namespace ImgLocation
                                 //dr.EditGB(gb);
                                 d.GBS.Add(gb);
                                 dr.EditDW(d);
-
                                 convertHelper.UpdateDataId();
 
-                                TreeDW.SelectedNode = t;
+                                TreeNode tnew = CreateDocumentTreenode(d);
+                                TreeDW.Nodes.Insert(t.Index, tnew);
+                                TreeDW.Nodes.Remove(t);
+                                TreeDW.SelectedNode = tnew;
+                                tnew.Expand();
                                 LoadImage();
                             }
                             break;
@@ -1136,14 +1117,41 @@ namespace ImgLocation
                 checkDrawPoint.Checked = false;
             }
         }
+        private TreeNode CreateDocumentTreenode(DW d)
+        {
+            TreeNode td = new TreeNode();
+            td.Tag = d;
 
+            td.Text = d.XH.Trim().Length > 0 ? d.XH + "." + d.MC : d.MC;
+            if (d.WH.Trim().Length > 0)
+            {
+                td.Text += string.Format("（{0}）", d.WH);
+            }
+            if (d.GBS.Any(dg => dg.LrmImageCount == 0 && dg.OtherImageCount == 0))
+            {
+                td.Text += string.Format("***文档中{0}个任免审图像不存在***", d.GBS.Count(dg => dg.LrmImageCount == 0 && dg.OtherImageCount == 0).ToString());
+                td.ForeColor = Color.Red;
+            }
+
+            foreach (GB g in d.GBS.OrderBy(gg => gg.Rank))
+            {
+                TreeNode tg = new TreeNode();
+                tg.ImageIndex = 1;
+                tg.Text = g.XM;
+                tg.Tag = g;
+                tg.ForeColor = g.LrmImageCount > 0 ? Color.Black : Color.Red;
+                //tg.ToolTipText = string.Format("{0},任免表信息：[{1}]；文件任免信息：[{2}]；相似度：[{3}]。", g.XM, g.RESUUID + "", g.SPBUUID + "", g.XSD + "");
+                td.Nodes.Add(tg);
+            }
+            return td;
+        }
 
         private void checkDrawPoint_CheckedChanged(object sender, EventArgs e)
         {
             if (checkDrawPoint.Checked)
             {
                 TreeNode t = TreeDW.SelectedNode;
-                if (t!=null&&t.Level != 0)
+                if (t != null && t.Level != 0)
                 {
                     MessageBox.Show("只有选择文档页面时，才能手动绘制触发点");
                     checkDrawPoint.Checked = false;
@@ -1163,7 +1171,7 @@ namespace ImgLocation
             {
                 sr.WriteSystemConfig(701, "ShowWord", "否");
             }
-           
+
             Global.RefreshParams();
             Global.ValidateDirectory();
         }

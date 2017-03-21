@@ -22,6 +22,7 @@ using System.Windows.Xps.Packaging;
 using Word = Microsoft.Office.Interop.Word;
 using iText = iTextSharp.text;
 using iTextPdf = iTextSharp.text.pdf;
+using System.Drawing.Drawing2D;
 
 namespace ImgLocation
 {
@@ -735,7 +736,7 @@ namespace ImgLocation
                     DWInfoes.Add(dwi);
 
                     LogRecord(string.Format("[正在转换文档]{0}：将文档转换成图片并进行裁剪。", Path.GetFileName(d.Local_SourceDocumnetFullpath)));
-                    List<Bitmap> DocumentPageImages = ConvertXPSToBitmapList(d.Local_StorgeDocumentPdfFullpath, convertPageIndexes);
+                    List<Bitmap> DocumentPageImages = ConvertXPSToBitmapList(d.Local_StorgeDocumentPdfFullpath, convertPageIndexes,true);
                     for (int i = DocumentPageImages.Count > 1 ? DocumentPageImages.Count - 2 : 0; i < DocumentPageImages.Count; i++)
                     {
                         //切除文档底部白边 只判断最后两页
@@ -1046,7 +1047,7 @@ namespace ImgLocation
 
                     File.Copy(g.Local_SourceResFullpath, g.Local_StorgeResFullpath, true);
                     FormatResDocumentSaveAsPDF(g);
-                    List<Bitmap> bmps = ConvertXPSToBitmapList(g.Local_StorgeResPdfFullPath, new List<int>());
+                    List<Bitmap> bmps = ConvertXPSToBitmapList(g.Local_StorgeResPdfFullPath, new List<int>(),true);
 
                     //20170216 合并图像不再存储、分图像的本地存储路径通过ResImageFileFullPaths属性获取
                     //g.ResImageCount = bmps.Count;
@@ -1079,15 +1080,15 @@ namespace ImgLocation
             //转换其他文档
             if (g.Local_SourceOtherFullpath != null && (g.Local_SourceOtherFullpath + string.Empty).Trim().Length > 0 && File.Exists(g.Local_SourceOtherFullpath))
             {
-                try
-                {
+                //try
+                //{
                     g.Other_Guid = Guid.NewGuid().ToString();
                     //g.OtherImageFilename = string.Format("{0}_03_{1}.{2}", g.XM, g.Res_Guid, Global.ImgFormat.ToString().ToLower())
                     //    .Replace(" ", "").Replace("　", "")
                     //    .Replace("\r", "").Replace("\n", "")
                     //    .Replace("\v", "").Replace("\f", "").Replace("\t", "");
                     File.Copy(g.Local_SourceOtherFullpath, g.Local_StorgeOtherFullpath, true);
-                    List<Bitmap> bmps = ConvertXPSToBitmapList(g.Local_StorgeOtherFullpath, new List<int>());
+                    List<Bitmap> bmps = ConvertXPSToBitmapList(g.Local_StorgeOtherFullpath, new List<int>(),false);
 
                     g.OtherImageCount = bmps.Count;
                     for (int i = 0; i < g.OtherImageCount; i++)
@@ -1099,13 +1100,13 @@ namespace ImgLocation
                     }
                     bmps.Clear();
 
-                }
-                catch (Exception ex)
-                {
-                    ShowMessage(string.Format("[转换干部其他材料失败:{0}]，{1}", g.Local_StorgeOtherFullpath, ex.Message), MessageType.Error);
+            //}
+            //    catch (Exception ex)
+            //{
+            //    ShowMessage(string.Format("[转换干部其他材料失败:{0}]，{1}", g.Local_StorgeOtherFullpath, ex.Message), MessageType.Error);
 
-                }
-            }
+            //}
+        }
             else
             {
                 g.OtherImageCount = 0;
@@ -2073,7 +2074,7 @@ namespace ImgLocation
             }
             return DocumentPdfPageImages;
         }
-        private List<Bitmap> ConvertXPSToBitmapList(string xpsPath, List<int> ConvertPageIndexes)
+        private List<Bitmap> ConvertXPSToBitmapList(string xpsPath, List<int> ConvertPageIndexes,bool IsCutRouned)
         {
             //页面初始图像集
             List<Bitmap> bmps = new List<Bitmap>();
@@ -2106,14 +2107,23 @@ namespace ImgLocation
                         bitmapEncoder.Save(memoryStream);
                         Bitmap xpsPageBitmap = new Bitmap(memoryStream);
 
-                        //裁切固定白边
-                        int VerticalCutPixel = Convert.ToInt32(xpsPageBitmap.Height * Global.VerticalCutSize / 297);
-                        int HorizontalCutPixel = Convert.ToInt32(xpsPageBitmap.Width * Global.HorizontalCutSize / 210);
-                        Bitmap pdfCutBitmap = CutRoundBitmap(xpsPageBitmap, VerticalCutPixel, HorizontalCutPixel);
 
-                        bmps.Add(pdfCutBitmap);
-                        memoryStream.Dispose();
+                        if(IsCutRouned)
+                        {
+                            //裁切固定白边
+                            int VerticalCutPixel = Convert.ToInt32(xpsPageBitmap.Height * Global.VerticalCutSize / 297);
+                            int HorizontalCutPixel = Convert.ToInt32(xpsPageBitmap.Width * Global.HorizontalCutSize / 210);
+                            Bitmap pdfCutBitmap = CutRoundBitmap(xpsPageBitmap, VerticalCutPixel, HorizontalCutPixel);
+                            bmps.Add(pdfCutBitmap);
+                            xpsPageBitmap.Dispose();
+                        }
+                        else
+                        {
+                            Bitmap pdfCutBitmap = ResizeBitmap(xpsPageBitmap);
+                            bmps.Add(pdfCutBitmap);
+                        }
                         xpsPageBitmap.Dispose();
+                        memoryStream.Dispose();
                     }
                 }
                 else
@@ -2139,18 +2149,39 @@ namespace ImgLocation
                         bitmapEncoder.Save(memoryStream);
                         Bitmap xpsPageBitmap = new Bitmap(memoryStream);
 
-                        //裁切固定白边
-                        int VerticalCutPixel = Convert.ToInt32(xpsPageBitmap.Height * Global.VerticalCutSize / 297);
-                        int HorizontalCutPixel = Convert.ToInt32(xpsPageBitmap.Width * Global.HorizontalCutSize / 210);
-                        Bitmap pdfCutBitmap = CutRoundBitmap(xpsPageBitmap, VerticalCutPixel, HorizontalCutPixel);
-
-                        bmps.Add(pdfCutBitmap);
-                        memoryStream.Dispose();
+                        if (IsCutRouned)
+                        {
+                            //裁切固定白边
+                            int VerticalCutPixel = Convert.ToInt32(xpsPageBitmap.Height * Global.VerticalCutSize / 297);
+                            int HorizontalCutPixel = Convert.ToInt32(xpsPageBitmap.Width * Global.HorizontalCutSize / 210);
+                            Bitmap pdfCutBitmap = CutRoundBitmap(xpsPageBitmap, VerticalCutPixel, HorizontalCutPixel);
+                            bmps.Add(pdfCutBitmap);
+                        }
+                        else
+                        {
+                            Bitmap pdfCutBitmap = ResizeBitmap(xpsPageBitmap);
+                            bmps.Add(pdfCutBitmap);
+                        }
                         xpsPageBitmap.Dispose();
+                        memoryStream.Dispose();
                     }
                 }
             }
             return bmps;
+        }
+        private Bitmap ResizeBitmap(Bitmap sourceBitmap)
+        {
+            int nowWidth = 2600;
+            int nowHeight = (int)(nowWidth * (((double)(sourceBitmap.Height)) / ((double)(sourceBitmap.Width))));
+            Bitmap new_Bitmap = new Bitmap(nowWidth, nowHeight);//新建一个放大后大小的图片
+
+            Graphics g = Graphics.FromImage(new_Bitmap);
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.SmoothingMode = SmoothingMode.HighQuality;
+            g.CompositingQuality = CompositingQuality.HighQuality;
+            g.DrawImage(sourceBitmap, new Rectangle(0, 0, nowWidth, nowHeight), new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height), GraphicsUnit.Pixel);
+            g.Dispose();
+            return new_Bitmap;
         }
         private List<Bitmap> ConvertLrmXPSToBitmapList(string xpsPath)
         {

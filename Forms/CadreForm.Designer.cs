@@ -225,7 +225,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(35, 12);
             this.label1.TabIndex = 12;
-            this.label1.Text = "pdf：";
+            this.label1.Text = "xps：";
             // 
             // lblOther
             // 
